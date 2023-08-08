@@ -9,7 +9,7 @@ namespace EU4_Parse_Lib
     {
         private int moveAmount = 50;
         private int currentOffset = 0;
-        private Rectangle displayRect;
+        public Rectangle displayRect;
         private int maxXOffset;
         private int maxYOffset;
 
@@ -26,11 +26,15 @@ namespace EU4_Parse_Lib
 
         private void CalculateMaxOffsets()
         {
+            if (Vars.Map == null) 
+                return;
             maxXOffset = Vars.Map.Width - Map.Width;
             maxYOffset = Vars.Map.Height - Map.Height;
         }
         private void ResetDisplayRect()
         {
+            if (Vars.Map == null)
+                return;
             var centerX = (Vars.Map.Width - Map.Width + 400) / 2;
             var centerY = (Vars.Map.Height - Map.Height - 1000) / 2;
 
@@ -38,10 +42,12 @@ namespace EU4_Parse_Lib
         }
         private void UpdateDisplayedImage()
         {
+            if (Vars.Map == null)
+                return;
             var displayedBitmap = Vars.Map.Clone(displayRect, Vars.Map.PixelFormat);
             Map.Image = displayedBitmap;
         }
-        private void MoveBitmap(int dx, int dy)
+        public void MoveBitmap(int dx, int dy)
         {
             var newX = displayRect.X + dx;
             var newY = displayRect.Y + dy;
@@ -77,6 +83,8 @@ namespace EU4_Parse_Lib
         }
         public void SetPixel(int x, int y, Color newColor)
         {
+            if (Vars.Map == null)
+                return;
             if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height) 
                 return;
             Vars.Map.SetPixel(x, y, newColor);
@@ -85,24 +93,25 @@ namespace EU4_Parse_Lib
 
         private void Map_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right) 
+            if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right || Vars.Map == null)
                 return;
             var x = e.X + displayRect.X;
             var y = e.Y + displayRect.Y;
 
-            if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height) 
+            if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
                 return;
             var color = Vars.Map.GetPixel(x, y);
 
             Debug.WriteLine($"Pixel Color: R = {color.R}, G = {color.G}, B = {color.B}");
-            if (color.Equals(Color.FromArgb(255,0,0,0)))
+            if (color.Equals(Color.FromArgb(255, 0, 0, 0)))
                 return;
 
             if (e.Button == MouseButtons.Left)
             {
-                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
-                var map = new Bitmap(combinedPath);
-                Vars.Map = map;
+                foreach (var pro in Vars.SelecteProvinces)
+                {
+                    Util.SetProvinceBorder(pro, pro.color);
+                }
                 Vars.SelecteProvinces.Clear();
                 var p = Vars.provinces[Vars.colorIds[color]];
                 Util.NextProvince(p);
@@ -112,8 +121,12 @@ namespace EU4_Parse_Lib
             {
                 var p = Vars.provinces[Vars.colorIds[color]];
                 Vars.SelecteProvinces.Add(p);
-                Util.SetBorder(p, Color.Black);
+                Util.SetProvinceBorder(p, Color.Black);
             }
+
+            // Clear references to objects that are no longer needed
+            GC.Collect(); // Explicitly trigger garbage collection
         }
+
     }
 }

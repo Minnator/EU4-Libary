@@ -12,13 +12,15 @@ namespace EU4_Parse_Lib.DataClasses
         public int ID;
         
         public Color color;
-
+        public Color currentColor;
+        //Convert to Hashmaps
         public List<Point> pixels = new ();
         public List<Point> border = new ();
 
         public Province (Color col) 
         { 
             color = col;
+            currentColor = color;
         }
 
         public void AddToPixels(IEnumerable<Point> p)

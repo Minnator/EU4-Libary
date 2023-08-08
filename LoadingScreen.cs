@@ -18,6 +18,8 @@ namespace EU4_Parse_Lib
             Application.EnableVisualStyles();
             InitializeComponent();
             
+            Saving.WriteLog(string.Empty, "TimeComplexity");
+
             Vars.appPath = Application.ExecutablePath.Replace("EU4 Parse Lib.exe", "");
 
 

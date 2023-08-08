@@ -21,9 +21,9 @@ public static class Saving
         writer.Flush();
         writer.Close();
     }
-    public static void WriteLog(string text, string filename)
+    public static void WriteLog(string text, string filename, bool append = false)
     {
-        var streamWriter = new StreamWriter(Vars.appPath + $"{filename}.txt");
+        var streamWriter = new StreamWriter(Vars.appPath + $"{filename}.txt", append);
         streamWriter.WriteLine(text);
         streamWriter.Close();
     }

@@ -10,8 +10,8 @@ namespace EU4_Parse_Lib
     {
         public static void LoadAll()
         {
-            Vars.LoadingForm.LoadingMapDataRB.BackColor = Color.Orange; 
-            Vars.LoadingForm.ProgressBox.Text = "Loading Map Data";
+            //Vars.LoadingForm.LoadingMapDataRB.BackColor = Color.Orange; 
+            //Vars.LoadingForm.ProgressBox.Text = "Loading Map Data";
             LoadMapData();
             //Vars.loadingForm.LoadingMapDataRB.ResetBackColor();
         }
