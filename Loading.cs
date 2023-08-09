@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 using EU4_Parse_Lib.DataClasses;
 
 namespace EU4_Parse_Lib
@@ -30,29 +31,143 @@ namespace EU4_Parse_Lib
             Vars.stopwatch.Stop();
             Vars.TimeStamps.Add($"Time Elapsed Borders:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
             Vars.stopwatch.Reset();
-
             Vars.stopwatch.Start();
-            DebugPrints.PrintProvincesBorder(Vars.provinces);
+            LoadDefaultMap();
+            Vars.stopwatch.Stop();
+            Vars.TimeStamps.Add($"Time Elapsed default.map:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
+            Vars.stopwatch.Reset();Vars.stopwatch.Start();
+            LoadAreas();
+            Vars.stopwatch.Stop();
+            Vars.TimeStamps.Add($"Time Elapsed Areas:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
+            Vars.stopwatch.Reset();
+            Vars.stopwatch.Start();
+            DebugPrints.PrintProvincesBorder(Vars.Provinces);
             DebugPrints.PrintProvColDirectory(pixDic);
-            DebugPrints.PrintProvincesEmpty(Vars.provinces);
-            DebugPrints.PrintProvincesUnused(Vars.notOnMapProvs);
-            DebugPrints.PrintColorsToIds(Vars.colorIds);
+            DebugPrints.PrintProvincesEmpty(Vars.Provinces);
+            DebugPrints.PrintProvincesUnused(Vars.NotOnMapProvinces);
+            DebugPrints.PrintColorsToIds(Vars.ColorIds);
+            DebugPrints.PrintAreas(Vars.Areas);
+            DebugPrints.PrintProvinceList();
             Vars.stopwatch.Stop();
             Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
             Vars.stopwatch.Reset();
             Saving.WriteLog(Vars.TimeStamps.ListToString(), "TimeComplexity");
-            return;
         }
 
+        public static void LoadAreas()
+        {
+            var path = Util.GetModOrVanillaPathFile(Path.Combine("map", "area.txt"));
+            var newContent = Reading.ReadFileUTF8Lines(path);
+
+            List<string> contentList = new ();
+            foreach (var line in newContent)
+            {
+                if (line != null && !(line.StartsWith('#') || line.Contains("color")))
+                    contentList.Add(line);
+            }
+
+            var content = contentList.ListToString();
+            Saving.WriteLog(content, "AreaContent");
+
+            Dictionary<string, Area> areas = new();
+
+            var matches = Regex.Matches(content, @"(?<name>[A-Za-z_]*)\s*=\s*{.*(?<provinces>[^\}|^#]*)");
+            foreach (var match in matches.Cast<Match>())
+            {
+                Area area = new ();
+                var name = match.Groups["name"].Value;
+                area.Name = name;
+                area.Provinces = Util.GetProvincesList(match.Groups["provinces"].Value);
+                areas.Add(name, area);
+            }
+            Vars.Areas = areas;
+        }
+        private static void LoadDefaultMap()
+        {
+            var path = Util.GetModOrVanillaPathFile(Path.Combine("map", "default.map"));
+            var content = Reading.ReadFileUTF8(path);
+            const string pattern = @"\bmax_provinces\b\s+=\s+(?<maxProv>\d*)\s*\bsea_starts\b\s+=\s+{(?<seaProvs>[^\}]*)}[.\s\S]*\bonly_used_for_random\b\s+=\s+{(?<RnvProvs>[^\}]*)}[.\s\S]*\blakes\b\s+=\s+{(?<LakeProvs>[^\}]*)}[.\s\S]*\bforce_coastal\b\s+=\s+{(?<CostalProvs>[^\}]*)";
+            
+            Dictionary<int, Province> sea = new();
+            Dictionary<int, Province> rnv = new();
+            Dictionary<int, Province> lake = new();
+            Dictionary<int, Province> coastal = new();
+            Dictionary<int, Province> land = new();
+
+            var match = Regex.Match(content, pattern);
+
+            if (int.TryParse(match.Groups[1].Value, out var value))
+                Vars.TotalProvinces = value;
+
+            foreach (var item in Util.GetProvincesList(match.Groups["seaProvs"].Value))
+            {
+                if (Vars.Provinces.TryGetValue(item, out var province))
+                    sea.Add(item, province);
+                else 
+                    sea.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+            }
+            
+            foreach (var item in Util.GetProvincesList(match.Groups["RnvProvs"].Value))
+                if (Vars.Provinces.TryGetValue(item, out var province))
+                    rnv.Add(item, province);
+                else
+                    rnv.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+
+            foreach (var item in Util.GetProvincesList(match.Groups["LakeProvs"].Value))
+                if (Vars.Provinces.TryGetValue(item, out var province))
+                    lake.Add(item, province);
+                else
+                    lake.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+
+            foreach (var item in Util.GetProvincesList(match.Groups["CostalProvs"].Value))
+                if (Vars.Provinces.TryGetValue(item, out var province))
+                    land.Add(item, province);
+                else
+                    land.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+
+
+            foreach (var p in Vars.Provinces)
+            {
+                if (sea.ContainsKey(p.Key))
+                    continue;
+                if (rnv.ContainsKey(p.Key))
+                    continue;
+                if (lake.ContainsKey(p.Key))
+                    continue;
+                if (coastal.ContainsKey(p.Key))
+                    continue;
+                land.Add(p.Key, p.Value);
+            }
+            foreach (var p in rnv)
+            {
+                if (sea.ContainsKey(p.Key))
+                    sea.Remove(p.Key);
+                if (lake.ContainsKey(p.Key))
+                    lake.Remove(p.Key);
+                if (coastal.ContainsKey(p.Key))
+                    coastal.Remove(p.Key);
+                if (land.ContainsKey(p.Key))
+                    land.Remove(p.Key);
+            }
+            Vars.SeaProvinces = sea;
+            Vars.RnvProvinces = rnv;
+            Vars.LakeProvinces = lake;
+            Vars.CoastalProvinces = coastal;
+            Vars.LandProvinces = land;
+        }
         private static void GenerateBorders()
         {
-            foreach (var province in Vars.provinces)
+            foreach (var province in Vars.Provinces)
             {
-                foreach (var pixel in province.Value.pixels)
+                var borderPixels = new List<Point>();
+
+                foreach (var pixel in province.Value.Pixels)
                 {
-                    if (HasAdjacentPixelWithNewColor(pixel.X, pixel.Y, province.Value.color))
-                        province.Value.border.Add(pixel);
+                    if (HasAdjacentPixelWithNewColor(pixel.X, pixel.Y, province.Value.Color))
+                        borderPixels.Add(pixel);
                 }
+
+                province.Value.Border = borderPixels;
             }
         }
 
@@ -126,11 +241,11 @@ namespace EU4_Parse_Lib
                 Province p = new(color);
                 if (dic.TryGetValue(color, out var entry))
                 {
-                    p.pixels = entry;
+                    p.Pixels = entry;
                 }
                 else
                 {
-                    Vars.notOnMapProvs.Add(match.Groups[1].Value, color);
+                    Vars.NotOnMapProvinces.Add(match.Groups[1].Value, color);
                     continue;
                 }
                
@@ -146,8 +261,8 @@ namespace EU4_Parse_Lib
                 }
             }
             Debug.WriteLine("Finished Loading");
-            Vars.colorIds = colorIds;
-            Vars.provinces = provinces;
+            Vars.ColorIds = colorIds;
+            Vars.Provinces = provinces;
         }
 
         private static Dictionary<Color, List<Point>> GetAllPixels()

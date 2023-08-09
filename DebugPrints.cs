@@ -28,7 +28,7 @@ namespace EU4_Parse_Lib
             foreach (var kvp in dic)
             {
                 sb.AppendLine(
-                    $"Province ID: {kvp.Key,4}, {kvp.Value.color,35}, Pixels: {kvp.Value.pixels.Count,6}");
+                    $"Province ID: {kvp.Key,4}, {kvp.Value.Color,35}, Pixels: {kvp.Value.Pixels.Count,6}");
             }
             sb.Append(Environment.NewLine);
             sb.Append($"Total Provinces: {dic.Count.ToString("#,###.###")}");
@@ -52,7 +52,7 @@ namespace EU4_Parse_Lib
             foreach (var kvp in dic)
             {
                 sb.AppendLine(
-                    $"Province ID: {kvp.Key,4}, Number of Border Pixels: {kvp.Value.border.Count, 5}");
+                    $"Province ID: {kvp.Key,4}, Number of Border Pixels: {kvp.Value.Border.Count, 5}");
             }
             Saving.WriteLog(sb.ToString(), "ProvBorders");
         }
@@ -67,6 +67,50 @@ namespace EU4_Parse_Lib
             Saving.WriteLog(sb.ToString(), "ColorsToIds");
         }
 
-        
+        public static void PrintProvinceList()
+        {
+            StringBuilder sb = new();
+            sb.Append($"Coastal Provinces:".PadRight(30) + $"{Vars.CoastalProvinces.Count,4}\n" +
+                      $"Sea Provinces:".PadRight(30) + $"{Vars.SeaProvinces.Count,4}\n" +
+                      $"Lake Provinces:".PadRight(30) + $"{Vars.LakeProvinces.Count,4}\n" +
+                      $"Random new World Provinces:".PadRight(30) + $"{Vars.RnvProvinces.Count,5}\n" +
+                      $"Land Provinces:".PadRight(30) + $"{Vars.LandProvinces.Count,4}\n" +
+                      $"Total Provinces:".PadRight(30) + $"{(Vars.CoastalProvinces.Count + Vars.SeaProvinces.Count + Vars.LakeProvinces.Count + Vars.RnvProvinces.Count + Vars.LandProvinces.Count),4}\n");
+            sb.Append($"\n----------sea----------\n{PrintIdList(Vars.SeaProvinces)}");
+            sb.Append($"\n----------coastal----------\n{PrintIdList(Vars.CoastalProvinces)}");
+            sb.Append($"\n----------lake----------\n{PrintIdList(Vars.LakeProvinces)}");
+            sb.Append($"\n----------random new world----------\n{PrintIdList(Vars.RnvProvinces)}");
+            sb.Append($"\n----------land----------\n{PrintIdList(Vars.LandProvinces)}");
+            Saving.WriteLog(sb.ToString(), "ProvinceIds");
+        }
+
+        private static string PrintIdList(Dictionary<int, Province> dic)
+        {
+            StringBuilder sb = new();
+            var cnt = 0;
+            foreach (var p in dic)
+            {
+                if (cnt == 25)
+                {
+                    sb.Append(Environment.NewLine);
+                    cnt = 0;
+                }
+                sb.Append($"{p.Key,4} ");
+                cnt++;
+            }
+            return sb.ToString();
+        }
+
+        public static void PrintAreas(Dictionary<string, Area> dic)
+        {
+            StringBuilder sb = new();
+            sb.AppendLine($"Number of Areas: {dic.Count.ToString()}");
+            foreach (var area in dic)
+            {
+                sb.AppendLine($"{area.Key} ({area.Value.Provinces.Count}): --> {area.Value.ToProvString()}");
+            }
+            Saving.WriteLog(sb.ToString(), "Areas");
+        }
+
     }
 }

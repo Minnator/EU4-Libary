@@ -10,6 +10,8 @@ namespace EU4_Parse_Lib
 {
     public static class Vars
     {
+        public static int TotalProvinces = 0;
+
         public static float ZoomLevel = 1;
 
         public static Stopwatch stopwatch = new();
@@ -18,17 +20,24 @@ namespace EU4_Parse_Lib
 
         public static List<string> TimeStamps = new();
 
-        public static Dictionary<int, Province> provinces = new ();
-        public static Dictionary<string, Color> notOnMapProvs = new ();
-        public static Dictionary<Color, int> colorIds = new ();
+        public static string AppPath = "";
+        public static string ModFolder = "";
+        public static string VanillaFolder = "";
+
+        public static Dictionary<int, Province> Provinces = new ();
+        public static Dictionary<int, Province> RnvProvinces = new ();
+        public static Dictionary<int, Province> LakeProvinces = new ();
+        public static Dictionary<int, Province> LandProvinces = new ();
+        public static Dictionary<int, Province> SeaProvinces = new ();
+        public static Dictionary<int, Province> CoastalProvinces = new ();
+        public static Dictionary<string, Color> NotOnMapProvinces = new ();
+        public static Dictionary<Color, int> ColorIds = new ();
 
         public static Province? LastProvince;
         public static Province? CurProvince;
-        public static List<Province> SelecteProvinces = new ();
+        public static List<Province> SelectedProvinces = new ();
 
-        public static string appPath = "";
-        public static string ModFolder = "";
-        public static string VanillaFolder = "";
+        public static Dictionary<string, Area> Areas = new();
 
         // FORMS
 

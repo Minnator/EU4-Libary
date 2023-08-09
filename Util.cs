@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using EU4_Parse_Lib.DataClasses;
 
@@ -19,6 +20,32 @@ namespace EU4_Parse_Lib
                 ? Path.Combine(Vars.ModFolder, path)
                 : Path.Combine(Vars.VanillaFolder, path);
         }
+        /// <summary>
+        /// Returns a list of all numbers in that string, if they are separated by an empty space
+        /// Has no error log yet for failed Parsing to int
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static List<int> GetProvincesList(string str)
+        {
+            List<int> idList = new();
+
+            var matches = Regex.Matches(str, @"\s*(\d+)");
+            foreach (var match in matches)
+            {
+                if (int.TryParse(match.ToString(), out var value))
+                    idList.Add(value);
+                // else { ERROR message here }
+            }
+            return idList;
+        }
+        /// <summary>
+        /// Get is existing the path from the mod if not defaults to vanilla
+        /// if vanilla is faulty crash
+        /// REQUIRES only path RELATIVE to game
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static string GetModOrVanillaPathFile(string path)
         {
             return File.Exists(Path.Combine(Vars.ModFolder, path))
@@ -55,7 +82,7 @@ namespace EU4_Parse_Lib
                 return;
             Vars.CurProvince ??= province;
             Vars.LastProvince = Vars.CurProvince;
-            var oldColor = Vars.LastProvince.color;
+            var oldColor = Vars.LastProvince.Color;
             SetProvinceBorder(Vars.LastProvince, oldColor);
             Vars.CurProvince = province;
             SetProvinceBorder(province, Color.Black);
@@ -72,7 +99,7 @@ namespace EU4_Parse_Lib
             var bytesPerPixel = Image.GetPixelFormatSize(bmp.PixelFormat) / 8;
             var stride = bmpData.Stride;
 
-            foreach (var point in p.border)
+            foreach (var point in p.Border)
             {
                 var x = point.X;
                 var y = point.Y;
@@ -115,7 +142,7 @@ namespace EU4_Parse_Lib
             var bytesPerPixel = Image.GetPixelFormatSize(bmp.PixelFormat) / 8;
             var stride = bmpData.Stride;
 
-            foreach (var point in p.pixels)
+            foreach (var point in p.Pixels)
             {
                 var x = point.X;
                 var y = point.Y;
@@ -146,7 +173,7 @@ namespace EU4_Parse_Lib
             // Move the bitmap to the same position as when the method was called
             Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.displayRect.X, offsetY - Vars.MainWindow.displayRect.Y);
 
-            p.currentColor = color;
+            p.CurrentColor = color;
         }
 
 

@@ -108,19 +108,19 @@ namespace EU4_Parse_Lib
 
             if (e.Button == MouseButtons.Left)
             {
-                foreach (var pro in Vars.SelecteProvinces)
+                foreach (var pro in Vars.SelectedProvinces)
                 {
-                    Util.SetProvinceBorder(pro, pro.color);
+                    Util.SetProvinceBorder(pro, pro.Color);
                 }
-                Vars.SelecteProvinces.Clear();
-                var p = Vars.provinces[Vars.colorIds[color]];
+                Vars.SelectedProvinces.Clear();
+                var p = Vars.Provinces[Vars.ColorIds[color]];
                 Util.NextProvince(p);
-                Vars.SelecteProvinces.Add(p);
+                Vars.SelectedProvinces.Add(p);
             }
             else
             {
-                var p = Vars.provinces[Vars.colorIds[color]];
-                Vars.SelecteProvinces.Add(p);
+                var p = Vars.Provinces[Vars.ColorIds[color]];
+                Vars.SelectedProvinces.Add(p);
                 Util.SetProvinceBorder(p, Color.Black);
             }
 

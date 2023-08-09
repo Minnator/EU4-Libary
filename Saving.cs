@@ -23,7 +23,7 @@ public static class Saving
     }
     public static void WriteLog(string text, string filename, bool append = false)
     {
-        var streamWriter = new StreamWriter(Vars.appPath + $"{filename}.txt", append);
+        var streamWriter = new StreamWriter(Vars.AppPath + $"{filename}.txt", append);
         streamWriter.WriteLine(text);
         streamWriter.Close();
     }

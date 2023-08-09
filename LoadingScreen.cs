@@ -20,7 +20,7 @@ namespace EU4_Parse_Lib
             
             Saving.WriteLog(string.Empty, "TimeComplexity");
 
-            Vars.appPath = Application.ExecutablePath.Replace("EU4 Parse Lib.exe", "");
+            Vars.AppPath = Application.ExecutablePath.Replace("EU4 Parse Lib.exe", "");
 
 
             Vars.LoadingForm = this;
