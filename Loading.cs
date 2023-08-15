@@ -47,11 +47,13 @@ namespace EU4_Parse_Lib
             DebugPrints.PrintProvincesUnused(Vars.NotOnMapProvinces);
             DebugPrints.PrintColorsToIds(Vars.ColorIds);
             DebugPrints.PrintAreas(Vars.Areas);
+            DebugPrints.PrintProvincesContent(Vars.Provinces);
             DebugPrints.PrintProvinceList();
             Vars.stopwatch.Stop();
             Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
             Vars.stopwatch.Reset();
             Saving.WriteLog(Vars.TimeStamps.ListToString(), "TimeComplexity");
+            Debug.WriteLine("Finished Loading");
         }
 
         public static void LoadAreas()
@@ -67,7 +69,7 @@ namespace EU4_Parse_Lib
             }
 
             var content = contentList.ListToString();
-            Saving.WriteLog(content, "AreaContent");
+            //Saving.WriteLog(content, "AreaContent");
 
             Dictionary<string, Area> areas = new();
 
@@ -79,6 +81,10 @@ namespace EU4_Parse_Lib
                 area.Name = name;
                 area.Provinces = Util.GetProvincesList(match.Groups["provinces"].Value);
                 areas.Add(name, area);
+                foreach (var province in area.Provinces)
+                {
+                    Vars.Provinces[province].area = area.Name;
+                }
             }
             Vars.Areas = areas;
         }
@@ -251,7 +257,8 @@ namespace EU4_Parse_Lib
                
                 try
                 {
-                    provinces.Add(int.Parse(match.Groups[1].Value), p);
+                    p.Id = int.Parse(match.Groups[1].Value);
+                    provinces.Add(p.Id, p);
                     colorIds.Add(color, int.Parse(match.Groups[1].Value));
                 }
                 catch (Exception)
@@ -260,7 +267,6 @@ namespace EU4_Parse_Lib
                     throw;
                 }
             }
-            Debug.WriteLine("Finished Loading");
             Vars.ColorIds = colorIds;
             Vars.Provinces = provinces;
         }

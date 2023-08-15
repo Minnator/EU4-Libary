@@ -50,6 +50,10 @@
             Map.TabIndex = 0;
             Map.TabStop = false;
             Map.MouseClick += Map_MouseClick;
+            Map.MouseEnter += Map_MouseEnter;
+            Map.MouseLeave += Map_MouseLeave;
+            Map.MouseHover += Map_MouseHover;
+            Map.MouseMove += Map_MouseMove;
             // 
             // RightButton
             // 

@@ -9,13 +9,15 @@ namespace EU4_Parse_Lib.DataClasses
     public class Province
     {
 
-        public int ID;
+        public int Id;
         
         public Color Color;
         public Color CurrentColor;
 
         public List<Point> Pixels = new ();
         public List<Point> Border = new ();
+
+        public string area = "-1";
 
         public Province (Color col) 
         { 
@@ -33,15 +35,20 @@ namespace EU4_Parse_Lib.DataClasses
             Border.AddRange(p);
         }
 
+        public override string ToString()
+        {
+            return $"ID: {Id,4}; area: {area}";
+        }
+
         public override bool Equals(object? obj)
         {
             return obj is Province province &&
-                   ID == province.ID;
+                   Id == province.Id;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(ID);
+            return HashCode.Combine(Id);
         }
     }
 }

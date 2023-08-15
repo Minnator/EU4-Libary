@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using EU4_Parse_Lib.DataClasses;
+using Timer = System.Windows.Forms.Timer;
 
 namespace EU4_Parse_Lib
 {
@@ -13,6 +14,12 @@ namespace EU4_Parse_Lib
         private int maxXOffset;
         private int maxYOffset;
 
+        // Hover tooltip over Map
+        private bool _isMouseOverPictureBox;
+        private bool _isCooldownActive;
+        private readonly Timer _cooldownTimer = new ();
+        private Point _lastMouseLocation;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -22,11 +29,15 @@ namespace EU4_Parse_Lib
             CalculateMaxOffsets();
             ResetDisplayRect();
             UpdateDisplayedImage();
+            
+            // Initialize the cooldown timer
+            _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
+            _cooldownTimer.Tick += CooldownTimer_Tick!;
         }
 
         private void CalculateMaxOffsets()
         {
-            if (Vars.Map == null) 
+            if (Vars.Map == null)
                 return;
             maxXOffset = Vars.Map.Width - Map.Width;
             maxYOffset = Vars.Map.Height - Map.Height;
@@ -85,7 +96,7 @@ namespace EU4_Parse_Lib
         {
             if (Vars.Map == null)
                 return;
-            if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height) 
+            if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
                 return;
             Vars.Map.SetPixel(x, y, newColor);
             UpdateDisplayedImage();
@@ -123,10 +134,79 @@ namespace EU4_Parse_Lib
                 Vars.SelectedProvinces.Add(p);
                 Util.SetProvinceBorder(p, Color.Black);
             }
+            /*
+            if (e.Button == MouseButtons.Middle)
+            {
+                
+            }
+            */
 
             // Clear references to objects that are no longer needed
             GC.Collect(); // Explicitly trigger garbage collection
         }
 
+        private void Map_MouseHover(object sender, EventArgs e)
+        {
+            // Check if the event sender is a PictureBox (assuming "Map" is a PictureBox)
+            if (sender is PictureBox pictureBox)
+            {
+                // Get the client coordinates of the mouse pointer within the PictureBox
+                Point clientMouseLocation = pictureBox.PointToClient(Cursor.Position);
+
+                // Extract the X and Y coordinates
+                int mouseX = clientMouseLocation.X;
+                int mouseY = clientMouseLocation.Y;
+
+                Debug.WriteLine($"Mouse X: {mouseX} - Mouse Y: {mouseY}");
+
+                // Now you can use mouseX and mouseY as needed
+                // For example, display the coordinates in a label or perform some action
+            }
+        }
+
+
+        private void Map_MouseEnter(object sender, EventArgs e)
+        {
+            _isMouseOverPictureBox = true;
+        }
+
+        private void Map_MouseLeave(object sender, EventArgs e)
+        {
+            _isMouseOverPictureBox = false;
+        }
+
+        private void Map_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isMouseOverPictureBox)
+            {
+                // Calculate the distance between the current and last mouse positions
+                int distanceSquared = (_lastMouseLocation.X - e.X) * (_lastMouseLocation.X - e.X)
+                                      + (_lastMouseLocation.Y - e.Y) * (_lastMouseLocation.Y - e.Y);
+
+                // Check if the distance is significant and cooldown is not active
+                if (distanceSquared > 4 && !_isCooldownActive)
+                {
+                    // Start the cooldown timer
+                    _isCooldownActive = true;
+                    _cooldownTimer.Interval = 400;
+                    _cooldownTimer.Tick += CooldownTimer_Tick;
+                    _cooldownTimer.Start();
+
+                    // Update the last mouse location
+                    _lastMouseLocation = e.Location;
+
+                    // Your mouse hover behavior logic here
+                    Debug.WriteLine($"Mouse X: {e.X} - Mouse Y: {e.Y}");
+                }
+            }
+        }
+
+        private void CooldownTimer_Tick(object sender, EventArgs e)
+        {
+            // Cooldown timer ticked, reset the cooldown
+            _isCooldownActive = false;
+            _cooldownTimer.Stop();
+            _cooldownTimer.Tick -= CooldownTimer_Tick;
+        }
     }
 }

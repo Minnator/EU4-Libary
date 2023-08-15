@@ -6,7 +6,15 @@ namespace EU4_Parse_Lib
 {
     public static class DebugPrints
     {
-
+        public static void PrintProvincesContent(Dictionary<int, Province> dic)
+        {
+            StringBuilder sb = new();
+            foreach (var province in dic)
+            {
+                sb.AppendLine(province.ToString());
+            }
+            Saving.WriteLog(sb.ToString(), "ProvinceContent");
+        }
         public static void PrintProvColDirectory(Dictionary<Color, List<Point>> dic)
         {
             StringBuilder sb = new ();
@@ -107,10 +115,10 @@ namespace EU4_Parse_Lib
             sb.AppendLine($"Number of Areas: {dic.Count.ToString()}");
             foreach (var area in dic)
             {
-                sb.AppendLine($"{area.Key} ({area.Value.Provinces.Count}): --> {area.Value.ToProvString()}");
+                sb.AppendLine($"{area.Key.PadRight(30)}|{area.Value.Provinces.Count,2}| {area.Value.ToProvString()}");
             }
             Saving.WriteLog(sb.ToString(), "Areas");
         }
-
+        //TODO Provinces need to know in which area they are, areas in which Region etc...
     }
 }
