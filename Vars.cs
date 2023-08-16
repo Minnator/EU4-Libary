@@ -18,11 +18,14 @@ namespace EU4_Parse_Lib
 
         public static Bitmap? Map;
 
+        public static TimeSpan totalLoadTime = new ();
+
         public static List<string> TimeStamps = new();
 
         public static string AppPath = "";
         public static string ModFolder = "";
         public static string VanillaFolder = "";
+        public static string language = "english";
 
         public static Dictionary<int, Province> Provinces = new ();
         public static Dictionary<int, Province> RnvProvinces = new ();
@@ -31,6 +34,11 @@ namespace EU4_Parse_Lib
         public static Dictionary<int, Province> SeaProvinces = new ();
         public static Dictionary<int, Province> CoastalProvinces = new ();
         public static Dictionary<string, Color> NotOnMapProvinces = new ();
+
+        public static Dictionary<string, string> Localization = new ();
+        
+        public static Dictionary<string, int> LocalizationFiles = new ();
+
         public static Dictionary<Color, int> ColorIds = new ();
 
         public static Province? LastProvince;

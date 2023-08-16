@@ -2,66 +2,116 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Schema;
 using EU4_Parse_Lib.DataClasses;
-
 namespace EU4_Parse_Lib
 {
     public static class Loading
     {
-        private static Dictionary<Color, List<Point>> pixDic = new();
+        private static Dictionary<Color, List<Point>> _pixDic = new();
 
-        public static void LoadBitmap()
+        public static void LoadAll()
         {
             var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
             var map = new Bitmap(combinedPath);
             Vars.Map = map;
             Vars.stopwatch.Start();
-            pixDic = GetAllPixels();
-            Vars.stopwatch.Stop ();
-            Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
-            Vars.stopwatch.Reset ();
-            InitProvinces(pixDic);
-            Vars.stopwatch.Start();
-            GenerateBorders();
+            _pixDic = GetAllPixels();
+            InitProvinces(_pixDic);
             Vars.stopwatch.Stop();
-            Vars.TimeStamps.Add($"Time Elapsed Borders:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
+            Vars.totalLoadTime += Vars.stopwatch.Elapsed;
+            Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.stopwatch.Elapsed} |");
             Vars.stopwatch.Reset();
+            LoadWithStopWatch("Borders", GenerateBorders);
+            LoadWithStopWatch("default.map", LoadDefaultMap);
+            LoadWithStopWatch("Areas", LoadAreas);
+            LoadWithStopWatch("Localization", LoadAllLocalization);
+            WriteDebugFiles();
+            Debug.WriteLine("Finished Loading");
+        }
+
+        /// <summary>
+        /// Executes a Method that DOES NOT have any parameters and logs the time it took.
+        /// </summary>
+        /// <param name="taskName"></param>
+        /// <param name="action"></param>
+        private static void LoadWithStopWatch(string taskName, Action action)
+        {
             Vars.stopwatch.Start();
-            LoadDefaultMap();
+            action.Invoke();
             Vars.stopwatch.Stop();
-            Vars.TimeStamps.Add($"Time Elapsed default.map:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
-            Vars.stopwatch.Reset();Vars.stopwatch.Start();
-            LoadAreas();
-            Vars.stopwatch.Stop();
-            Vars.TimeStamps.Add($"Time Elapsed Areas:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
+            Vars.totalLoadTime += Vars.stopwatch.Elapsed;
+            Vars.TimeStamps.Add($"Time Elapsed {taskName}:".PadRight(30) + $"| {Vars.stopwatch.Elapsed} |");
             Vars.stopwatch.Reset();
+        }
+
+        private static void WriteDebugFiles()
+        {
             Vars.stopwatch.Start();
             DebugPrints.PrintProvincesBorder(Vars.Provinces);
-            DebugPrints.PrintProvColDirectory(pixDic);
+            DebugPrints.PrintProvColDirectory(_pixDic);
             DebugPrints.PrintProvincesEmpty(Vars.Provinces);
             DebugPrints.PrintProvincesUnused(Vars.NotOnMapProvinces);
             DebugPrints.PrintColorsToIds(Vars.ColorIds);
             DebugPrints.PrintAreas(Vars.Areas);
             DebugPrints.PrintProvincesContent(Vars.Provinces);
             DebugPrints.PrintProvinceList();
+            DebugPrints.PritLocData(Vars.LocalizationFiles);
             Vars.stopwatch.Stop();
-            Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"{Vars.stopwatch.Elapsed}");
+            Vars.totalLoadTime += Vars.stopwatch.Elapsed;
+            Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"| {Vars.stopwatch.Elapsed} |");
             Vars.stopwatch.Reset();
+            Vars.TimeStamps.Add("------------------------------|------------------|");
+            Vars.TimeStamps.Add($"Total Time Elapsed:".PadRight(30) + $"| {Vars.totalLoadTime} |");
             Saving.WriteLog(Vars.TimeStamps.ListToString(), "TimeComplexity");
-            Debug.WriteLine("Finished Loading");
         }
 
-        public static void LoadAreas()
+        public static string GetLoc(string key)
+        {
+            return Vars.Localization.TryGetValue(key, out var name) ? name : "-1";
+        }
+        /// <summary>
+        /// first read in the mod localization and then the vanilla localization.
+        /// Does not care about the number in loc yet - feature for future
+        /// </summary>
+        private static void LoadAllLocalization()
+        {
+            var ymlFiles = new List<string>();
+            Vars.Localization.Clear();
+            var path = Path.Combine(Vars.ModFolder, "localisation");
+            if (Directory.Exists(path))
+                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.language}.yml").ToList());
+            path = Path.Combine(Vars.VanillaFolder, "localisation");
+            if (Directory.Exists(path))
+                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.language}.yml").ToList());
+            if (ymlFiles.Count <= 0) return;
+            Dictionary<string, string> loc = new();
+            Dictionary<string, int> locFiles = new();
+
+            foreach (var ymlPath in ymlFiles)
+            {
+                var lines = File.ReadAllLines(ymlPath);
+                locFiles[ymlPath] = lines.Length;
+                foreach (var line in lines)
+                {
+                    var match = Regex.Match(line, @"(?<key>.*):\d\s+""(?<value>.*)""");
+                    if (!match.Success) continue;
+                    var id = match.Groups["key"].Value.Trim();
+                    var name = match.Groups["value"].Value.Trim();
+                    if (loc.ContainsKey(id)) continue;
+                    loc[id] = name;
+                }
+            }
+
+            Vars.Localization = loc;
+            Vars.LocalizationFiles = locFiles;
+        }
+        private static void LoadAreas()
         {
             var path = Util.GetModOrVanillaPathFile(Path.Combine("map", "area.txt"));
             var newContent = Reading.ReadFileUTF8Lines(path);
 
-            List<string> contentList = new ();
+            List<string> contentList = new();
             foreach (var line in newContent)
             {
                 if (line != null && !(line.StartsWith('#') || line.Contains("color")))
@@ -76,14 +126,14 @@ namespace EU4_Parse_Lib
             var matches = Regex.Matches(content, @"(?<name>[A-Za-z_]*)\s*=\s*{.*(?<provinces>[^\}|^#]*)");
             foreach (var match in matches.Cast<Match>())
             {
-                Area area = new ();
+                Area area = new();
                 var name = match.Groups["name"].Value;
                 area.Name = name;
                 area.Provinces = Util.GetProvincesList(match.Groups["provinces"].Value);
                 areas.Add(name, area);
                 foreach (var province in area.Provinces)
                 {
-                    Vars.Provinces[province].area = area.Name;
+                    Vars.Provinces[province].Area = area.Name;
                 }
             }
             Vars.Areas = areas;
@@ -93,7 +143,7 @@ namespace EU4_Parse_Lib
             var path = Util.GetModOrVanillaPathFile(Path.Combine("map", "default.map"));
             var content = Reading.ReadFileUTF8(path);
             const string pattern = @"\bmax_provinces\b\s+=\s+(?<maxProv>\d*)\s*\bsea_starts\b\s+=\s+{(?<seaProvs>[^\}]*)}[.\s\S]*\bonly_used_for_random\b\s+=\s+{(?<RnvProvs>[^\}]*)}[.\s\S]*\blakes\b\s+=\s+{(?<LakeProvs>[^\}]*)}[.\s\S]*\bforce_coastal\b\s+=\s+{(?<CostalProvs>[^\}]*)";
-            
+
             Dictionary<int, Province> sea = new();
             Dictionary<int, Province> rnv = new();
             Dictionary<int, Province> lake = new();
@@ -109,10 +159,10 @@ namespace EU4_Parse_Lib
             {
                 if (Vars.Provinces.TryGetValue(item, out var province))
                     sea.Add(item, province);
-                else 
+                else
                     sea.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
             }
-            
+
             foreach (var item in Util.GetProvincesList(match.Groups["RnvProvs"].Value))
                 if (Vars.Provinces.TryGetValue(item, out var province))
                     rnv.Add(item, province);
@@ -176,7 +226,6 @@ namespace EU4_Parse_Lib
                 province.Value.Border = borderPixels;
             }
         }
-
         private static bool HasAdjacentPixelWithNewColor(int x, int y, Color color)
         {
             if (Vars.Map == null)
@@ -229,7 +278,7 @@ namespace EU4_Parse_Lib
             Dictionary<int, Province> provinces = new();
             Dictionary<Color, int> colorIds = new();
             var lines = File.ReadAllLines(Util.GetModOrVanillaPathFile(Path.Combine("map", "definition.csv")));
-            
+
             var matches = Regex.Matches(lines.ToArray().ArrayToString(), @"\s+(?:(\d+);(\d+);(\d+);(\d+);(.*);).*");
 
             foreach (var match in matches.Cast<Match>())
@@ -254,7 +303,7 @@ namespace EU4_Parse_Lib
                     Vars.NotOnMapProvinces.Add(match.Groups[1].Value, color);
                     continue;
                 }
-               
+
                 try
                 {
                     p.Id = int.Parse(match.Groups[1].Value);
@@ -270,7 +319,6 @@ namespace EU4_Parse_Lib
             Vars.ColorIds = colorIds;
             Vars.Provinces = provinces;
         }
-
         private static Dictionary<Color, List<Point>> GetAllPixels()
         {
             Dictionary<Color, List<Point>> colors = new();

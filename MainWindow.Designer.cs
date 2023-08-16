@@ -1,4 +1,6 @@
-﻿namespace EU4_Parse_Lib
+﻿using System.Windows.Forms;
+
+namespace EU4_Parse_Lib
 {
     partial class MainWindow
     {
@@ -28,6 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             Map = new PictureBox();
             RightButton = new Button();
             DownButton = new Button();
@@ -37,6 +40,7 @@
             label1 = new Label();
             label2 = new Label();
             zoomTrackBar = new TrackBar();
+            _tt = new ToolTip(components);
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
@@ -141,6 +145,15 @@
             zoomTrackBar.Value = 6;
             zoomTrackBar.ValueChanged += zoomTrackBar_ValueChanged;
             // 
+            // _tt
+            // 
+            _tt.AutoPopDelay = 5000;
+            _tt.InitialDelay = 500;
+            _tt.ReshowDelay = 100;
+            _tt.ShowAlways = true;
+            _tt.UseAnimation = false;
+            _tt.UseFading = false;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -175,5 +188,6 @@
         private Label label1;
         private Label label2;
         private TrackBar zoomTrackBar;
+        private ToolTip _tt;
     }
 }

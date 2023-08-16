@@ -17,7 +17,7 @@ namespace EU4_Parse_Lib
         {
             Application.EnableVisualStyles();
             InitializeComponent();
-            
+
             Saving.WriteLog(string.Empty, "TimeComplexity");
 
             Vars.AppPath = Application.ExecutablePath.Replace("EU4 Parse Lib.exe", "");
@@ -40,7 +40,7 @@ namespace EU4_Parse_Lib
 
         private void LoadGetVanillaPath_Click(object sender, EventArgs e)
         {
-            Vars.VanillaFolder = FolderBrowsing.GetFolderPath("Please Select Mod Directory!");
+            Vars.VanillaFolder = FolderBrowsing.GetFolderPath("Please Select Vanilla Directory!");
             LoadGetVanillaPathIn.Text = Vars.VanillaFolder;
             LoadGetVanillaPathIn.SetCursorToEnd();
         }

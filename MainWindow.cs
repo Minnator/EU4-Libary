@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using EU4_Parse_Lib.DataClasses;
 using Timer = System.Windows.Forms.Timer;
 
@@ -16,9 +17,9 @@ namespace EU4_Parse_Lib
 
         // Hover tooltip over Map
         private bool _isMouseOverPictureBox;
-        private bool _isCooldownActive;
-        private readonly Timer _cooldownTimer = new ();
+        private readonly Timer _cooldownTimer = new();
         private Point _lastMouseLocation;
+        private Color _tooltipColor = Color.FromArgb(255, 0, 0, 0);
 
         public MainWindow()
         {
@@ -29,7 +30,7 @@ namespace EU4_Parse_Lib
             CalculateMaxOffsets();
             ResetDisplayRect();
             UpdateDisplayedImage();
-            
+
             // Initialize the cooldown timer
             _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
             _cooldownTimer.Tick += CooldownTimer_Tick!;
@@ -113,7 +114,7 @@ namespace EU4_Parse_Lib
                 return;
             var color = Vars.Map.GetPixel(x, y);
 
-            Debug.WriteLine($"Pixel Color: R = {color.R}, G = {color.G}, B = {color.B}");
+            //Debug.WriteLine($"Pixel Color: R = {color.R}, G = {color.G}, B = {color.B}");
             if (color.Equals(Color.FromArgb(255, 0, 0, 0)))
                 return;
 
@@ -147,21 +148,13 @@ namespace EU4_Parse_Lib
 
         private void Map_MouseHover(object sender, EventArgs e)
         {
-            // Check if the event sender is a PictureBox (assuming "Map" is a PictureBox)
-            if (sender is PictureBox pictureBox)
-            {
-                // Get the client coordinates of the mouse pointer within the PictureBox
-                Point clientMouseLocation = pictureBox.PointToClient(Cursor.Position);
+            if (sender is not PictureBox pictureBox) return;
+            var clientMouseLocation = pictureBox.PointToClient(Cursor.Position);
 
-                // Extract the X and Y coordinates
-                int mouseX = clientMouseLocation.X;
-                int mouseY = clientMouseLocation.Y;
+            var mouseX = clientMouseLocation.X;
+            var mouseY = clientMouseLocation.Y;
 
-                Debug.WriteLine($"Mouse X: {mouseX} - Mouse Y: {mouseY}");
-
-                // Now you can use mouseX and mouseY as needed
-                // For example, display the coordinates in a label or perform some action
-            }
+            GenerateMouseTooltip(new Point(mouseX, mouseY));
         }
 
 
@@ -177,36 +170,36 @@ namespace EU4_Parse_Lib
 
         private void Map_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_isMouseOverPictureBox)
-            {
-                // Calculate the distance between the current and last mouse positions
-                int distanceSquared = (_lastMouseLocation.X - e.X) * (_lastMouseLocation.X - e.X)
-                                      + (_lastMouseLocation.Y - e.Y) * (_lastMouseLocation.Y - e.Y);
+            if (!_isMouseOverPictureBox) return;
+            if (_lastMouseLocation == new Point(e.X, e.Y)) return;
 
-                // Check if the distance is significant and cooldown is not active
-                if (distanceSquared > 4 && !_isCooldownActive)
-                {
-                    // Start the cooldown timer
-                    _isCooldownActive = true;
-                    _cooldownTimer.Interval = 400;
-                    _cooldownTimer.Tick += CooldownTimer_Tick;
-                    _cooldownTimer.Start();
+            _cooldownTimer.Interval = 400;
+            _cooldownTimer.Tick += CooldownTimer_Tick!;
+            _cooldownTimer.Start();
 
-                    // Update the last mouse location
-                    _lastMouseLocation = e.Location;
+            _lastMouseLocation = e.Location;
 
-                    // Your mouse hover behavior logic here
-                    Debug.WriteLine($"Mouse X: {e.X} - Mouse Y: {e.Y}");
-                }
-            }
+            GenerateMouseTooltip(new Point(e.X, e.Y));
         }
 
         private void CooldownTimer_Tick(object sender, EventArgs e)
         {
-            // Cooldown timer ticked, reset the cooldown
-            _isCooldownActive = false;
             _cooldownTimer.Stop();
-            _cooldownTimer.Tick -= CooldownTimer_Tick;
+            _cooldownTimer.Tick -= CooldownTimer_Tick!;
+        }
+
+        private void GenerateMouseTooltip(Point p)
+        {
+            var color = Vars.Map!.GetPixel(p.X + displayRect.X, p.Y + displayRect.Y);
+            if (color == _tooltipColor || color == Color.FromArgb(255,0,0,0)) return;
+            var id = Vars.ColorIds[color];
+            var area = Vars.Provinces[id].Area;
+            // TODO expand when more data is available.
+
+            //Debug.WriteLine($"{name} [{id}]\nArea: {area}");
+
+            _tt.SetToolTip(Vars.MainWindow!.Map, $"{Loading.GetLoc($"PROV{id}")} [{id}]\nArea: {area}");
+            _tooltipColor = color;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace EU4_Parse_Lib
 
         public static void LoadMapData()
         {
-            Loading.LoadBitmap();
+            Loading.LoadAll();
         }
 
     }

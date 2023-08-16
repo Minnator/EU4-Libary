@@ -17,7 +17,8 @@ namespace EU4_Parse_Lib.DataClasses
         public List<Point> Pixels = new ();
         public List<Point> Border = new ();
 
-        public string area = "-1";
+        public string Area = "-1";
+        public string Name = "-1";
 
         public Province (Color col) 
         { 
@@ -37,7 +38,7 @@ namespace EU4_Parse_Lib.DataClasses
 
         public override string ToString()
         {
-            return $"ID: {Id,4}; area: {area}";
+            return $"ID: {Id,4}; area: {Area}";
         }
 
         public override bool Equals(object? obj)

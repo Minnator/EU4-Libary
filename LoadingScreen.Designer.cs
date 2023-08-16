@@ -57,9 +57,9 @@
             // 
             // LoadGetVanillaPathIn
             // 
-            LoadGetVanillaPathIn.Location = new Point(143, 35);
+            LoadGetVanillaPathIn.Location = new Point(152, 35);
             LoadGetVanillaPathIn.Name = "LoadGetVanillaPathIn";
-            LoadGetVanillaPathIn.Size = new Size(383, 23);
+            LoadGetVanillaPathIn.Size = new Size(374, 23);
             LoadGetVanillaPathIn.TabIndex = 12;
             LoadGetVanillaPathIn.TextChanged += LoadGetVanillaPathIn_TextChanged;
             // 
@@ -68,9 +68,9 @@
             label2.AutoSize = true;
             label2.Location = new Point(12, 38);
             label2.Name = "label2";
-            label2.Size = new Size(125, 15);
+            label2.Size = new Size(134, 15);
             label2.TabIndex = 11;
-            label2.Text = "Enter Mod Folder Path";
+            label2.Text = "Enter Vanilla Folder Path";
             // 
             // button1
             // 
@@ -84,9 +84,9 @@
             // 
             // LoadModFolderPathIn
             // 
-            LoadModFolderPathIn.Location = new Point(143, 6);
+            LoadModFolderPathIn.Location = new Point(152, 6);
             LoadModFolderPathIn.Name = "LoadModFolderPathIn";
-            LoadModFolderPathIn.Size = new Size(383, 23);
+            LoadModFolderPathIn.Size = new Size(374, 23);
             LoadModFolderPathIn.TabIndex = 9;
             LoadModFolderPathIn.TextChanged += LoadModFolderPathIn_TextChanged;
             // 
@@ -105,7 +105,7 @@
             LoadAllFilesButton.Name = "LoadAllFilesButton";
             LoadAllFilesButton.Size = new Size(603, 23);
             LoadAllFilesButton.TabIndex = 14;
-            LoadAllFilesButton.Text = "Continoue";
+            LoadAllFilesButton.Text = "Continue";
             LoadAllFilesButton.UseVisualStyleBackColor = true;
             LoadAllFilesButton.Click += LoadAllFilesButton_Click;
             // 

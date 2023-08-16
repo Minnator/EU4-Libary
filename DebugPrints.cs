@@ -6,6 +6,18 @@ namespace EU4_Parse_Lib
 {
     public static class DebugPrints
     {
+        public static void PritLocData(Dictionary<string, int> dic)
+        {
+            StringBuilder sb = new();
+            sb.AppendLine($"Total Localization files: {dic.Count.ToString("###,###,###")}");
+            sb.AppendLine($"Total Localization Entries: {Vars.Localization.Count.ToString("###,###,###")}");
+            sb.AppendLine($"Num of Entries | file name");
+            foreach (var file in dic)
+            {
+                sb.AppendLine($"[{file.Value.ToString("###,###,###"),6}] - {file.Key}");
+            }
+            Saving.WriteLog(sb.ToString(), "LocalizationData");
+        }
         public static void PrintProvincesContent(Dictionary<int, Province> dic)
         {
             StringBuilder sb = new();
