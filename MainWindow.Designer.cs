@@ -41,16 +41,26 @@ namespace EU4_Parse_Lib
             label2 = new Label();
             zoomTrackBar = new TrackBar();
             _tt = new ToolTip(components);
+            menuStrip1 = new MenuStrip();
+            settingsToolStripMenuItem = new ToolStripMenuItem();
+            mapmodesToolStripMenuItem = new ToolStripMenuItem();
+            tooltipToolStripMenuItem = new ToolStripMenuItem();
+            mapmodeSelectorToolStripMenuItem = new ToolStripMenuItem();
+            manageMapmodesToolStripMenuItem = new ToolStripMenuItem();
+            resetAllMapmodesToolStripMenuItem = new ToolStripMenuItem();
+            clearAllUserDefinedFilesToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // Map
             // 
-            Map.Location = new Point(331, 12);
+            Map.Location = new Point(331, 32);
             Map.Name = "Map";
-            Map.Size = new Size(600, 600);
+            Map.Size = new Size(940, 720);
             Map.TabIndex = 0;
             Map.TabStop = false;
             Map.MouseClick += Map_MouseClick;
@@ -61,7 +71,7 @@ namespace EU4_Parse_Lib
             // 
             // RightButton
             // 
-            RightButton.Location = new Point(269, 43);
+            RightButton.Location = new Point(269, 63);
             RightButton.Name = "RightButton";
             RightButton.Size = new Size(56, 23);
             RightButton.TabIndex = 1;
@@ -71,7 +81,7 @@ namespace EU4_Parse_Lib
             // 
             // DownButton
             // 
-            DownButton.Location = new Point(239, 72);
+            DownButton.Location = new Point(239, 92);
             DownButton.Name = "DownButton";
             DownButton.Size = new Size(56, 23);
             DownButton.TabIndex = 2;
@@ -81,7 +91,7 @@ namespace EU4_Parse_Lib
             // 
             // LeftButton
             // 
-            LeftButton.Location = new Point(207, 43);
+            LeftButton.Location = new Point(207, 63);
             LeftButton.Name = "LeftButton";
             LeftButton.Size = new Size(56, 23);
             LeftButton.TabIndex = 3;
@@ -91,7 +101,7 @@ namespace EU4_Parse_Lib
             // 
             // UpButton
             // 
-            UpButton.Location = new Point(239, 14);
+            UpButton.Location = new Point(239, 34);
             UpButton.Name = "UpButton";
             UpButton.Size = new Size(56, 23);
             UpButton.TabIndex = 4;
@@ -102,7 +112,7 @@ namespace EU4_Parse_Lib
             // StepsizeMove
             // 
             StepsizeMove.LargeChange = 1;
-            StepsizeMove.Location = new Point(12, 21);
+            StepsizeMove.Location = new Point(12, 41);
             StepsizeMove.Minimum = 1;
             StepsizeMove.Name = "StepsizeMove";
             StepsizeMove.Size = new Size(189, 45);
@@ -114,7 +124,7 @@ namespace EU4_Parse_Lib
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(12, 3);
+            label1.Location = new Point(12, 23);
             label1.Name = "label1";
             label1.Size = new Size(146, 15);
             label1.TabIndex = 6;
@@ -123,7 +133,7 @@ namespace EU4_Parse_Lib
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(12, 47);
+            label2.Location = new Point(12, 67);
             label2.Name = "label2";
             label2.Size = new Size(66, 15);
             label2.TabIndex = 7;
@@ -133,7 +143,7 @@ namespace EU4_Parse_Lib
             // 
             zoomTrackBar.Enabled = false;
             zoomTrackBar.LargeChange = 2;
-            zoomTrackBar.Location = new Point(12, 65);
+            zoomTrackBar.Location = new Point(12, 85);
             zoomTrackBar.Maximum = 20;
             zoomTrackBar.Minimum = 6;
             zoomTrackBar.Name = "zoomTrackBar";
@@ -154,11 +164,71 @@ namespace EU4_Parse_Lib
             _tt.UseAnimation = false;
             _tt.UseFading = false;
             // 
+            // menuStrip1
+            // 
+            menuStrip1.Items.AddRange(new ToolStripItem[] { settingsToolStripMenuItem, mapmodesToolStripMenuItem, tooltipToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(1284, 24);
+            menuStrip1.TabIndex = 9;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clearAllUserDefinedFilesToolStripMenuItem });
+            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            settingsToolStripMenuItem.Size = new Size(61, 20);
+            settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // mapmodesToolStripMenuItem
+            // 
+            mapmodesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { mapmodeSelectorToolStripMenuItem, manageMapmodesToolStripMenuItem, resetAllMapmodesToolStripMenuItem });
+            mapmodesToolStripMenuItem.Name = "mapmodesToolStripMenuItem";
+            mapmodesToolStripMenuItem.Size = new Size(79, 20);
+            mapmodesToolStripMenuItem.Text = "Mapmodes";
+            // 
+            // tooltipToolStripMenuItem
+            // 
+            tooltipToolStripMenuItem.Name = "tooltipToolStripMenuItem";
+            tooltipToolStripMenuItem.Size = new Size(55, 20);
+            tooltipToolStripMenuItem.Text = "Tooltip";
+            // 
+            // mapmodeSelectorToolStripMenuItem
+            // 
+            mapmodeSelectorToolStripMenuItem.Name = "mapmodeSelectorToolStripMenuItem";
+            mapmodeSelectorToolStripMenuItem.Size = new Size(180, 22);
+            mapmodeSelectorToolStripMenuItem.Text = "Mapmode Selector";
+            // 
+            // manageMapmodesToolStripMenuItem
+            // 
+            manageMapmodesToolStripMenuItem.Name = "manageMapmodesToolStripMenuItem";
+            manageMapmodesToolStripMenuItem.Size = new Size(180, 22);
+            manageMapmodesToolStripMenuItem.Text = "Manage Mapmodes";
+            // 
+            // resetAllMapmodesToolStripMenuItem
+            // 
+            resetAllMapmodesToolStripMenuItem.Name = "resetAllMapmodesToolStripMenuItem";
+            resetAllMapmodesToolStripMenuItem.Size = new Size(180, 22);
+            resetAllMapmodesToolStripMenuItem.Text = "Reset all Mapmodes";
+            // 
+            // clearAllUserDefinedFilesToolStripMenuItem
+            // 
+            clearAllUserDefinedFilesToolStripMenuItem.Name = "clearAllUserDefinedFilesToolStripMenuItem";
+            clearAllUserDefinedFilesToolStripMenuItem.Size = new Size(208, 22);
+            clearAllUserDefinedFilesToolStripMenuItem.Text = "Clear all user defined files";
+            // 
+            // helpToolStripMenuItem
+            // 
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(44, 20);
+            helpToolStripMenuItem.Text = "Help";
+            helpToolStripMenuItem.Click += Help_MenuItem_Click;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(943, 624);
+            ClientSize = new Size(1284, 761);
             Controls.Add(zoomTrackBar);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -168,11 +238,15 @@ namespace EU4_Parse_Lib
             Controls.Add(DownButton);
             Controls.Add(RightButton);
             Controls.Add(Map);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             Name = "MainWindow";
             Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)Map).EndInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).EndInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).EndInit();
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -189,5 +263,14 @@ namespace EU4_Parse_Lib
         private Label label2;
         private TrackBar zoomTrackBar;
         private ToolTip _tt;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem settingsToolStripMenuItem;
+        private ToolStripMenuItem mapmodesToolStripMenuItem;
+        private ToolStripMenuItem tooltipToolStripMenuItem;
+        private ToolStripMenuItem clearAllUserDefinedFilesToolStripMenuItem;
+        private ToolStripMenuItem mapmodeSelectorToolStripMenuItem;
+        private ToolStripMenuItem manageMapmodesToolStripMenuItem;
+        private ToolStripMenuItem resetAllMapmodesToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
     }
 }

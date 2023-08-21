@@ -9,11 +9,10 @@ namespace EU4_Parse_Lib
 {
     public partial class MainWindow : Form
     {
-        private int moveAmount = 50;
-        private int currentOffset = 0;
-        public Rectangle displayRect;
-        private int maxXOffset;
-        private int maxYOffset;
+        private const int MoveAmount = 50;
+        public Rectangle DisplayRect;
+        private int _maxXOffset;
+        private int _maxYOffset;
 
         // Hover tooltip over Map
         private bool _isMouseOverPictureBox;
@@ -40,8 +39,8 @@ namespace EU4_Parse_Lib
         {
             if (Vars.Map == null)
                 return;
-            maxXOffset = Vars.Map.Width - Map.Width;
-            maxYOffset = Vars.Map.Height - Map.Height;
+            _maxXOffset = Vars.Map.Width - Map.Width;
+            _maxYOffset = Vars.Map.Height - Map.Height;
         }
         private void ResetDisplayRect()
         {
@@ -50,44 +49,44 @@ namespace EU4_Parse_Lib
             var centerX = (Vars.Map.Width - Map.Width + 400) / 2;
             var centerY = (Vars.Map.Height - Map.Height - 1000) / 2;
 
-            displayRect = new Rectangle(centerX, centerY, Map.Width, Map.Height);
+            DisplayRect = new Rectangle(centerX, centerY, Map.Width, Map.Height);
         }
         private void UpdateDisplayedImage()
         {
             if (Vars.Map == null)
                 return;
-            var displayedBitmap = Vars.Map.Clone(displayRect, Vars.Map.PixelFormat);
+            var displayedBitmap = Vars.Map.Clone(DisplayRect, Vars.Map.PixelFormat);
             Map.Image = displayedBitmap;
         }
         public void MoveBitmap(int dx, int dy)
         {
-            var newX = displayRect.X + dx;
-            var newY = displayRect.Y + dy;
+            var newX = DisplayRect.X + dx;
+            var newY = DisplayRect.Y + dy;
 
             // Ensure the new position stays within bounds
-            newX = Math.Max(0, Math.Min(maxXOffset, newX));
-            newY = Math.Max(0, Math.Min(maxYOffset, newY));
+            newX = Math.Max(0, Math.Min(_maxXOffset, newX));
+            newY = Math.Max(0, Math.Min(_maxYOffset, newY));
 
-            displayRect.X = newX;
-            displayRect.Y = newY;
+            DisplayRect.X = newX;
+            DisplayRect.Y = newY;
 
             UpdateDisplayedImage();
         }
         private void RightButton_Click(object sender, EventArgs e)
         {
-            MoveBitmap(moveAmount * StepsizeMove.Value, 0);
+            MoveBitmap(MoveAmount * StepsizeMove.Value, 0);
         }
         private void DownButton_Click(object sender, EventArgs e)
         {
-            MoveBitmap(0, moveAmount * StepsizeMove.Value);
+            MoveBitmap(0, MoveAmount * StepsizeMove.Value);
         }
         private void LeftButton_Click(object sender, EventArgs e)
         {
-            MoveBitmap(-moveAmount * StepsizeMove.Value, 0);
+            MoveBitmap(-MoveAmount * StepsizeMove.Value, 0);
         }
         private void UpButton_Click(object sender, EventArgs e)
         {
-            MoveBitmap(0, -moveAmount * StepsizeMove.Value);
+            MoveBitmap(0, -MoveAmount * StepsizeMove.Value);
         }
         private void zoomTrackBar_ValueChanged(object sender, EventArgs e)
         {
@@ -107,8 +106,8 @@ namespace EU4_Parse_Lib
         {
             if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right || Vars.Map == null)
                 return;
-            var x = e.X + displayRect.X;
-            var y = e.Y + displayRect.Y;
+            var x = e.X + DisplayRect.X;
+            var y = e.Y + DisplayRect.Y;
 
             if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
                 return;
@@ -120,12 +119,18 @@ namespace EU4_Parse_Lib
 
             if (e.Button == MouseButtons.Left)
             {
+                var p = Vars.Provinces[Vars.ColorIds[color]];
+                if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(p))
+                {
+                    Util.SetProvinceBorder(p, p.Color);
+                    Vars.SelectedProvinces.Clear();
+                    return;
+                }
                 foreach (var pro in Vars.SelectedProvinces)
                 {
                     Util.SetProvinceBorder(pro, pro.Color);
                 }
                 Vars.SelectedProvinces.Clear();
-                var p = Vars.Provinces[Vars.ColorIds[color]];
                 Util.NextProvince(p);
                 Vars.SelectedProvinces.Add(p);
             }
@@ -138,7 +143,7 @@ namespace EU4_Parse_Lib
             /*
             if (e.Button == MouseButtons.Middle)
             {
-                
+                // I cant remember what I wanted to put here
             }
             */
 
@@ -190,8 +195,8 @@ namespace EU4_Parse_Lib
 
         private void GenerateMouseTooltip(Point p)
         {
-            var color = Vars.Map!.GetPixel(p.X + displayRect.X, p.Y + displayRect.Y);
-            if (color == _tooltipColor || color == Color.FromArgb(255,0,0,0)) return;
+            var color = Vars.Map!.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
+            if (color == _tooltipColor || color == Color.FromArgb(255, 0, 0, 0)) return;
             var id = Vars.ColorIds[color];
             var area = Vars.Provinces[id].Area;
             // TODO expand when more data is available.
@@ -200,6 +205,12 @@ namespace EU4_Parse_Lib
 
             _tt.SetToolTip(Vars.MainWindow!.Map, $"{Loading.GetLoc($"PROV{id}")} [{id}]\nArea: {area}");
             _tooltipColor = color;
+        }
+
+        private void Help_MenuItem_Click(object sender, EventArgs e)
+        {
+            Vars.WebBrowserForm = Gui.ShowForm<WebBrowserForm>();
+            Util.ConvertAndDisplayInWebBrowser(Path.Combine(Vars.DataPath, "README.md"));
         }
     }
 }

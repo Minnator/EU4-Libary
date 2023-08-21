@@ -8,24 +8,32 @@ using EU4_Parse_Lib.DataClasses;
 
 namespace EU4_Parse_Lib
 {
+    public enum Scope
+    {
+        Province, Country, Ruler, Unit
+    }
+
+    public enum Attribute
+    {
+        Id, Area, Tag, Name, 
+    }
     public static class Vars
     {
-        public static int TotalProvinces = 0;
-
         public static float ZoomLevel = 1;
 
-        public static Stopwatch stopwatch = new();
+        public static readonly Stopwatch Stopwatch = new();
 
         public static Bitmap? Map;
 
-        public static TimeSpan totalLoadTime = new ();
+        public static TimeSpan TotalLoadTime = new ();
 
         public static List<string> TimeStamps = new();
 
         public static string AppPath = "";
         public static string ModFolder = "";
         public static string VanillaFolder = "";
-        public static string language = "english";
+        public static string Language = "english";
+        public static string DataPath = "";
 
         public static Dictionary<int, Province> Provinces = new ();
         public static Dictionary<int, Province> RnvProvinces = new ();
@@ -34,6 +42,9 @@ namespace EU4_Parse_Lib
         public static Dictionary<int, Province> SeaProvinces = new ();
         public static Dictionary<int, Province> CoastalProvinces = new ();
         public static Dictionary<string, Color> NotOnMapProvinces = new ();
+
+        public static Dictionary<Attribute, Func<bool>> AttrToValue = new();
+        public static Dictionary<Scope, Type> ScopeToType = new();
 
         public static Dictionary<string, string> Localization = new ();
         
@@ -47,9 +58,14 @@ namespace EU4_Parse_Lib
 
         public static Dictionary<string, Area> Areas = new();
 
+        
+
         // FORMS
 
         public static MainWindow? MainWindow;
         public static LoadingScreen? LoadingForm;
+        public static WebBrowserForm? WebBrowserForm;
+        
+        public static object BitmapLock = new (); // Lock for bitmap access
     }
 }

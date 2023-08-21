@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using EU4_Parse_Lib.DataClasses;
+using Newtonsoft.Json;
+
 namespace EU4_Parse_Lib
 {
     public static class Loading
@@ -15,13 +17,13 @@ namespace EU4_Parse_Lib
             var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
             var map = new Bitmap(combinedPath);
             Vars.Map = map;
-            Vars.stopwatch.Start();
+            Vars.Stopwatch.Start();
             _pixDic = GetAllPixels();
             InitProvinces(_pixDic);
-            Vars.stopwatch.Stop();
-            Vars.totalLoadTime += Vars.stopwatch.Elapsed;
-            Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.stopwatch.Elapsed} |");
-            Vars.stopwatch.Reset();
+            Vars.Stopwatch.Stop();
+            Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
+            Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
+            Vars.Stopwatch.Reset();
             LoadWithStopWatch("Borders", GenerateBorders);
             LoadWithStopWatch("default.map", LoadDefaultMap);
             LoadWithStopWatch("Areas", LoadAreas);
@@ -37,17 +39,26 @@ namespace EU4_Parse_Lib
         /// <param name="action"></param>
         private static void LoadWithStopWatch(string taskName, Action action)
         {
-            Vars.stopwatch.Start();
+            Vars.Stopwatch.Start();
             action.Invoke();
-            Vars.stopwatch.Stop();
-            Vars.totalLoadTime += Vars.stopwatch.Elapsed;
-            Vars.TimeStamps.Add($"Time Elapsed {taskName}:".PadRight(30) + $"| {Vars.stopwatch.Elapsed} |");
-            Vars.stopwatch.Reset();
+            Vars.Stopwatch.Stop();
+            Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
+            Vars.TimeStamps.Add($"Time Elapsed {taskName}:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
+            Vars.Stopwatch.Reset();
         }
-
+        /// <summary>
+        /// Deserialize any kind of object form JSON of the given path relative to app path
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static List<object> DeserializeJson(string path)
+        {
+            var json = File.ReadAllText(Path.Combine(Vars.AppPath, path));
+            return JsonConvert.DeserializeObject<List<object>>(json) ?? new List<object>();
+        }
         private static void WriteDebugFiles()
         {
-            Vars.stopwatch.Start();
+            Vars.Stopwatch.Start();
             DebugPrints.PrintProvincesBorder(Vars.Provinces);
             DebugPrints.PrintProvColDirectory(_pixDic);
             DebugPrints.PrintProvincesEmpty(Vars.Provinces);
@@ -56,13 +67,14 @@ namespace EU4_Parse_Lib
             DebugPrints.PrintAreas(Vars.Areas);
             DebugPrints.PrintProvincesContent(Vars.Provinces);
             DebugPrints.PrintProvinceList();
-            DebugPrints.PritLocData(Vars.LocalizationFiles);
-            Vars.stopwatch.Stop();
-            Vars.totalLoadTime += Vars.stopwatch.Elapsed;
-            Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"| {Vars.stopwatch.Elapsed} |");
-            Vars.stopwatch.Reset();
+            DebugPrints.PrintLocData(Vars.LocalizationFiles);
+            DebugPrints.PrintAttributes(Vars.Provinces);
+            Vars.Stopwatch.Stop();
+            Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
+            Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
+            Vars.Stopwatch.Reset();
             Vars.TimeStamps.Add("------------------------------|------------------|");
-            Vars.TimeStamps.Add($"Total Time Elapsed:".PadRight(30) + $"| {Vars.totalLoadTime} |");
+            Vars.TimeStamps.Add($"Total Time Elapsed:".PadRight(30) + $"| {Vars.TotalLoadTime} |");
             Saving.WriteLog(Vars.TimeStamps.ListToString(), "TimeComplexity");
         }
 
@@ -78,13 +90,16 @@ namespace EU4_Parse_Lib
         {
             var ymlFiles = new List<string>();
             Vars.Localization.Clear();
+
             var path = Path.Combine(Vars.ModFolder, "localisation");
             if (Directory.Exists(path))
-                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.language}.yml").ToList());
+                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.Language}.yml").ToList());
             path = Path.Combine(Vars.VanillaFolder, "localisation");
             if (Directory.Exists(path))
-                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.language}.yml").ToList());
+                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.Language}.yml").ToList());
+
             if (ymlFiles.Count <= 0) return;
+
             Dictionary<string, string> loc = new();
             Dictionary<string, int> locFiles = new();
 
@@ -151,35 +166,32 @@ namespace EU4_Parse_Lib
             Dictionary<int, Province> land = new();
 
             var match = Regex.Match(content, pattern);
-
-            if (int.TryParse(match.Groups[1].Value, out var value))
-                Vars.TotalProvinces = value;
-
+            
             foreach (var item in Util.GetProvincesList(match.Groups["seaProvs"].Value))
             {
-                if (Vars.Provinces.TryGetValue(item, out var province))
-                    sea.Add(item, province);
-                else
-                    sea.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+                sea.Add(item,
+                    Vars.Provinces.TryGetValue(item, out var province)
+                        ? province
+                        : new Province(Color.FromArgb(255, 0, 0, 0)));
             }
 
             foreach (var item in Util.GetProvincesList(match.Groups["RnvProvs"].Value))
-                if (Vars.Provinces.TryGetValue(item, out var province))
-                    rnv.Add(item, province);
-                else
-                    rnv.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+                rnv.Add(item,
+                    Vars.Provinces.TryGetValue(item, out var province)
+                        ? province
+                        : new Province(Color.FromArgb(255, 0, 0, 0)));
 
             foreach (var item in Util.GetProvincesList(match.Groups["LakeProvs"].Value))
-                if (Vars.Provinces.TryGetValue(item, out var province))
-                    lake.Add(item, province);
-                else
-                    lake.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+                lake.Add(item,
+                    Vars.Provinces.TryGetValue(item, out var province)
+                        ? province
+                        : new Province(Color.FromArgb(255, 0, 0, 0)));
 
             foreach (var item in Util.GetProvincesList(match.Groups["CostalProvs"].Value))
-                if (Vars.Provinces.TryGetValue(item, out var province))
-                    land.Add(item, province);
-                else
-                    land.Add(item, new Province(Color.FromArgb(255, 0, 0, 0)));
+                land.Add(item,
+                    Vars.Provinces.TryGetValue(item, out var province)
+                        ? province
+                        : new Province(Color.FromArgb(255, 0, 0, 0)));
 
 
             foreach (var p in Vars.Provinces)
@@ -354,7 +366,7 @@ namespace EU4_Parse_Lib
                         }
                         else
                         {
-                            colors.Add(col, new List<Point> { new Point(x, y) });
+                            colors.Add(col, new List<Point> { new (x, y) });
                         }
                     }
                 }

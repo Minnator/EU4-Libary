@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.MonthCalendar;
 
 namespace EU4_Parse_Lib.DataClasses
 {
     public class Province
     {
 
-        public int Id;
+        public int Id { get; set; }
         
         public Color Color;
         public Color CurrentColor;
@@ -17,25 +18,27 @@ namespace EU4_Parse_Lib.DataClasses
         public List<Point> Pixels = new ();
         public List<Point> Border = new ();
 
-        public string Area = "-1";
-        public string Name = "-1";
+        public string Area { get; set; } = "-1";
+        public string Name { get; set; } = "-1";
 
+        public readonly Dictionary<Attribute, Func<Province, object>> Attributes = new ()
+        {
+            { Attribute.Id, province => province.Id },
+            { Attribute.Area, province => province.Area },
+            { Attribute.Name, province => province.Name },
+        };
+
+        public object GetAttribute(Attribute att)
+        {
+            return Attributes[att](this);
+        }
+        
         public Province (Color col) 
         { 
             Color = col;
             CurrentColor = Color;
         }
-
-        public void AddToPixels(IEnumerable<Point> p)
-        { 
-            Pixels.AddRange(p);
-        }
-
-        public void AddToBorder(IEnumerable<Point> p)
-        {
-            Border.AddRange(p);
-        }
-
+        
         public override string ToString()
         {
             return $"ID: {Id,4}; area: {Area}";

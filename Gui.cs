@@ -16,6 +16,7 @@
             {
                 form = new T();
                 form.Show();
+                form.BringToFront();
             }
             else
                 form.BringToFront();

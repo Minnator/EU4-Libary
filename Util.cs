@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -8,11 +9,75 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using EU4_Parse_Lib.DataClasses;
+using EU4_Parse_Lib.Interfaces;
+using Markdig;
 
 namespace EU4_Parse_Lib
 {
     public static class Util
     {
+        public static Color GetGradientColor(int minValue, int maxValue, int value)
+        {
+            var normalizedValue = (double)(value - minValue) / (maxValue - minValue);
+
+            var red = (int)(255 * (1 - normalizedValue));
+            var green = (int)(255 * normalizedValue);
+
+            return Color.FromArgb(red, green, 0);
+        }
+
+        public static void SetMapMode(IMapMode mapMode)
+        {
+
+        }
+        /// <summary>
+        /// RN it defaults to the Web browser in the Help window
+        /// </summary>
+        /// <param name="markdownFilePath"></param>
+        public static void ConvertAndDisplayInWebBrowser(string markdownFilePath)
+        {
+            Debug.WriteLine(markdownFilePath);
+            //markdownFilePath = Path.Combine("C:\\Users\\david\\source\\repos\\EU4 Parsed Lib\\bin\\Debug\\net6.0\\data",
+            //    "README.md");
+            var markdownContent = File.ReadAllText(markdownFilePath);
+            var htmlContent = Markdown.ToHtml(markdownContent);
+            
+            Vars.WebBrowserForm!.WebBrowser.DocumentText = htmlContent;
+        }
+
+        public static void ChangePixelsColor(List<Point> pixels, Color newColor)
+        {
+            lock (Vars.BitmapLock)
+            {
+                using Bitmap bmp = new (Vars.Map!);
+                var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, bmp.PixelFormat);
+                var bytesPerPixel = Image.GetPixelFormatSize(bmp.PixelFormat) / 8;
+                var stride = bmpData.Stride;
+
+                unsafe
+                {
+                    foreach (var point in pixels)
+                    {
+                        var x = point.X;
+                        var y = point.Y;
+
+                        if (x < 0 || x >= bmp.Width || y < 0 || y >= bmp.Height)
+                            continue;
+
+                        var pixelPtr = (byte*)bmpData.Scan0 + y * stride + x * bytesPerPixel;
+
+                        pixelPtr[0] = newColor.B;
+                        pixelPtr[1] = newColor.G;
+                        pixelPtr[2] = newColor.R;
+                    }
+                }
+
+                bmp.UnlockBits(bmpData);
+
+                Vars.Map = new Bitmap(bmp);
+                Vars.MainWindow!.Map.Image = Vars.Map;
+            }
+        }
 
         public static string GetModOrVanillaPathFolder(string path)
         {
@@ -120,15 +185,15 @@ namespace EU4_Parse_Lib
             bmp.UnlockBits(bmpData);
 
             // Calculate the corresponding offset for the modified bmp
-            var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow.Map.Width, Vars.MainWindow.displayRect.X));
-            var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.displayRect.Y));
+            var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow.Map.Width, Vars.MainWindow.DisplayRect.X));
+            var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
             // Update the Image property of the PictureBox
             Vars.Map = new Bitmap(bmp);
             Vars.MainWindow.Map.Image = Vars.Map;
 
             // Move the bitmap to the same position as when the method was called
-            Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.displayRect.X, offsetY - Vars.MainWindow.displayRect.Y);
+            Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
         }
 
         public static void SetProvincePixels(Province p, Color color)
@@ -163,15 +228,15 @@ namespace EU4_Parse_Lib
             bmp.UnlockBits(bmpData);
 
             // Calculate the corresponding offset for the modified bmp
-            var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow.Map.Width, Vars.MainWindow.displayRect.X));
-            var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.displayRect.Y));
+            var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow.Map.Width, Vars.MainWindow.DisplayRect.X));
+            var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
             // Update the Image property of the PictureBox
             Vars.Map = new Bitmap(bmp);
             Vars.MainWindow.Map.Image = Vars.Map;
 
             // Move the bitmap to the same position as when the method was called
-            Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.displayRect.X, offsetY - Vars.MainWindow.displayRect.Y);
+            Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
 
             p.CurrentColor = color;
         }
