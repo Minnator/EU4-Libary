@@ -11,8 +11,5 @@ public interface IMapMode
     //Type defines the type of value e.g. int, float, bool, string, Color the color for that according value
     Dictionary<Type, Color> ColorTable { get; set; }
     public Color GetProvinceColor();
-
-
-
-
+    
 }

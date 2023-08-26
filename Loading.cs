@@ -291,8 +291,8 @@ namespace EU4_Parse_Lib
             Dictionary<Color, int> colorIds = new();
             var lines = File.ReadAllLines(Util.GetModOrVanillaPathFile(Path.Combine("map", "definition.csv")));
 
-            var matches = Regex.Matches(lines.ToArray().ArrayToString(), @"\s+(?:(\d+);(\d+);(\d+);(\d+);(.*);).*");
-
+            var matches = Regex.Matches(lines.ToArray().ArrayToString(), @"\s*(?:(\d+);(\d+);(\d+);(\d+);(.*);).*");
+            
             foreach (var match in matches.Cast<Match>())
             {
                 Color color;
