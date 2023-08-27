@@ -25,6 +25,20 @@ namespace EU4_Parse_Lib
 
             return Color.FromArgb(red, green, 0);
         }
+        /// <summary>
+        /// Populates a list from a given Enum consisting of the strings of the enum
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<string> EnumToList<T>()
+        {
+            List<string> enumNames = new ();
+            foreach (T value in Enum.GetValues(typeof(T)))
+            {
+                enumNames.Add(value.ToString() ?? string.Empty);
+            }
+            return enumNames;
+        }
 
         public static void SetMapMode(IMapMode mapMode)
         {

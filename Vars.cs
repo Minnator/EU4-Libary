@@ -10,12 +10,21 @@ namespace EU4_Parse_Lib
 {
     public enum Scope
     {
-        Province, Country, Ruler, Unit
+        Province, Country, Ruler, Unit, Owner, Controller, None
     }
 
+    public enum ProvinceAtt
+    {
+        Id, Area, Name, Owner, Controller, BaseTax, BaseManpower, BaseProduction, 
+    }
+    public enum CountryAtt
+    {
+        Tag, Cash, Prestige, Legitimacy, PowerProjection, Adm, Dip, Mil, 
+    }
     public enum Attribute
     {
-        Id, Area, Tag, Name, 
+        Id, Area, Name, Owner, Controller, BaseTax, BaseManpower, BaseProduction, Tag, Cash, Prestige, 
+        Legitimacy, PowerProjection, Adm, Dip, Mil,
     }
     public static class Vars
     {
@@ -28,6 +37,10 @@ namespace EU4_Parse_Lib
         public static TimeSpan TotalLoadTime = new ();
 
         public static List<string> TimeStamps = new();
+        public static List<string> AttributeNames = new();
+        public static List<string> CountryAttributeNames = new();
+        public static List<string> ProvinceAttributeNames = new();
+        public static List<string> ScopeNames = new();
 
         public static string AppPath = "";
         public static string ModFolder = "";
@@ -65,6 +78,7 @@ namespace EU4_Parse_Lib
         public static MainWindow? MainWindow;
         public static LoadingScreen? LoadingForm;
         public static WebBrowserForm? WebBrowserForm;
+        public static ManageMapmodes? ManageMapmodes;
         
         public static object BitmapLock = new (); // Lock for bitmap access
     }

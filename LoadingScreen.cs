@@ -55,7 +55,6 @@ namespace EU4_Parse_Lib
             LoadAllFilesButton.Enabled = false;
             Vars.MainWindow = Gui.ShowForm<MainWindow>();
             //Vars.MainWindow.Location = (Point)new Size(Location.X + Width, Location.Y);
-            BringToFront();
             ParseManager.LoadAll();
         }
 

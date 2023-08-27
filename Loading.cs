@@ -17,6 +17,10 @@ namespace EU4_Parse_Lib
             var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
             var map = new Bitmap(combinedPath);
             Vars.Map = map;
+            Vars.AttributeNames = Util.EnumToList<Attribute>();
+            Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
+            Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
+            Vars.ScopeNames = Util.EnumToList<Scope>();
             Vars.Stopwatch.Start();
             _pixDic = GetAllPixels();
             InitProvinces(_pixDic);
@@ -69,6 +73,7 @@ namespace EU4_Parse_Lib
             DebugPrints.PrintProvinceList();
             DebugPrints.PrintLocData(Vars.LocalizationFiles);
             DebugPrints.PrintAttributes(Vars.Provinces);
+            DebugPrints.PrintTestTriggerValue();
             Vars.Stopwatch.Stop();
             Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
             Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");

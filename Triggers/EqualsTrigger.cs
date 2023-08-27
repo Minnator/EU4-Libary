@@ -5,37 +5,57 @@ namespace EU4_Parse_Lib.Triggers;
 
 public class EqualsTrigger : ITrigger 
 {
-    public object Value { get; set; }
+    private object Value { get;}
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
     public string Name { get; set; } = "EqualsTrigger";
+    public Scope Scope { get; set; }
 
-    public EqualsTrigger(Attribute attribute, object value, bool isNegated)
+    public EqualsTrigger(Attribute attribute, int value, bool isNegated = false)
     {
         Attribute = attribute;
         Value = value;
         IsNegated = isNegated;
     }
-    public bool GetTrigger(object scope)
+    public bool GetTrigger(object obj)
     {
-        if (scope.GetType() == typeof(Province))
-            return GetTriggerValue((Province)scope);
-        if (scope.GetType() == typeof(Country))
-            return GetTriggerValue((Country)scope);
-        return false;
+        switch (Scope)
+        {
+            case Scope.Province:
+                Console.WriteLine("Scope is Province");
+                return GetTriggerValue((Province)obj);
+            case Scope.Country:
+                Console.WriteLine("Scope is Country");
+                throw new NotImplementedException();
+            case Scope.Ruler:
+                Console.WriteLine("Scope is Ruler");
+                throw new NotImplementedException();
+            case Scope.Unit:
+                Console.WriteLine("Scope is Unit");
+                throw new NotImplementedException();
+            case Scope.Owner:
+                Console.WriteLine("Scope is Owner");
+                throw new NotImplementedException();
+            case Scope.Controller:
+                Console.WriteLine("Scope is Controller");
+                throw new NotImplementedException();
+            default:
+                Console.WriteLine("Unknown Scope");
+                return false;
+        }
     }
 
     public bool GetTriggerValue(Province p)
     {
         if (IsNegated)
-            return !p.Attributes[Attribute].Equals(Value);
-        return p.Attributes[Attribute].Equals(Value);
+            return !p.GetAttribute(Attribute).Equals(Value);
+        return p.GetAttribute(Attribute).Equals(Value);
     }
     public bool GetTriggerValue(Country c)
     {
         if (IsNegated)
-            return !c.Attributes[Attribute].Equals(Value);
-        return c.Attributes[Attribute].Equals(Value);
+            return !c.GetAttribute(Attribute).Equals(Value);
+        return c.GetAttribute(Attribute).Equals(Value);
     }
 
     public override string ToString()
@@ -43,5 +63,3 @@ public class EqualsTrigger : ITrigger
         return $"{Name}: Compares the \"{Attribute}\" to {Value}; Negated: {IsNegated}";
     }
 }
-
-//TODO Add other trigger types: < | > | >< | <> | complexTriggers (AND | OR)

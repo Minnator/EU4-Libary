@@ -43,12 +43,12 @@ namespace EU4_Parse_Lib
             _tt = new ToolTip(components);
             menuStrip1 = new MenuStrip();
             settingsToolStripMenuItem = new ToolStripMenuItem();
-            mapmodesToolStripMenuItem = new ToolStripMenuItem();
-            tooltipToolStripMenuItem = new ToolStripMenuItem();
-            mapmodeSelectorToolStripMenuItem = new ToolStripMenuItem();
-            manageMapmodesToolStripMenuItem = new ToolStripMenuItem();
-            resetAllMapmodesToolStripMenuItem = new ToolStripMenuItem();
             clearAllUserDefinedFilesToolStripMenuItem = new ToolStripMenuItem();
+            mapmodesToolStripMenuItem = new ToolStripMenuItem();
+            mapmodeSelectorToolStripMenuItem = new ToolStripMenuItem();
+            ManageMapModesMenu = new ToolStripMenuItem();
+            resetAllMapmodesToolStripMenuItem = new ToolStripMenuItem();
+            tooltipToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
@@ -180,18 +180,18 @@ namespace EU4_Parse_Lib
             settingsToolStripMenuItem.Size = new Size(61, 20);
             settingsToolStripMenuItem.Text = "Settings";
             // 
+            // clearAllUserDefinedFilesToolStripMenuItem
+            // 
+            clearAllUserDefinedFilesToolStripMenuItem.Name = "clearAllUserDefinedFilesToolStripMenuItem";
+            clearAllUserDefinedFilesToolStripMenuItem.Size = new Size(208, 22);
+            clearAllUserDefinedFilesToolStripMenuItem.Text = "Clear all user defined files";
+            // 
             // mapmodesToolStripMenuItem
             // 
-            mapmodesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { mapmodeSelectorToolStripMenuItem, manageMapmodesToolStripMenuItem, resetAllMapmodesToolStripMenuItem });
+            mapmodesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { mapmodeSelectorToolStripMenuItem, ManageMapModesMenu, resetAllMapmodesToolStripMenuItem });
             mapmodesToolStripMenuItem.Name = "mapmodesToolStripMenuItem";
             mapmodesToolStripMenuItem.Size = new Size(79, 20);
             mapmodesToolStripMenuItem.Text = "Mapmodes";
-            // 
-            // tooltipToolStripMenuItem
-            // 
-            tooltipToolStripMenuItem.Name = "tooltipToolStripMenuItem";
-            tooltipToolStripMenuItem.Size = new Size(55, 20);
-            tooltipToolStripMenuItem.Text = "Tooltip";
             // 
             // mapmodeSelectorToolStripMenuItem
             // 
@@ -199,11 +199,12 @@ namespace EU4_Parse_Lib
             mapmodeSelectorToolStripMenuItem.Size = new Size(180, 22);
             mapmodeSelectorToolStripMenuItem.Text = "Mapmode Selector";
             // 
-            // manageMapmodesToolStripMenuItem
+            // ManageMapModesMenu
             // 
-            manageMapmodesToolStripMenuItem.Name = "manageMapmodesToolStripMenuItem";
-            manageMapmodesToolStripMenuItem.Size = new Size(180, 22);
-            manageMapmodesToolStripMenuItem.Text = "Manage Mapmodes";
+            ManageMapModesMenu.Name = "ManageMapModesMenu";
+            ManageMapModesMenu.Size = new Size(180, 22);
+            ManageMapModesMenu.Text = "Manage Mapmodes";
+            ManageMapModesMenu.Click += ManageMapModesMenu_Click;
             // 
             // resetAllMapmodesToolStripMenuItem
             // 
@@ -211,11 +212,11 @@ namespace EU4_Parse_Lib
             resetAllMapmodesToolStripMenuItem.Size = new Size(180, 22);
             resetAllMapmodesToolStripMenuItem.Text = "Reset all Mapmodes";
             // 
-            // clearAllUserDefinedFilesToolStripMenuItem
+            // tooltipToolStripMenuItem
             // 
-            clearAllUserDefinedFilesToolStripMenuItem.Name = "clearAllUserDefinedFilesToolStripMenuItem";
-            clearAllUserDefinedFilesToolStripMenuItem.Size = new Size(208, 22);
-            clearAllUserDefinedFilesToolStripMenuItem.Text = "Clear all user defined files";
+            tooltipToolStripMenuItem.Name = "tooltipToolStripMenuItem";
+            tooltipToolStripMenuItem.Size = new Size(55, 20);
+            tooltipToolStripMenuItem.Text = "Tooltip";
             // 
             // helpToolStripMenuItem
             // 
@@ -269,7 +270,7 @@ namespace EU4_Parse_Lib
         private ToolStripMenuItem tooltipToolStripMenuItem;
         private ToolStripMenuItem clearAllUserDefinedFilesToolStripMenuItem;
         private ToolStripMenuItem mapmodeSelectorToolStripMenuItem;
-        private ToolStripMenuItem manageMapmodesToolStripMenuItem;
+        private ToolStripMenuItem ManageMapModesMenu;
         private ToolStripMenuItem resetAllMapmodesToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
     }

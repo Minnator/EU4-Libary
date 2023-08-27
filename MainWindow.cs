@@ -212,5 +212,10 @@ namespace EU4_Parse_Lib
             Vars.WebBrowserForm = Gui.ShowForm<WebBrowserForm>();
             Util.ConvertAndDisplayInWebBrowser(Path.Combine(Vars.DataPath, "README.md"));
         }
+
+        private void ManageMapModesMenu_Click(object sender, EventArgs e)
+        {
+            Vars.ManageMapmodes = Gui.ShowForm<ManageMapmodes>();
+        }
     }
 }

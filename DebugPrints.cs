@@ -1,11 +1,29 @@
 ﻿using EU4_Parse_Lib.DataClasses;
 using System.Diagnostics;
 using System.Text;
+using EU4_Parse_Lib.Interfaces;
+using EU4_Parse_Lib.Triggers;
 
 namespace EU4_Parse_Lib
 {
     public static class DebugPrints
     {
+        public static void PrintTestTriggerValue()
+        {
+            StringBuilder sb = new();
+            MinTrigger minTrigger = new (Attribute.Id, 40, Scope.Province);
+            List<ITrigger> list = new() { minTrigger };
+            OrTrigger andTrigger = new(list);
+            foreach (var landProvince in Vars.LandProvinces)
+            {
+                if (andTrigger.GetTrigger(landProvince.Value))
+                    sb.AppendLine($"Id: {landProvince.Value.Id,4},  true");
+                else
+                    sb.AppendLine($"Id: {landProvince.Value.Id,4}, false");
+            }
+            Saving.WriteLog(sb.ToString(), "TriggerTest");
+        }
+
         public static void PrintAttributes(Dictionary<int, Province> dic)
         {
             StringBuilder sb = new();
