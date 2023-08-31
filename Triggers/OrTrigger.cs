@@ -6,14 +6,15 @@ namespace EU4_Parse_Lib.Triggers;
 public class OrTrigger : IComplexTrigger
 {
     public Attribute Attribute { get; set; }
-    public string Name { get; set; } = "OrTrigger";
+    public string Name { get; set; }
     public Scope Scope { get; set; }
     public bool IsNegated { get; set; }
     public List<ITrigger> Triggers { get; set; }
-    public OrTrigger(List<ITrigger> triggers, bool isNegated = false)
+    public OrTrigger(List<ITrigger> triggers, bool isNegated = false, string name = "OrTrigger")
     {
         Triggers = triggers;
         IsNegated = isNegated;
+        Name = name;
     }
     
     public override string ToString()

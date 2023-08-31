@@ -41,6 +41,7 @@
             ProgressBox = new TextBox();
             groupBox2 = new GroupBox();
             LoadErrorLog = new TextBox();
+            button2 = new Button();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             SuspendLayout();
@@ -131,6 +132,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(button2);
             groupBox1.Controls.Add(LoadingMapDataRB);
             groupBox1.Controls.Add(CreateStatistics);
             groupBox1.Location = new Point(12, 96);
@@ -168,6 +170,16 @@
             LoadErrorLog.Name = "LoadErrorLog";
             LoadErrorLog.Size = new Size(596, 132);
             LoadErrorLog.TabIndex = 0;
+            // 
+            // button2
+            // 
+            button2.Location = new Point(136, 179);
+            button2.Name = "button2";
+            button2.Size = new Size(75, 23);
+            button2.TabIndex = 17;
+            button2.Text = "Debug";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // LoadingScreen
             // 
@@ -212,5 +224,6 @@
         public TextBox ProgressBox;
         private GroupBox groupBox2;
         public TextBox LoadErrorLog;
+        private Button button2;
     }
 }

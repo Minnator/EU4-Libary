@@ -2,16 +2,22 @@
 
 public class Country
 {
-    public readonly Dictionary<Attribute, Func<Province, object>> Attributes = new()
+    string Tag { get; set; }
+
+
+    public readonly Dictionary<Attribute, Func<Country, object>> Attributes = new()
     {
-        { Attribute.Id, province => province.Id },
-        { Attribute.Area, province => province.Area },
-        { Attribute.Name, province => province.Name },
+        { Attribute.Tag, country => country.Tag },
     };
 
 
+    public Country(string tag)
+    {
+        Tag = tag;
+    }
+
     public object GetAttribute(Attribute attribute)
     {
-        throw new NotImplementedException();
+        return Attributes[attribute](this);
     }
 }

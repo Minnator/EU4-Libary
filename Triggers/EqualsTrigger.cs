@@ -8,14 +8,16 @@ public class EqualsTrigger : ITrigger
     private object Value { get;}
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
-    public string Name { get; set; } = "EqualsTrigger";
+    public string Name { get; set; }
     public Scope Scope { get; set; }
 
-    public EqualsTrigger(Attribute attribute, int value, bool isNegated = false)
+    public EqualsTrigger(Attribute attribute, object value, Scope scope, bool isNegated = false, string name = "EqualsTrigger")
     {
         Attribute = attribute;
         Value = value;
         IsNegated = isNegated;
+        Name = name;
+        Scope = scope;
     }
     public bool GetTrigger(object obj)
     {

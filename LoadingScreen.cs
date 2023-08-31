@@ -67,5 +67,10 @@ namespace EU4_Parse_Lib
         {
 
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Vars.ManageMapmodes = Gui.ShowForm<ManageMapmodes>();
+        }
     }
 }

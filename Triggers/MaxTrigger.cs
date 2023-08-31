@@ -9,14 +9,16 @@ public class MaxTrigger : ITrigger
     private int Value { get; set; }
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
-    public string Name { get; set; } = "MaxTrigger";
+    public string Name { get; set; }
     public Scope Scope { get; set; }
 
-    public MaxTrigger(Attribute attribute, int value, bool isNegated = false)
+    public MaxTrigger(Attribute attribute, int value, Scope scope, bool isNegated = false, string name = "MaxTrigger")
     {
         Attribute = attribute;
         Value = value;
         IsNegated = isNegated;
+        Name = name;
+        Scope = scope;
     }
 
     public bool GetTrigger(object obj)

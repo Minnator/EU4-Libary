@@ -5,15 +5,16 @@ namespace EU4_Parse_Lib.Triggers;
 
 public class AndTrigger : IComplexTrigger
 {
-    public string Name { get; set; } = "AndTrigger";
+    public string Name { get; set; }
     public Scope Scope { get; set; }
     public List<ITrigger> Triggers { get; set; }
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
-    public AndTrigger(List<ITrigger> triggers, bool isNegated = false)
+    public AndTrigger(List<ITrigger> triggers, bool isNegated = false, string name = "AndTrigger")
     {
         Triggers = triggers;
         IsNegated = isNegated;
+        Name = name;
     }
     public bool GetTriggerValue(Province p)
     {

@@ -39,6 +39,17 @@ namespace EU4_Parse_Lib
             }
             return enumNames;
         }
+        /// <summary>
+        /// Checks whether a string is defined as a parameter in an enum
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsStringInEnum<T>(string value) where T : Enum
+        {
+            return Enum.IsDefined(typeof(T), value);
+        }
+
 
         public static void SetMapMode(IMapMode mapMode)
         {

@@ -8,15 +8,16 @@ public class MinTrigger : ITrigger
     private int Value { get; set; }
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
-    public string Name { get; set; } = "MinTrigger";
+    public string Name { get; set; }
     public Scope Scope { get; set; }
 
-    public MinTrigger(Attribute attribute, int value, Scope scope = Scope.None, bool isNegated = false)
+    public MinTrigger(Attribute attribute, int value, Scope scope = Scope.None, bool isNegated = false, string name = "MinTrigger")
     {
         Attribute = attribute;
         Value = value;
         Scope = scope;
         IsNegated = isNegated;
+        Name = name;
     }
     public bool GetTrigger(object obj)
     {
