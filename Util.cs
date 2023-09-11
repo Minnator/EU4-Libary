@@ -261,12 +261,20 @@ namespace EU4_Parse_Lib
             Vars.MainWindow.Map.Image = Vars.Map;
 
             // Move the bitmap to the same position as when the method was called
-            Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
+            //Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
 
             p.CurrentColor = color;
         }
 
-
-
+        /*
+        public static void PrintListToConsole(IEnumerable<object> list)
+        {
+            Debug.WriteLine($"Items: {list.Count()}");
+            foreach (var o in list)
+            {
+                Debug.WriteLine(o.ToString());
+            }
+        }
+        */
     }
 }

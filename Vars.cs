@@ -13,7 +13,6 @@ namespace EU4_Parse_Lib
     {
         Province, Country, Ruler, Unit, Owner, Controller, None
     }
-
     public enum ProvinceAtt
     {
         Id, Area, Name, Owner, Controller, BaseTax, BaseManpower, BaseProduction, 

@@ -6,13 +6,14 @@ namespace EU4_Parse_Lib.Triggers;
 
 public class MaxTrigger : ITrigger 
 {
-    private int Value { get; set; }
+    public object Value { get; set; }
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
     public string Name { get; set; }
     public Scope Scope { get; set; }
+    public string TName { get; set; } = "MaxTrigger";
 
-    public MaxTrigger(Attribute attribute, int value, Scope scope, bool isNegated = false, string name = "MaxTrigger")
+    public MaxTrigger(Attribute attribute, int value, Scope scope, bool isNegated = false, string name = "-")
     {
         Attribute = attribute;
         Value = value;
@@ -56,25 +57,41 @@ public class MaxTrigger : ITrigger
 
     public bool GetTriggerValue(Province p)
     {
-        if (p.GetAttribute(Attribute) is int num)
+        try
         {
-            return num < Value;
+            if (p.GetAttribute(Attribute) is int num)
+            {
+                return num < int.Parse((string)Value);
+            }
+        }
+        catch
+        {
+            return false;
         }
         return false;
     }
     
     public bool GetTriggerValue(Country c)
     {
-        if (c.GetAttribute(Attribute) is int num)
+        try
         {
-            return num < Value;
+            if (c.GetAttribute(Attribute) is int num)
+            {
+                return num < int.Parse((string)Value);
+            }
+        }
+        catch
+        {
+            return false;
         }
         return false;
     }
 
     public override string ToString()
     {
-        return $"{Name}: Compares the \"{Attribute}\" to {Value}";
+        return IsNegated
+            ? $"{Name}: [{Attribute}] < [{Value}]"
+            : $"{Name}: [{Attribute}] > [{Value}]";
     }
 }
 

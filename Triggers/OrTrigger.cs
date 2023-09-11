@@ -8,9 +8,11 @@ public class OrTrigger : IComplexTrigger
     public Attribute Attribute { get; set; }
     public string Name { get; set; }
     public Scope Scope { get; set; }
+    public string TName { get; set; } = "OrTrigger";
     public bool IsNegated { get; set; }
+    public object Value { get; } = -1;
     public List<ITrigger> Triggers { get; set; }
-    public OrTrigger(List<ITrigger> triggers, bool isNegated = false, string name = "OrTrigger")
+    public OrTrigger(List<ITrigger> triggers, bool isNegated = false, string name = "-")
     {
         Triggers = triggers;
         IsNegated = isNegated;
@@ -19,8 +21,9 @@ public class OrTrigger : IComplexTrigger
     
     public override string ToString()
     {
-        return $"{Name}: Returns if any of the \'{Triggers.Count}\' triggers are true.";
+        return $"{Name}: At least one of [{Triggers.Count}] trigger is true";
     }
+
 
     public bool GetTriggerValue(Province p)
     {

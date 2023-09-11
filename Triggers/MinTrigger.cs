@@ -1,17 +1,21 @@
-﻿using EU4_Parse_Lib.DataClasses;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Reflection.Metadata.Ecma335;
+using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.Triggers;
 
 public class MinTrigger : ITrigger 
 {
-    private int Value { get; set; }
+    public object Value { get;}
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
     public string Name { get; set; }
     public Scope Scope { get; set; }
+    public string TName { get; set; } = "MinTrigger";
 
-    public MinTrigger(Attribute attribute, int value, Scope scope = Scope.None, bool isNegated = false, string name = "MinTrigger")
+    public MinTrigger(Attribute attribute, int value, Scope scope = Scope.None, bool isNegated = false, string name = "-")
     {
         Attribute = attribute;
         Value = value;
@@ -24,8 +28,7 @@ public class MinTrigger : ITrigger
         switch (Scope)
         {
             case Scope.Province:
-                Console.WriteLine("Scope is Province");
-                return GetTriggerValue((Province)obj);
+                return obj is Province p && GetTriggerValue(p);
             case Scope.Country:
                 Console.WriteLine("Scope is Country");
                 throw new NotImplementedException();
@@ -57,25 +60,41 @@ public class MinTrigger : ITrigger
 
     public bool GetTriggerValue(Province p)
     {
-        if (p.GetAttribute(Attribute) is int num)
+        try
         {
-            return num > Value;
+            if (p.GetAttribute(Attribute) is int num)
+            {
+                return num > (Value as int? ?? -1);
+            }
+        }
+        catch 
+        {
+            return false;
         }
         return false;
     }
     
     public bool GetTriggerValue(Country c)
     {
-        if (c.GetAttribute(Attribute) is int num)
+        try
         {
-            return num > Value;
+            if (c.GetAttribute(Attribute) is int num)
+            {
+                return num > int.Parse((string)Value);
+            }
+        }
+        catch {
+            return false;
         }
         return false;
     }
 
     public override string ToString()
     {
-        return $"{Name}: Compares the \"{Attribute}\" to {Value}";
+        return IsNegated
+            ? $"{Name}: [{Attribute}] > [{Value}]"
+            : $"{Name}: [{Attribute}] < [{Value}]";
+
     }
 }
 

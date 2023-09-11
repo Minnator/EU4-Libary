@@ -11,7 +11,7 @@ namespace EU4_Parse_Lib
         public static void PrintTestTriggerValue()
         {
             StringBuilder sb = new();
-            MinTrigger minTrigger = new (Attribute.Id, 40, Scope.Province);
+            MinTrigger minTrigger = new (Attribute.Id, 10, Scope.Province);
             List<ITrigger> list = new() { minTrigger };
             OrTrigger andTrigger = new(list);
             foreach (var landProvince in Vars.LandProvinces)

@@ -5,13 +5,14 @@ namespace EU4_Parse_Lib.Triggers;
 
 public class EqualsTrigger : ITrigger 
 {
-    private object Value { get;}
+    public object Value { get;}
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
     public string Name { get; set; }
     public Scope Scope { get; set; }
+    public string TName { get; set; } = "EqualsTrigger";
 
-    public EqualsTrigger(Attribute attribute, object value, Scope scope, bool isNegated = false, string name = "EqualsTrigger")
+    public EqualsTrigger(Attribute attribute, object value, Scope scope, bool isNegated = false, string name = "-")
     {
         Attribute = attribute;
         Value = value;
@@ -49,19 +50,35 @@ public class EqualsTrigger : ITrigger
 
     public bool GetTriggerValue(Province p)
     {
-        if (IsNegated)
-            return !p.GetAttribute(Attribute).Equals(Value);
-        return p.GetAttribute(Attribute).Equals(Value);
+        try
+        {
+            if (IsNegated)
+                return !p.GetAttribute(Attribute).Equals(Value);
+            return p.GetAttribute(Attribute).Equals(Value);
+        }
+        catch
+        {
+            return false;
+        }
     }
     public bool GetTriggerValue(Country c)
     {
-        if (IsNegated)
-            return !c.GetAttribute(Attribute).Equals(Value);
-        return c.GetAttribute(Attribute).Equals(Value);
+        try
+        {
+            if (IsNegated)
+                return !c.GetAttribute(Attribute).Equals(Value);
+            return c.GetAttribute(Attribute).Equals(Value);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public override string ToString()
     {
-        return $"{Name}: Compares the \"{Attribute}\" to {Value}; Negated: {IsNegated}";
+        return IsNegated
+            ? $"{Name}: [{Attribute}] != [{Value}]"
+            : $"{Name}: [{Attribute}] = [{Value}]";
     }
 }

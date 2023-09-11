@@ -1,10 +1,12 @@
 ﻿using EU4_Parse_Lib.Interfaces;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Triggers;
 using Newtonsoft.Json.Linq;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace EU4_Parse_Lib
 {
@@ -169,9 +171,41 @@ namespace EU4_Parse_Lib
             FinalTriggersListBox.Items.Clear();
             foreach (var trigger in _triggers)
             {
-                ExistingTriggersInMM.Items.Add($"[{trigger.GetType()}] {trigger.Name}");
+                ExistingTriggersInMM.Items.Add($"[{trigger.TName}] -> [{trigger.Name}]");
                 AvailableTriggersList.Items.Add(trigger);
                 FinalTriggersListBox.Items.Add(trigger);
+            }
+        }
+
+        private void LoadTriggerToInterface(ITrigger trigger)
+        {
+            TriggerNameBox.Text = trigger.Name;
+            IsNegatedCheckBox.Checked = trigger.IsNegated;
+            TriggerTypeBox.Text = trigger.TName;
+            TriggerValueBox.Text = trigger.Value.ToString();
+            var scopeIndex = ExistingTriggersInMM.FindString(trigger.Scope.ToString());
+            if (scopeIndex == ListBox.NoMatches)
+                return;
+            TriggerScopeList.SelectedIndex = scopeIndex;
+            var attrIndex = ExistingTriggersInMM.FindString(trigger.Attribute.ToString());
+            if (attrIndex == ListBox.NoMatches)
+                return;
+            TriggerScopeList.SelectedIndex = attrIndex;
+        }        
+        
+        private void LoadTriggerToInterface(IComplexTrigger trigger)
+        {
+            TriggerNameBox.Text = trigger.Name;
+            IsNegatedCheckBox.Checked = trigger.IsNegated;
+            TriggerTypeBox.Text = trigger.TName;
+            AvailableTriggersList.Items.Clear();
+            ExistingTriggersInMM.Items.Clear();
+            FinalTriggersListBox.Items.Clear();
+            foreach (var tri in trigger.Triggers)
+            {
+                ExistingTriggersInMM.Items.Add($"[{tri.TName}] -> [{tri.Name}]");
+                AvailableTriggersList.Items.Add(tri);
+                FinalTriggersListBox.Items.Add(tri);
             }
         }
 
@@ -339,6 +373,36 @@ namespace EU4_Parse_Lib
                 default:
                     return;
             }
+        }
+
+        /// <summary>
+        /// sets a tooltip to show the contents of the item as the box is quite small and the items quite long
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FinalTriggersListBox_MouseHover(object sender, EventArgs e)
+        {
+            // Get the mouse position relative to the ListBox.
+            var mousePosition = FinalTriggersListBox.PointToClient(MousePosition);
+            var itemIndex = FinalTriggersListBox.IndexFromPoint(mousePosition);
+
+            if (itemIndex >= 0 && itemIndex < FinalTriggersListBox.Items.Count)
+            {
+                FTLTooltip.SetToolTip(FinalTriggersListBox, FinalTriggersListBox.Items[itemIndex].ToString());
+            }
+            else
+                FTLTooltip.SetToolTip(FinalTriggersListBox, null);
+        }
+
+        private void ExistingTriggersInMM_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            //Util.PrintListToConsole(_triggers);
+            foreach (var trigger in _triggers)
+            {
+                Debug.WriteLine(trigger.ToString());
+                LoadTriggerToInterface(trigger);
+            }
+            Debug.WriteLine("------------");
         }
     }
 }

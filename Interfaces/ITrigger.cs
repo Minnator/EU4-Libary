@@ -8,6 +8,8 @@ namespace EU4_Parse_Lib.Interfaces
         bool IsNegated { get; set; }
         string Name { get; set; }
         Scope Scope { get; set; }
+        string TName { get; set; }
+        object Value { get; }
 
         bool GetTriggerValue(Province p);
         bool GetTriggerValue(Country c);

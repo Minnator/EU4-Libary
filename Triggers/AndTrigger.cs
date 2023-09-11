@@ -7,10 +7,12 @@ public class AndTrigger : IComplexTrigger
 {
     public string Name { get; set; }
     public Scope Scope { get; set; }
+    public string TName { get; set; } = "AndTrigger";
+    public object Value { get; } = -1;
     public List<ITrigger> Triggers { get; set; }
     public Attribute Attribute { get; set; }
     public bool IsNegated { get; set; }
-    public AndTrigger(List<ITrigger> triggers, bool isNegated = false, string name = "AndTrigger")
+    public AndTrigger(List<ITrigger> triggers, bool isNegated = false, string name = "-")
     {
         Triggers = triggers;
         IsNegated = isNegated;
@@ -40,6 +42,6 @@ public class AndTrigger : IComplexTrigger
     }
     public override string ToString()
     {
-        return $"{Name}: Returns if all \'{Triggers.Count}\' triggers are true.";
+        return $"{Name}: All [{Triggers.Count}] trigger are true";
     }
 }

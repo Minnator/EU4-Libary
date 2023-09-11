@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Imaging;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using EU4_Parse_Lib.DataClasses;
 using Newtonsoft.Json;
@@ -14,26 +15,35 @@ namespace EU4_Parse_Lib
 
         public static void LoadAll()
         {
-            var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
-            var map = new Bitmap(combinedPath);
-            Vars.Map = map;
-            Vars.AttributeNames = Util.EnumToList<Attribute>();
-            Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
-            Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
-            Vars.ScopeNames = Util.EnumToList<Scope>();
-            Vars.Stopwatch.Start();
-            _pixDic = GetAllPixels();
-            InitProvinces(_pixDic);
-            Vars.Stopwatch.Stop();
-            Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
-            Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
-            Vars.Stopwatch.Reset();
-            LoadWithStopWatch("Borders", GenerateBorders);
-            LoadWithStopWatch("default.map", LoadDefaultMap);
-            LoadWithStopWatch("Areas", LoadAreas);
-            LoadWithStopWatch("Localization", LoadAllLocalization);
-            WriteDebugFiles();
-            Debug.WriteLine("Finished Loading");
+            try
+            {
+                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
+                var map = new Bitmap(combinedPath);
+                Vars.Map = map;
+                Vars.AttributeNames = Util.EnumToList<Attribute>();
+                Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
+                Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
+                Vars.ScopeNames = Util.EnumToList<Scope>();
+                Vars.Stopwatch.Start();
+                _pixDic = GetAllPixels();
+                InitProvinces(_pixDic);
+                Vars.Stopwatch.Stop();
+                Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
+                Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
+                Vars.Stopwatch.Reset();
+                LoadWithStopWatch("Borders", GenerateBorders);
+                LoadWithStopWatch("default.map", LoadDefaultMap);
+                LoadWithStopWatch("Areas", LoadAreas);
+                LoadWithStopWatch("Localization", LoadAllLocalization);
+                WriteDebugFiles();
+                Debug.WriteLine("Finished Loading");
+            }
+            catch (InvalidCastException ex)
+            {
+                Console.WriteLine("fuuuuuuuuuuuuuuuuuuuuuuuuck" + ex);
+                Thread.Sleep(1000000);
+                throw;
+            }
         }
 
         /// <summary>
@@ -198,7 +208,7 @@ namespace EU4_Parse_Lib
                         ? province
                         : new Province(Color.FromArgb(255, 0, 0, 0)));
 
-
+            
             foreach (var p in Vars.Provinces)
             {
                 if (sea.ContainsKey(p.Key))

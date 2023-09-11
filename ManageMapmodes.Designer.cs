@@ -93,6 +93,7 @@
             label1 = new Label();
             MapmodesTooltip = new ToolTip(components);
             AttributeToScopeTT = new ToolTip(components);
+            FTLTooltip = new ToolTip(components);
             ManageMapmodesTab.SuspendLayout();
             CreateMapmodesTab.SuspendLayout();
             ColorTableBox.SuspendLayout();
@@ -487,9 +488,9 @@
             label9.AutoSize = true;
             label9.Location = new Point(310, 196);
             label9.Name = "label9";
-            label9.Size = new Size(88, 15);
+            label9.Size = new Size(181, 15);
             label9.TabIndex = 34;
-            label9.Text = "Final trigger list";
+            label9.Text = "Final trigger list (RMB to remove)";
             // 
             // FinalTriggersListBox
             // 
@@ -500,6 +501,7 @@
             FinalTriggersListBox.Size = new Size(178, 109);
             FinalTriggersListBox.TabIndex = 33;
             FinalTriggersListBox.MouseDown += FinalTriggersListBox_MouseDown;
+            FinalTriggersListBox.MouseHover += FinalTriggersListBox_MouseHover;
             // 
             // label8
             // 
@@ -547,6 +549,7 @@
             ExistingTriggersInMM.Name = "ExistingTriggersInMM";
             ExistingTriggersInMM.Size = new Size(178, 109);
             ExistingTriggersInMM.TabIndex = 29;
+            ExistingTriggersInMM.MouseDoubleClick += ExistingTriggersInMM_MouseDoubleClick;
             // 
             // TriggerNameBox
             // 
@@ -756,6 +759,14 @@
             // 
             AttributeToScopeTT.Popup += AttributeToScopeTT_Popup;
             // 
+            // FTLTooltip
+            // 
+            FTLTooltip.AutomaticDelay = 0;
+            FTLTooltip.AutoPopDelay = 0;
+            FTLTooltip.InitialDelay = 0;
+            FTLTooltip.ReshowDelay = 0;
+            FTLTooltip.ShowAlways = true;
+            // 
             // ManageMapmodes
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -845,5 +856,6 @@
         private Button SaveTriggersButton;
         private Button ResetListButton;
         private Label label20;
+        private ToolTip FTLTooltip;
     }
 }
