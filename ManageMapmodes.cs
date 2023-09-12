@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Markdig.Helpers;
 
 namespace EU4_Parse_Lib
 {
@@ -152,15 +153,26 @@ namespace EU4_Parse_Lib
                     MErrorBox.Text += "Select a valid trigger type!\n";
                     return;
                 case "MinTrigger":
-                    _triggers.Add(new MinTrigger(attr, int.Parse(TriggerValueBox.Text), scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
+                    _triggers.Add(new MinTrigger(attr, TriggerValueBox.Text, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                     break;
                 case "MaxTrigger":
-                    _triggers.Add(new MaxTrigger(attr, int.Parse(TriggerValueBox.Text), scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
+                    _triggers.Add(new MaxTrigger(attr, TriggerValueBox.Text, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                     break;
                 case "EqualsTrigger":
                     _triggers.Add(new EqualsTrigger(attr, TriggerValueBox.Text, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                     break;
-
+                case "OrTrigger":
+                    List<ITrigger> tri = ItemsToTriggers();
+                    Debug.WriteLine(tri.Count);
+                    foreach (var trigger in tri)
+                    {
+                        Debug.WriteLine(trigger.ToString());
+                    }
+                    _triggers.Add(new OrTrigger(tri, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
+                    break;    
+                case "AndTrigger":
+                    _triggers.Add(new AndTrigger(ItemsToTriggers(), IsNegatedCheckBox.Checked, TriggerNameBox.Text));
+                    break;
                 default:
                     MErrorBox.Text += "Select a valid trigger type!\n";
                     return;
@@ -169,12 +181,34 @@ namespace EU4_Parse_Lib
             AvailableTriggersList.Items.Clear();
             ExistingTriggersInMM.Items.Clear();
             FinalTriggersListBox.Items.Clear();
+            TriggerNameBox.Items.Clear();
             foreach (var trigger in _triggers)
             {
                 ExistingTriggersInMM.Items.Add($"[{trigger.TName}] -> [{trigger.Name}]");
                 AvailableTriggersList.Items.Add(trigger);
                 FinalTriggersListBox.Items.Add(trigger);
+                TriggerNameBox.Items.Add(trigger.Name);
             }
+        }
+
+        private List<ITrigger> ItemsToTriggers()
+        {
+            List<ITrigger> triggers = new();
+            foreach (var item in SelectedSubTriggersList.Items)
+            {
+                ITrigger? first = null;
+                foreach (var trigger in _triggers)
+                {
+                    if (Equals(trigger.ToString(), item.ToString()))
+                    {
+                        first = trigger;
+                        break;
+                    }
+                }
+
+                triggers.Add(first!);
+            }
+            return triggers;
         }
 
         private void LoadTriggerToInterface(ITrigger trigger)
@@ -191,8 +225,8 @@ namespace EU4_Parse_Lib
             if (attrIndex == ListBox.NoMatches)
                 return;
             TriggerScopeList.SelectedIndex = attrIndex;
-        }        
-        
+        }
+
         private void LoadTriggerToInterface(IComplexTrigger trigger)
         {
             TriggerNameBox.Text = trigger.Name;
@@ -245,6 +279,7 @@ namespace EU4_Parse_Lib
             if (AvailableTriggersList.SelectedIndex == -1)
                 return;
             SelectedSubTriggersList.Items.Remove(SelectedSubTriggersList.SelectedItem);
+
         }
 
         private void TriggerTypeBox_SelectedValueChanged(object sender, EventArgs e)
@@ -396,13 +431,51 @@ namespace EU4_Parse_Lib
 
         private void ExistingTriggersInMM_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            //Util.PrintListToConsole(_triggers);
+            var mousePosition = ExistingTriggersInMM.PointToClient(MousePosition);
+            var itemIndex = ExistingTriggersInMM.IndexFromPoint(mousePosition);
+
+            if (itemIndex >= 0 && itemIndex < ExistingTriggersInMM.Items.Count)
+            {
+
+                Debug.WriteLine(_triggers[itemIndex]);
+                LoadTriggerToInterface(_triggers[itemIndex]);
+            }
+        }
+
+        private void TriggerNameBox_TextChanged(object sender, EventArgs e)
+        {
             foreach (var trigger in _triggers)
             {
-                Debug.WriteLine(trigger.ToString());
-                LoadTriggerToInterface(trigger);
+                var triggerName = trigger.Name;
+                var boxName = TriggerNameBox.Text;
+                if (!triggerName.Equals(boxName))
+                    continue;
+                ModifyTriggerButton.Enabled = true;
+                return;
             }
-            Debug.WriteLine("------------");
+            ModifyTriggerButton.Enabled = false;
+        }
+
+        private void SelectedSubTriggersList_MouseClick(object sender, MouseEventArgs e)
+        {
+            /*
+            Debug.WriteLine(e.Button);
+            if (e.Button != MouseButtons.Right)
+                return;
+            Debug.WriteLine("RMB pressed");
+            var clickedIndex = SelectedSubTriggersList.IndexFromPoint(e.X, e.Y);
+            Debug.WriteLine($"Index: {clickedIndex}");
+            if (clickedIndex == ListBox.NoMatches)
+                return;
+            Debug.WriteLine($"Removing {SelectedSubTriggersList.Items[clickedIndex]}");
+            SelectedSubTriggersList.Items.RemoveAt(clickedIndex);
+            */
+        }
+
+        private void ModifyTriggerButton_Click(object sender, EventArgs e)
+        {
+            _triggers.RemoveAll(trigger => trigger.Name == TriggerNameBox.Text);
+            AddTriggerButton_Click(sender, e);
         }
     }
 }

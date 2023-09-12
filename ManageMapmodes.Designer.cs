@@ -58,10 +58,9 @@
             label12 = new Label();
             MinValueBox = new TextBox();
             label11 = new Label();
-            MapModeTypeList = new ComboBox();
-            label10 = new Label();
             UseColorTableButton = new RadioButton();
             TriggerBox = new GroupBox();
+            ModifyTriggerButton = new Button();
             SaveTriggersButton = new Button();
             ResetListButton = new Button();
             label9 = new Label();
@@ -137,8 +136,6 @@
             CreateMapmodesTab.Controls.Add(OnlyLandProvincesCheckBox);
             CreateMapmodesTab.Controls.Add(SaveMapmodeButton);
             CreateMapmodesTab.Controls.Add(GradianColorBox);
-            CreateMapmodesTab.Controls.Add(MapModeTypeList);
-            CreateMapmodesTab.Controls.Add(label10);
             CreateMapmodesTab.Controls.Add(UseColorTableButton);
             CreateMapmodesTab.Controls.Add(TriggerBox);
             CreateMapmodesTab.Controls.Add(UseGradiantButton);
@@ -304,7 +301,7 @@
             // OnlyLandProvincesCheckBox
             // 
             OnlyLandProvincesCheckBox.AutoSize = true;
-            OnlyLandProvincesCheckBox.Location = new Point(121, 93);
+            OnlyLandProvincesCheckBox.Location = new Point(121, 66);
             OnlyLandProvincesCheckBox.Name = "OnlyLandProvincesCheckBox";
             OnlyLandProvincesCheckBox.Size = new Size(131, 19);
             OnlyLandProvincesCheckBox.TabIndex = 9;
@@ -404,25 +401,6 @@
             label11.TabIndex = 1;
             label11.Text = "Min:";
             // 
-            // MapModeTypeList
-            // 
-            MapModeTypeList.DropDownStyle = ComboBoxStyle.DropDownList;
-            MapModeTypeList.FormattingEnabled = true;
-            MapModeTypeList.Items.AddRange(new object[] { "Trigger", "Coloring" });
-            MapModeTypeList.Location = new Point(121, 64);
-            MapModeTypeList.Name = "MapModeTypeList";
-            MapModeTypeList.Size = new Size(189, 23);
-            MapModeTypeList.TabIndex = 6;
-            // 
-            // label10
-            // 
-            label10.AutoSize = true;
-            label10.Location = new Point(6, 67);
-            label10.Name = "label10";
-            label10.Size = new Size(91, 15);
-            label10.TabIndex = 5;
-            label10.Text = "Mapmode type:";
-            // 
             // UseColorTableButton
             // 
             UseColorTableButton.AutoSize = true;
@@ -436,6 +414,7 @@
             // 
             // TriggerBox
             // 
+            TriggerBox.Controls.Add(ModifyTriggerButton);
             TriggerBox.Controls.Add(SaveTriggersButton);
             TriggerBox.Controls.Add(ResetListButton);
             TriggerBox.Controls.Add(label9);
@@ -463,6 +442,17 @@
             TriggerBox.TabIndex = 4;
             TriggerBox.TabStop = false;
             TriggerBox.Text = "Trigger";
+            // 
+            // ModifyTriggerButton
+            // 
+            ModifyTriggerButton.Enabled = false;
+            ModifyTriggerButton.Location = new Point(157, 330);
+            ModifyTriggerButton.Name = "ModifyTriggerButton";
+            ModifyTriggerButton.Size = new Size(142, 23);
+            ModifyTriggerButton.TabIndex = 37;
+            ModifyTriggerButton.Text = "Modify trigger";
+            ModifyTriggerButton.UseVisualStyleBackColor = true;
+            ModifyTriggerButton.Click += ModifyTriggerButton_Click;
             // 
             // SaveTriggersButton
             // 
@@ -543,7 +533,6 @@
             // 
             // ExistingTriggersInMM
             // 
-            ExistingTriggersInMM.FormattingEnabled = true;
             ExistingTriggersInMM.ItemHeight = 15;
             ExistingTriggersInMM.Location = new Point(310, 43);
             ExistingTriggersInMM.Name = "ExistingTriggersInMM";
@@ -561,6 +550,7 @@
             TriggerNameBox.Size = new Size(189, 23);
             TriggerNameBox.TabIndex = 22;
             TriggerNameBox.Text = "customTrigger";
+            TriggerNameBox.TextChanged += TriggerNameBox_TextChanged;
             // 
             // SubTriggerGroup
             // 
@@ -607,12 +597,12 @@
             // 
             // SelectedSubTriggersList
             // 
-            SelectedSubTriggersList.FormattingEnabled = true;
             SelectedSubTriggersList.ItemHeight = 15;
             SelectedSubTriggersList.Location = new Point(151, 37);
             SelectedSubTriggersList.Name = "SelectedSubTriggersList";
             SelectedSubTriggersList.Size = new Size(142, 94);
             SelectedSubTriggersList.TabIndex = 22;
+            SelectedSubTriggersList.MouseClick += SelectedSubTriggersList_MouseClick;
             SelectedSubTriggersList.MouseDoubleClick += SelectedSubTriggersList_MouseDoubleClick;
             // 
             // TriggerScopeList
@@ -640,9 +630,9 @@
             // 
             AddTriggerButton.Location = new Point(7, 329);
             AddTriggerButton.Name = "AddTriggerButton";
-            AddTriggerButton.Size = new Size(297, 23);
+            AddTriggerButton.Size = new Size(144, 23);
             AddTriggerButton.TabIndex = 10;
-            AddTriggerButton.Text = "Add Trigger";
+            AddTriggerButton.Text = "Add trigger";
             AddTriggerButton.UseVisualStyleBackColor = true;
             AddTriggerButton.Click += AddTriggerButton_Click;
             // 
@@ -857,5 +847,6 @@
         private Button ResetListButton;
         private Label label20;
         private ToolTip FTLTooltip;
+        private Button ModifyTriggerButton;
     }
 }

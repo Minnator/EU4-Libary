@@ -13,7 +13,7 @@ public class MaxTrigger : ITrigger
     public Scope Scope { get; set; }
     public string TName { get; set; } = "MaxTrigger";
 
-    public MaxTrigger(Attribute attribute, int value, Scope scope, bool isNegated = false, string name = "-")
+    public MaxTrigger(Attribute attribute, object value, Scope scope, bool isNegated = false, string name = "-")
     {
         Attribute = attribute;
         Value = value;
@@ -61,7 +61,7 @@ public class MaxTrigger : ITrigger
         {
             if (p.GetAttribute(Attribute) is int num)
             {
-                return num < int.Parse((string)Value);
+                return num < (Value as int? ?? -1);
             }
         }
         catch
@@ -77,7 +77,7 @@ public class MaxTrigger : ITrigger
         {
             if (c.GetAttribute(Attribute) is int num)
             {
-                return num < int.Parse((string)Value);
+                return num < (Value as int? ?? -1);
             }
         }
         catch

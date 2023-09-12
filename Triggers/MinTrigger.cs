@@ -15,7 +15,7 @@ public class MinTrigger : ITrigger
     public Scope Scope { get; set; }
     public string TName { get; set; } = "MinTrigger";
 
-    public MinTrigger(Attribute attribute, int value, Scope scope = Scope.None, bool isNegated = false, string name = "-")
+    public MinTrigger(Attribute attribute, object value, Scope scope = Scope.None, bool isNegated = false, string name = "-")
     {
         Attribute = attribute;
         Value = value;
@@ -80,7 +80,7 @@ public class MinTrigger : ITrigger
         {
             if (c.GetAttribute(Attribute) is int num)
             {
-                return num > int.Parse((string)Value);
+                return num > (Value as int? ?? -1);
             }
         }
         catch {
