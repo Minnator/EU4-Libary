@@ -3,11 +3,43 @@ using System.Diagnostics;
 using System.Text;
 using EU4_Parse_Lib.Interfaces;
 using EU4_Parse_Lib.Triggers;
+using System.Drawing.Imaging;
 
 namespace EU4_Parse_Lib
 {
     public static class DebugPrints
     {
+        public static void CreateImage(List<Color> colors, string outputPath)
+        {
+            if (colors == null || colors.Count == 0)
+            {
+                throw new ArgumentException("The list of colors cannot be empty or null.");
+            }
+
+            int imageWidth = colors.Count;
+            int imageHeight = 100;
+
+            using (Bitmap bitmap = new Bitmap(imageWidth, imageHeight))
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                for (int i = 0; i < colors.Count; i++)
+                {
+                    using (SolidBrush brush = new SolidBrush(colors[i]))
+                    {
+                        int stripWidth = 1;
+                        int stripHeight = imageHeight; // Each strip spans the full height
+                        int x = i * stripWidth; // Calculate the x-coordinate for each strip
+                        int y = 0; // Start from the top
+
+                        graphics.FillRectangle(brush, x, y, stripWidth, stripHeight);
+                    }
+                }
+
+                bitmap.Save(outputPath, ImageFormat.Png);
+            }
+
+        }
+
         public static void PrintTestTriggerValue()
         {
             StringBuilder sb = new();

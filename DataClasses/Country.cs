@@ -3,6 +3,7 @@
 public class Country
 {
     string Tag { get; set; }
+    public Dictionary<int, Province> provinces;
 
 
     public readonly Dictionary<Attribute, Func<Country, object>> Attributes = new()

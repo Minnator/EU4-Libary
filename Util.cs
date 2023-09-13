@@ -16,15 +16,31 @@ namespace EU4_Parse_Lib
 {
     public static class Util
     {
+        /// <summary>
+        /// calculates the colors used in a gradient to display in gradient mapmode types
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static Color GetGradientColor(int minValue, int maxValue, int value)
         {
+            // Ensure value is within the range [minValue, maxValue]
+            value = Math.Max(minValue, Math.Min(maxValue, value));
+
             var normalizedValue = (double)(value - minValue) / (maxValue - minValue);
 
             var red = (int)(255 * (1 - normalizedValue));
             var green = (int)(255 * normalizedValue);
 
+            // Clamp red and green values to the valid range [0, 255]
+            red = Math.Max(0, Math.Min(255, red));
+            green = Math.Max(0, Math.Min(255, green));
+
             return Color.FromArgb(red, green, 0);
         }
+
+
         /// <summary>
         /// Populates a list from a given Enum consisting of the strings of the enum
         /// </summary>
@@ -39,6 +55,7 @@ namespace EU4_Parse_Lib
             }
             return enumNames;
         }
+
         /// <summary>
         /// Checks whether a string is defined as a parameter in an enum
         /// </summary>
@@ -50,11 +67,15 @@ namespace EU4_Parse_Lib
             return Enum.IsDefined(typeof(T), value);
         }
 
-
+        /// <summary>
+        /// Sets the current mapmode; aka changing the province colors
+        /// </summary>
+        /// <param name="mapMode"></param>
         public static void SetMapMode(IMapMode mapMode)
         {
 
         }
+
         /// <summary>
         /// RN it defaults to the Web browser in the Help window
         /// </summary>
@@ -70,6 +91,11 @@ namespace EU4_Parse_Lib
             Vars.WebBrowserForm!.WebBrowser.DocumentText = htmlContent;
         }
 
+        /// <summary>
+        /// changes the color of a list of pixels to a given color. 
+        /// </summary>
+        /// <param name="pixels"></param>
+        /// <param name="newColor"></param>
         public static void ChangePixelsColor(List<Point> pixels, Color newColor)
         {
             lock (Vars.BitmapLock)
@@ -104,12 +130,18 @@ namespace EU4_Parse_Lib
             }
         }
 
+        /// <summary>
+        /// I a folder exists in a mod it will override the vanilla folder. If not the vanilla folder will be the one to be cached
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static string GetModOrVanillaPathFolder(string path)
         {
             return Directory.Exists(Path.Combine(Vars.ModFolder, path))
                 ? Path.Combine(Vars.ModFolder, path)
                 : Path.Combine(Vars.VanillaFolder, path);
         }
+
         /// <summary>
         /// Returns a list of all numbers in that string, if they are separated by an empty space
         /// Has no error log yet for failed Parsing to int
@@ -129,6 +161,7 @@ namespace EU4_Parse_Lib
             }
             return idList;
         }
+
         /// <summary>
         /// Get is existing the path from the mod if not defaults to vanilla
         /// if vanilla is faulty crash
@@ -142,6 +175,13 @@ namespace EU4_Parse_Lib
                 ? Path.Combine(Vars.ModFolder, path)
                 : Path.Combine(Vars.VanillaFolder, path);
         }
+
+        /// <summary>
+        /// converts an array to a string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <returns></returns>
         public static string ArrayToString<T>(this IEnumerable<T> array)
         {
             StringBuilder sb = new();
@@ -152,6 +192,27 @@ namespace EU4_Parse_Lib
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Verifies whether a given object can be parsed into an attribute ENUM
+        /// </summary>
+        /// <param name="attr"></param>
+        /// <returns></returns>
+        public static KeyValuePair<bool, string> ValidateAttribute(object attr)
+        {
+            return string.IsNullOrWhiteSpace((string)attr)
+                ? new KeyValuePair<bool, string>(false, $"Trigger attribute [ {attr} ] is not valid\n")
+                : !Enum.TryParse((string)attr, out Attribute _)
+                    ? new KeyValuePair<bool, string>(false,
+                        $"Trigger attribute [ {attr} ] does not exist in the current scope\n")
+                    : new KeyValuePair<bool, string>(true, string.Empty);
+        }
+
+        /// <summary>
+        /// converts a list to a string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
         public static string ListToString<T>(this IEnumerable<T> list)
         {
             StringBuilder sb = new();
@@ -166,6 +227,10 @@ namespace EU4_Parse_Lib
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        /// <summary>
+        /// iterates global variables to the next province
+        /// </summary>
+        /// <param name="province"></param>
         public static void NextProvince(Province province)
         {
             if (Vars.MainWindow == null) 
@@ -178,6 +243,11 @@ namespace EU4_Parse_Lib
             SetProvinceBorder(province, Color.Black);
         }
 
+        /// <summary>
+        /// calculates all border pixels of a province
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="color"></param>
         public static void SetProvinceBorder(Province p, Color color)
         {
             if (Vars.MainWindow == null || Vars.Map == null)
@@ -221,6 +291,11 @@ namespace EU4_Parse_Lib
             Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
         }
 
+        /// <summary>
+        /// sets the color for all pixels in a province
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="color"></param>
         public static void SetProvincePixels(Province p, Color color)
         {
             if (Vars.MainWindow == null || Vars.Map == null)
@@ -276,5 +351,14 @@ namespace EU4_Parse_Lib
             }
         }
         */
+
+        public static KeyValuePair<bool, Color> ParseColorFromString(string input)
+        {
+            var colMatch = Regex.Match(input, @"(?<r>[0-9]{1,3})[,|\/](?<g>[0-9]{1,3})[,|\/](?<b>[0-9]{1,3})");
+            return !colMatch.Success
+                ? new KeyValuePair<bool, Color>(false, Color.FromArgb(255, 0, 0, 0))
+                : new KeyValuePair<bool, Color>(true, Color.FromArgb(255, int.Parse(colMatch.Groups["r"].ToString()),
+                    int.Parse(colMatch.Groups["g"].ToString()), int.Parse(colMatch.Groups["b"].ToString())));
+        }
     }
 }

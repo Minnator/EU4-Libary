@@ -1,13 +1,8 @@
-﻿using EU4_Parse_Lib.Interfaces;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 using EU4_Parse_Lib.DataClasses;
+using EU4_Parse_Lib.Interfaces;
 using EU4_Parse_Lib.Triggers;
-using Newtonsoft.Json.Linq;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using Markdig.Helpers;
 
 namespace EU4_Parse_Lib
 {
@@ -17,11 +12,16 @@ namespace EU4_Parse_Lib
         private Province _province = new(Color.FromArgb(255, 0, 0, 0));
         private Country _country = new("AND");
         private List<ITrigger> _triggers = new();
+        private Dictionary<object, Color> _colorTable = new();
+        private MType _type = MType.Gradient;
 
         public ManageMapmodes()
         {
             InitializeComponent();
 
+            ColorTableBox.Enabled = false;
+            GradianColorBox.Enabled = true;
+            TriggerBox.Enabled = false;
 
             MapmodesTooltip.SetToolTip(TriggerNameBox, "To edit an existing trigger choose its name.");
             TriggerScopeList.Items.AddRange(Vars.ScopeNames.ToArray<object>());
@@ -55,7 +55,6 @@ namespace EU4_Parse_Lib
                     return;
             }
         }
-
 
 
         private void AddTriggerButton_Click(object sender, EventArgs e)
@@ -169,7 +168,7 @@ namespace EU4_Parse_Lib
                         Debug.WriteLine(trigger.ToString());
                     }
                     _triggers.Add(new OrTrigger(tri, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
-                    break;    
+                    break;
                 case "AndTrigger":
                     _triggers.Add(new AndTrigger(ItemsToTriggers(), IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                     break;
@@ -316,7 +315,43 @@ namespace EU4_Parse_Lib
 
         private void SaveMapmodeButton_Click(object sender, EventArgs e)
         {
+            switch (_type)
+            {
+                case MType.Gradient:
+                    if (!int.TryParse(MinValueBox.Text, out int min) ||
+                        !int.TryParse(MaxValueBox.Text, out int max) ||
+                        !int.TryParse(NullValueBox.Text, out int nul))
+                    {
+                        MErrorBox.Text += "Either [min] [max] [null] are not a number!";
+                        return;
+                    }
+                    var col = Util.ParseColorFromString(GradColorBox.Text);
+                    if (!col.Key)
+                    {
+                        MErrorBox.Text += $"[{GradColorBox.Text}] is in wrong color format: [r/g/b] or [r,g,b]";
+                        return;
+                    }
+                    Enum.TryParse(GradAttributeBox.Text, out Attribute attr);
+                    //_currentMapMode = new
+                    List<Color> colors = new ();
+                    foreach (var province in Vars.LandProvinces.Values)
+                    {
+                        //Debug.WriteLine($"{province.Id} : {Util.GetGradientColor(min, max, (int)province.GetAttribute(attr))}");
+                        colors.Add(Util.GetGradientColor(min, max, (int)province.GetAttribute(attr)));
+                    }
 
+                    DebugPrints.CreateImage(colors, "C:\\Users\\david\\Downloads\\color_strip.png");
+                    break;
+                case MType.ColorTable:
+                    break;
+                case MType.OncColorPerValue:
+                    break;
+                case MType.TriggerList:
+                    break;
+                default:
+                    MErrorBox.Text = $"Illegal mapmodetype [{_type}]!";
+                    return;
+            }
         }
 
         private void AttributeToScopeTT_Popup(object sender, PopupEventArgs e)
@@ -476,6 +511,111 @@ namespace EU4_Parse_Lib
         {
             _triggers.RemoveAll(trigger => trigger.Name == TriggerNameBox.Text);
             AddTriggerButton_Click(sender, e);
+        }
+
+        private void ColAttributeBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            _colorTable.Clear();
+        }
+
+        /// <summary>
+        /// verifies all entered parameters and then continuous to add it to the color table
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddToColorTable_Click(object sender, EventArgs e)
+        {
+            MErrorBox.Clear();
+            var res = Util.ValidateAttribute(ColAtributeBox.Text);
+            if (!res.Key)
+            {
+                MErrorBox.Text += res.Value;
+                return;
+            }
+
+            var resCol = Util.ParseColorFromString(ColColorBox.Text);
+            if (!resCol.Key)
+            {
+                MErrorBox.Text += $"[{ColColorBox.Text}] does not match format: [r/g/b] or [r,g,b]";
+                return;
+            }
+
+            /* Deprecated more generalized method used.
+            var colMatch = Regex.Match(ColColorBox.Text, @"(?<r>[0-9]{1,3})\/(?<g>[0-9]{1,3})\/(?<b>[0-9]{1,3})");
+            if (!colMatch.Success)
+            {
+                MErrorBox.Text += $"[{ColColorBox.Text}] does not match format: [r/g/b]";
+                return;
+            }
+
+            var colVal = Color.FromArgb(255, int.Parse(colMatch.Groups["r"].ToString()),
+                int.Parse(colMatch.Groups["g"].ToString()), int.Parse(colMatch.Groups["b"].ToString()));
+            */
+
+            if (_colorTable.ContainsKey(ColValueBox.Text))
+            {
+                MErrorBox.Text += $"Value [{ColValueBox.Text}] is already defined as [{ColColorBox.Text}]\n";
+                return;
+            }
+
+            _colorTable.Add(ColValueBox.Text, resCol.Value);
+
+            ColortablePreview.Items.Clear();
+            foreach (var color in _colorTable)
+            {
+                var item = new ListViewItem($"[{color.Key}] -> [{color.Value.R}/{color.Value.G}/{color.Value.B}]");
+                ColortablePreview.Items.Add(item);
+            }
+        }
+
+        private void ColorTablePreview_MouseClick(object sender, MouseEventArgs e)
+        {
+            if ((e.Button & MouseButtons.Right) == 0)
+                return;
+
+            var hitTestInfo = ColortablePreview.HitTest(e.Location);
+
+            if (hitTestInfo.Item == null)
+                return;
+
+            var index = hitTestInfo.Item.Index;
+            var keyToRemove = ColortablePreview.Items[index].Text;
+            var match = Regex.Match(keyToRemove, @"\[(?<key>.*)\]\s-");
+
+            if (match.Success)
+            {
+                ColortablePreview.Items.RemoveAt(index);
+                _colorTable.Remove(match.Groups["key"].Value.Trim());
+            }
+            else
+            {
+                MErrorBox.Text += "Failed to remove the clicked item. Try restarting the application. If the issue persists, file a support ticket.\n";
+            }
+        }
+
+        private void ClearMErrorLog_Click(object sender, EventArgs e)
+        {
+            MErrorBox.Clear();
+        }
+
+        private void UseColorTableButton_CheckedChanged(object sender, EventArgs e)
+        {
+            _type = MType.ColorTable;
+        }
+
+        private void UseGradientButton_CheckedChanged(object sender, EventArgs e)
+        {
+            _type = MType.Gradient;
+        }
+
+        private void UseOneColorPerValueButton_CheckedChanged(object sender, EventArgs e)
+        {
+            _type = MType.OncColorPerValue;
+        }
+
+        private void UseTriggerButton_CheckedChanged(object sender, EventArgs e)
+        {
+            _type = MType.TriggerList;
         }
     }
 }

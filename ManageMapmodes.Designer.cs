@@ -32,9 +32,10 @@
             ManageMapmodesTab = new TabControl();
             ManageMapmodesPage = new TabPage();
             CreateMapmodesTab = new TabPage();
+            ClearMErroLog = new Button();
             label20 = new Label();
             ColorTableBox = new GroupBox();
-            button2 = new Button();
+            AddToColorTable = new Button();
             label18 = new Label();
             label15 = new Label();
             ColortablePreview = new ListView();
@@ -50,9 +51,9 @@
             OnlyLandProvincesCheckBox = new CheckBox();
             SaveMapmodeButton = new Button();
             GradianColorBox = new GroupBox();
-            textBox2 = new TextBox();
+            GradColorBox = new TextBox();
             label14 = new Label();
-            textBox1 = new TextBox();
+            NullValueBox = new TextBox();
             label13 = new Label();
             MaxValueBox = new TextBox();
             label12 = new Label();
@@ -61,7 +62,6 @@
             UseColorTableButton = new RadioButton();
             TriggerBox = new GroupBox();
             ModifyTriggerButton = new Button();
-            SaveTriggersButton = new Button();
             ResetListButton = new Button();
             label9 = new Label();
             FinalTriggersListBox = new ListBox();
@@ -93,6 +93,8 @@
             MapmodesTooltip = new ToolTip(components);
             AttributeToScopeTT = new ToolTip(components);
             FTLTooltip = new ToolTip(components);
+            GradAttributeBox = new ComboBox();
+            label21 = new Label();
             ManageMapmodesTab.SuspendLayout();
             CreateMapmodesTab.SuspendLayout();
             ColorTableBox.SuspendLayout();
@@ -127,6 +129,7 @@
             // 
             // CreateMapmodesTab
             // 
+            CreateMapmodesTab.Controls.Add(ClearMErroLog);
             CreateMapmodesTab.Controls.Add(label20);
             CreateMapmodesTab.Controls.Add(ColorTableBox);
             CreateMapmodesTab.Controls.Add(UseTriggerButton);
@@ -150,6 +153,16 @@
             CreateMapmodesTab.Text = "Create Mapmodes";
             CreateMapmodesTab.UseVisualStyleBackColor = true;
             // 
+            // ClearMErroLog
+            // 
+            ClearMErroLog.Location = new Point(506, 448);
+            ClearMErroLog.Name = "ClearMErroLog";
+            ClearMErroLog.Size = new Size(75, 23);
+            ClearMErroLog.TabIndex = 36;
+            ClearMErroLog.Text = "Clear log";
+            ClearMErroLog.UseVisualStyleBackColor = true;
+            ClearMErroLog.Click += ClearMErrorLog_Click;
+            // 
             // label20
             // 
             label20.AutoSize = true;
@@ -161,7 +174,7 @@
             // 
             // ColorTableBox
             // 
-            ColorTableBox.Controls.Add(button2);
+            ColorTableBox.Controls.Add(AddToColorTable);
             ColorTableBox.Controls.Add(label18);
             ColorTableBox.Controls.Add(label15);
             ColorTableBox.Controls.Add(ColortablePreview);
@@ -177,14 +190,15 @@
             ColorTableBox.TabStop = false;
             ColorTableBox.Text = "Use color table";
             // 
-            // button2
+            // AddToColorTable
             // 
-            button2.Location = new Point(9, 106);
-            button2.Name = "button2";
-            button2.Size = new Size(185, 23);
-            button2.TabIndex = 16;
-            button2.Text = "Add to color table";
-            button2.UseVisualStyleBackColor = true;
+            AddToColorTable.Location = new Point(9, 106);
+            AddToColorTable.Name = "AddToColorTable";
+            AddToColorTable.Size = new Size(185, 23);
+            AddToColorTable.TabIndex = 16;
+            AddToColorTable.Text = "Add to color table";
+            AddToColorTable.UseVisualStyleBackColor = true;
+            AddToColorTable.Click += AddToColorTable_Click;
             // 
             // label18
             // 
@@ -211,6 +225,8 @@
             ColortablePreview.Size = new Size(187, 102);
             ColortablePreview.TabIndex = 11;
             ColortablePreview.UseCompatibleStateImageBehavior = false;
+            ColortablePreview.View = View.List;
+            ColortablePreview.MouseClick += ColorTablePreview_MouseClick;
             // 
             // label16
             // 
@@ -231,6 +247,7 @@
             ColAtributeBox.Size = new Size(113, 23);
             ColAtributeBox.TabIndex = 19;
             ColAtributeBox.Text = "Id";
+            ColAtributeBox.SelectedValueChanged += ColAttributeBox_SelectedValueChanged;
             // 
             // ColValueBox
             // 
@@ -264,6 +281,7 @@
             UseTriggerButton.TabIndex = 33;
             UseTriggerButton.Text = "Use trigger ( red = false ; green = true )";
             UseTriggerButton.UseVisualStyleBackColor = true;
+            UseTriggerButton.CheckedChanged += UseTriggerButton_CheckedChanged;
             UseTriggerButton.Click += MapModeTypeSelection_Click;
             // 
             // UseOneColroPerValueButton
@@ -275,6 +293,7 @@
             UseOneColroPerValueButton.TabIndex = 18;
             UseOneColroPerValueButton.Text = "Use One color per value (random unique colors)";
             UseOneColroPerValueButton.UseVisualStyleBackColor = true;
+            UseOneColroPerValueButton.CheckedChanged += UseOneColorPerValueButton_CheckedChanged;
             UseOneColroPerValueButton.Click += MapModeTypeSelection_Click;
             // 
             // MapModeNameBox
@@ -301,6 +320,8 @@
             // OnlyLandProvincesCheckBox
             // 
             OnlyLandProvincesCheckBox.AutoSize = true;
+            OnlyLandProvincesCheckBox.Checked = true;
+            OnlyLandProvincesCheckBox.CheckState = CheckState.Checked;
             OnlyLandProvincesCheckBox.Location = new Point(121, 66);
             OnlyLandProvincesCheckBox.Name = "OnlyLandProvincesCheckBox";
             OnlyLandProvincesCheckBox.Size = new Size(131, 19);
@@ -310,9 +331,9 @@
             // 
             // SaveMapmodeButton
             // 
-            SaveMapmodeButton.Location = new Point(506, 447);
+            SaveMapmodeButton.Location = new Point(587, 447);
             SaveMapmodeButton.Name = "SaveMapmodeButton";
-            SaveMapmodeButton.Size = new Size(317, 23);
+            SaveMapmodeButton.Size = new Size(236, 23);
             SaveMapmodeButton.TabIndex = 8;
             SaveMapmodeButton.Text = "Save";
             SaveMapmodeButton.UseVisualStyleBackColor = true;
@@ -320,9 +341,11 @@
             // 
             // GradianColorBox
             // 
-            GradianColorBox.Controls.Add(textBox2);
+            GradianColorBox.Controls.Add(label21);
+            GradianColorBox.Controls.Add(GradAttributeBox);
+            GradianColorBox.Controls.Add(GradColorBox);
             GradianColorBox.Controls.Add(label14);
-            GradianColorBox.Controls.Add(textBox1);
+            GradianColorBox.Controls.Add(NullValueBox);
             GradianColorBox.Controls.Add(label13);
             GradianColorBox.Controls.Add(MaxValueBox);
             GradianColorBox.Controls.Add(label12);
@@ -330,19 +353,19 @@
             GradianColorBox.Controls.Add(label11);
             GradianColorBox.Location = new Point(712, 118);
             GradianColorBox.Name = "GradianColorBox";
-            GradianColorBox.Size = new Size(111, 160);
+            GradianColorBox.Size = new Size(111, 211);
             GradianColorBox.TabIndex = 7;
             GradianColorBox.TabStop = false;
-            GradianColorBox.Text = "Use gradiant";
+            GradianColorBox.Text = "Use gradient";
             // 
-            // textBox2
+            // GradColorBox
             // 
-            textBox2.Location = new Point(8, 127);
-            textBox2.Name = "textBox2";
-            textBox2.Size = new Size(93, 23);
-            textBox2.TabIndex = 8;
-            textBox2.Text = "0/0/0";
-            textBox2.TextAlign = HorizontalAlignment.Center;
+            GradColorBox.Location = new Point(8, 127);
+            GradColorBox.Name = "GradColorBox";
+            GradColorBox.Size = new Size(93, 23);
+            GradColorBox.TabIndex = 8;
+            GradColorBox.Text = "0,0,0";
+            GradColorBox.TextAlign = HorizontalAlignment.Center;
             // 
             // label14
             // 
@@ -353,12 +376,12 @@
             label14.TabIndex = 7;
             label14.Text = "Null Color:";
             // 
-            // textBox1
+            // NullValueBox
             // 
-            textBox1.Location = new Point(45, 74);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(56, 23);
-            textBox1.TabIndex = 6;
+            NullValueBox.Location = new Point(45, 74);
+            NullValueBox.Name = "NullValueBox";
+            NullValueBox.Size = new Size(56, 23);
+            NullValueBox.TabIndex = 6;
             // 
             // label13
             // 
@@ -410,12 +433,12 @@
             UseColorTableButton.TabIndex = 10;
             UseColorTableButton.Text = "Use color table";
             UseColorTableButton.UseVisualStyleBackColor = true;
+            UseColorTableButton.CheckedChanged += UseColorTableButton_CheckedChanged;
             UseColorTableButton.Click += MapModeTypeSelection_Click;
             // 
             // TriggerBox
             // 
             TriggerBox.Controls.Add(ModifyTriggerButton);
-            TriggerBox.Controls.Add(SaveTriggersButton);
             TriggerBox.Controls.Add(ResetListButton);
             TriggerBox.Controls.Add(label9);
             TriggerBox.Controls.Add(FinalTriggersListBox);
@@ -448,26 +471,17 @@
             ModifyTriggerButton.Enabled = false;
             ModifyTriggerButton.Location = new Point(157, 330);
             ModifyTriggerButton.Name = "ModifyTriggerButton";
-            ModifyTriggerButton.Size = new Size(142, 23);
+            ModifyTriggerButton.Size = new Size(147, 23);
             ModifyTriggerButton.TabIndex = 37;
             ModifyTriggerButton.Text = "Modify trigger";
             ModifyTriggerButton.UseVisualStyleBackColor = true;
             ModifyTriggerButton.Click += ModifyTriggerButton_Click;
             // 
-            // SaveTriggersButton
-            // 
-            SaveTriggersButton.Location = new Point(398, 329);
-            SaveTriggersButton.Name = "SaveTriggersButton";
-            SaveTriggersButton.Size = new Size(90, 23);
-            SaveTriggersButton.TabIndex = 36;
-            SaveTriggersButton.Text = "Save Triggers";
-            SaveTriggersButton.UseVisualStyleBackColor = true;
-            // 
             // ResetListButton
             // 
-            ResetListButton.Location = new Point(310, 329);
+            ResetListButton.Location = new Point(309, 329);
             ResetListButton.Name = "ResetListButton";
-            ResetListButton.Size = new Size(82, 23);
+            ResetListButton.Size = new Size(178, 23);
             ResetListButton.TabIndex = 35;
             ResetListButton.Text = "Reset List";
             ResetListButton.UseVisualStyleBackColor = true;
@@ -628,9 +642,9 @@
             // 
             // AddTriggerButton
             // 
-            AddTriggerButton.Location = new Point(7, 329);
+            AddTriggerButton.Location = new Point(6, 329);
             AddTriggerButton.Name = "AddTriggerButton";
-            AddTriggerButton.Size = new Size(144, 23);
+            AddTriggerButton.Size = new Size(145, 23);
             AddTriggerButton.TabIndex = 10;
             AddTriggerButton.Text = "Add trigger";
             AddTriggerButton.UseVisualStyleBackColor = true;
@@ -711,8 +725,9 @@
             UseGradiantButton.Size = new Size(91, 19);
             UseGradiantButton.TabIndex = 9;
             UseGradiantButton.TabStop = true;
-            UseGradiantButton.Text = "Use gradiant";
+            UseGradiantButton.Text = "Use gradient";
             UseGradiantButton.UseVisualStyleBackColor = true;
+            UseGradiantButton.CheckedChanged += UseGradientButton_CheckedChanged;
             UseGradiantButton.Click += MapModeTypeSelection_Click;
             // 
             // MapmodeScope
@@ -756,6 +771,26 @@
             FTLTooltip.InitialDelay = 0;
             FTLTooltip.ReshowDelay = 0;
             FTLTooltip.ShowAlways = true;
+            // 
+            // GradAttributeBox
+            // 
+            GradAttributeBox.AutoCompleteMode = AutoCompleteMode.Append;
+            GradAttributeBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+            GradAttributeBox.FormattingEnabled = true;
+            GradAttributeBox.Location = new Point(6, 176);
+            GradAttributeBox.Name = "GradAttributeBox";
+            GradAttributeBox.Size = new Size(93, 23);
+            GradAttributeBox.TabIndex = 20;
+            GradAttributeBox.Text = "Id";
+            // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Location = new Point(8, 158);
+            label21.Name = "label21";
+            label21.Size = new Size(57, 15);
+            label21.TabIndex = 20;
+            label21.Text = "Attribute:";
             // 
             // ManageMapmodes
             // 
@@ -803,16 +838,16 @@
         private Label label12;
         private TextBox MinValueBox;
         private Label label11;
-        private TextBox textBox1;
+        private TextBox NullValueBox;
         private Label label13;
-        private TextBox textBox2;
+        private TextBox GradColorBox;
         private Label label14;
         private Label label15;
         private ListView ColortablePreview;
         private RadioButton UseColorTableButton;
         private RadioButton UseGradiantButton;
         private Button SaveMapmodeButton;
-        private Button button2;
+        private Button AddToColorTable;
         private TextBox ColColorBox;
         private Label label17;
         private TextBox ColValueBox;
@@ -823,7 +858,7 @@
         private Button AddTriggerButton;
         private ComboBox TriggerScopeList;
         private Label label19;
-        private TextBox MErrorBox;
+        public TextBox MErrorBox;
         private ComboBox ColAtributeBox;
         private ComboBox SubTriggerListBox;
         private ListBox AvailableTriggersList;
@@ -843,10 +878,12 @@
         private Label label9;
         private ListBox FinalTriggersListBox;
         private Label label8;
-        private Button SaveTriggersButton;
         private Button ResetListButton;
         private Label label20;
         private ToolTip FTLTooltip;
         private Button ModifyTriggerButton;
+        private Button ClearMErroLog;
+        private Label label21;
+        private ComboBox GradAttributeBox;
     }
 }
