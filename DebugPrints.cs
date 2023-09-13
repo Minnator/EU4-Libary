@@ -1,9 +1,10 @@
-﻿using EU4_Parse_Lib.DataClasses;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Text;
+using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 using EU4_Parse_Lib.Triggers;
-using System.Drawing.Imaging;
+
 
 namespace EU4_Parse_Lib
 {

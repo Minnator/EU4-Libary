@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
@@ -333,14 +334,18 @@ namespace EU4_Parse_Lib
                     }
                     Enum.TryParse(GradAttributeBox.Text, out Attribute attr);
                     //_currentMapMode = new
+                    Dictionary<int, Color> colDic = new();
                     List<Color> colors = new ();
-                    foreach (var province in Vars.LandProvinces.Values)
+                    foreach (var province in Vars.Provinces.Values)
                     {
                         //Debug.WriteLine($"{province.Id} : {Util.GetGradientColor(min, max, (int)province.GetAttribute(attr))}");
                         colors.Add(Util.GetGradientColor(min, max, (int)province.GetAttribute(attr)));
+                        colDic.Add(province.Id, Util.GetGradientColor(min, max, (int)province.GetAttribute(attr)));
                     }
 
-                    DebugPrints.CreateImage(colors, "C:\\Users\\david\\Downloads\\color_strip.png");
+                    //DebugPrints.CreateImage(colors, "C:\\Users\\david\\Downloads\\color_strip.png");
+
+                    DebugPrints.ColorMap(colDic, "C:\\Users\\david\\Downloads\\mapmode.bmp");
                     break;
                 case MType.ColorTable:
                     break;
@@ -352,6 +357,41 @@ namespace EU4_Parse_Lib
                     MErrorBox.Text = $"Illegal mapmodetype [{_type}]!";
                     return;
             }
+        }
+
+
+        /// <summary>
+        /// Creates an abstract mapmode
+        /// </summary>
+        /// <param name="colors"></param>
+        /// <param name="outputPath"></param>
+        /// <returns></returns>
+        public static Bitmap AbstractColorMap(List<Color> colors, string outputPath)
+        {
+            // Create a blank bitmap to draw the map
+            Bitmap mapBitmap = new Bitmap(Vars.Map.Width, Vars.Map.Height);
+
+            using (Graphics graphics = Graphics.FromImage(mapBitmap))
+            {
+                // Clear the bitmap with a background color (e.g., white)
+                graphics.Clear(Color.White);
+
+                int cnt = 0;
+                // Draw each region with its respective color
+                foreach (var kvp in Vars.LandProvinces.Values)
+                {
+                    List<Point> regionPoints = kvp.Pixels;
+                    Color regionColor = colors[cnt];
+                    cnt++;
+                    using (SolidBrush brush = new SolidBrush(regionColor))
+                    {
+                        PointF[] points = regionPoints.ConvertAll(p => new PointF(p.X, p.Y)).ToArray();
+                        graphics.FillPolygon(brush, points);
+                    }
+                }
+            }
+            mapBitmap.Save(outputPath, ImageFormat.Bmp);
+            return mapBitmap;
         }
 
         private void AttributeToScopeTT_Popup(object sender, PopupEventArgs e)

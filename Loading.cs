@@ -51,7 +51,7 @@ namespace EU4_Parse_Lib
         /// </summary>
         /// <param name="taskName"></param>
         /// <param name="action"></param>
-        private static void LoadWithStopWatch(string taskName, Action action)
+        public static void LoadWithStopWatch(string taskName, Action action)
         {
             Vars.Stopwatch.Start();
             action.Invoke();
