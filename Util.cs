@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -237,14 +239,16 @@ namespace EU4_Parse_Lib
                 return;
             Vars.CurProvince ??= province;
             Vars.LastProvince = Vars.CurProvince;
-            var oldColor = Vars.LastProvince.Color;
-            SetProvinceBorder(Vars.LastProvince, oldColor);
+            //var oldColor = Vars.LastProvince.Color;
+
+            Gui.RenderSelection(Vars.LastProvince, Color.FromArgb(255, 0, 0, 0));
             Vars.CurProvince = province;
-            SetProvinceBorder(province, Color.Black);
+            Gui.RenderSelection(province, Color.FromArgb(255, 255, 255, 255));
         }
 
+        
         /// <summary>
-        /// calculates all border pixels of a province
+        /// Deprecate due to speed. calculates all border pixels of a province
         /// </summary>
         /// <param name="p"></param>
         /// <param name="color"></param>

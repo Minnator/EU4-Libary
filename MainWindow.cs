@@ -112,9 +112,8 @@ namespace EU4_Parse_Lib
             if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
                 return;
             var color = Vars.Map.GetPixel(x, y);
-
-            //Debug.WriteLine($"Pixel Color: R = {color.R}, G = {color.G}, B = {color.B}");
-            if (color.Equals(Color.FromArgb(255, 0, 0, 0)))
+            
+            if (!Vars.ColorIds.ContainsKey(color))
                 return;
 
             if (e.Button == MouseButtons.Left)
@@ -122,13 +121,14 @@ namespace EU4_Parse_Lib
                 var p = Vars.Provinces[Vars.ColorIds[color]];
                 if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(p))
                 {
-                    Util.SetProvinceBorder(p, p.Color);
+                    Gui.RenderSelection(p, Color.FromArgb(255, 0, 0, 0));
+                    //Util.SetProvinceBorder(p, p.Color);
                     Vars.SelectedProvinces.Clear();
                     return;
                 }
                 foreach (var pro in Vars.SelectedProvinces)
                 {
-                    Util.SetProvinceBorder(pro, pro.Color);
+                    Gui.RenderSelection(pro, Color.FromArgb(255,0,0,0));
                 }
                 Vars.SelectedProvinces.Clear();
                 Util.NextProvince(p);
@@ -138,7 +138,7 @@ namespace EU4_Parse_Lib
             {
                 var p = Vars.Provinces[Vars.ColorIds[color]];
                 Vars.SelectedProvinces.Add(p);
-                Util.SetProvinceBorder(p, Color.Black);
+                Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
             }
             /*
             if (e.Button == MouseButtons.Middle)
@@ -197,7 +197,10 @@ namespace EU4_Parse_Lib
         {
             var color = Vars.Map!.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
             if (color == _tooltipColor || color == Color.FromArgb(255, 0, 0, 0)) return;
-            var id = Vars.ColorIds[color];
+            if (!Vars.ColorIds.TryGetValue(color, out int id))
+            {
+                return;
+            }
             var area = Vars.Provinces[id].Area;
             // TODO expand when more data is available.
 

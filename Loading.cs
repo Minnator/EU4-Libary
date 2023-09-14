@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using Emgu.CV.Reg;
 using EU4_Parse_Lib.DataClasses;
 using Newtonsoft.Json;
 
@@ -35,14 +37,13 @@ namespace EU4_Parse_Lib
                 LoadWithStopWatch("default.map", LoadDefaultMap);
                 LoadWithStopWatch("Areas", LoadAreas);
                 LoadWithStopWatch("Localization", LoadAllLocalization);
+                Gui.DrawBorderAroundRegions();
                 WriteDebugFiles();
                 Debug.WriteLine("Finished Loading");
             }
             catch (InvalidCastException ex)
             {
-                Console.WriteLine("fuuuuuuuuuuuuuuuuuuuuuuuuck" + ex);
-                Thread.Sleep(1000000);
-                throw;
+                throw new Exception("fuuuuuuuuuuuuuuuuuuuuuuuuck" + ex);
             }
         }
 
@@ -238,21 +239,67 @@ namespace EU4_Parse_Lib
             Vars.CoastalProvinces = coastal;
             Vars.LandProvinces = land;
         }
-        private static void GenerateBorders()
+
+        private static unsafe void GenerateBorders()
         {
-            foreach (var province in Vars.Provinces)
+            if (Vars.Map == null)
+                return;
+            var width = Vars.Map.Width;
+            var height = Vars.Map.Height;
+
+            var bmpData = Vars.Map.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, Vars.Map.PixelFormat);
+
+            Parallel.ForEach(Vars.Provinces.Values, province =>
             {
                 var borderPixels = new List<Point>();
 
-                foreach (var pixel in province.Value.Pixels)
+                foreach (var pixel in province.Pixels)
                 {
-                    if (HasAdjacentPixelWithNewColor(pixel.X, pixel.Y, province.Value.Color))
+                    var startX = Math.Max(0, pixel.X - 1);
+                    var startY = Math.Max(0, pixel.Y - 1);
+                    var endX = Math.Min(width - 1, pixel.X + 1);
+                    var endY = Math.Min(height - 1, pixel.Y + 1);
+
+                    var hasAdjacentColor = false;
+
+                    for (var dx = startX; dx <= endX; dx++)
+                    {
+                        for (var dy = startY; dy <= endY; dy++)
+                        {
+                            if (dx == pixel.X && dy == pixel.Y)
+                            {
+                                continue; // Skip the current pixel
+                            }
+
+                            var pixelPtr = (byte*)bmpData.Scan0 + dy * bmpData.Stride + dx * 3; // Assuming 24bpp
+
+                            var b = pixelPtr[0];
+                            var g = pixelPtr[1];
+                            var r = pixelPtr[2];
+
+                            var adjacentColor = Color.FromArgb(255, r, g, b);
+
+                            if (adjacentColor != province.Color)
+                            {
+                                hasAdjacentColor = true;
+                                break; // Exit early if adjacent color is different from specified color
+                            }
+                        }
+                        if (hasAdjacentColor)
+                            break; // Exit the inner loop if adjacent color is found
+                    }
+
+                    if (hasAdjacentColor)
                         borderPixels.Add(pixel);
                 }
 
-                province.Value.Border = borderPixels;
-            }
+                province.Border = borderPixels;
+            });
+
+            Vars.Map.UnlockBits(bmpData);
         }
+
+
         private static bool HasAdjacentPixelWithNewColor(int x, int y, Color color)
         {
             if (Vars.Map == null)

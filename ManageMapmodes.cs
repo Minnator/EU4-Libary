@@ -319,9 +319,9 @@ namespace EU4_Parse_Lib
             switch (_type)
             {
                 case MType.Gradient:
-                    if (!int.TryParse(MinValueBox.Text, out int min) ||
-                        !int.TryParse(MaxValueBox.Text, out int max) ||
-                        !int.TryParse(NullValueBox.Text, out int nul))
+                    if (!int.TryParse(MinValueBox.Text, out var min) ||
+                        !int.TryParse(MaxValueBox.Text, out var max) ||
+                        !int.TryParse(NullValueBox.Text, out var nul))
                     {
                         MErrorBox.Text += "Either [min] [max] [null] are not a number!";
                         return;
@@ -335,17 +335,17 @@ namespace EU4_Parse_Lib
                     Enum.TryParse(GradAttributeBox.Text, out Attribute attr);
                     //_currentMapMode = new
                     Dictionary<int, Color> colDic = new();
-                    List<Color> colors = new ();
                     foreach (var province in Vars.Provinces.Values)
                     {
-                        //Debug.WriteLine($"{province.Id} : {Util.GetGradientColor(min, max, (int)province.GetAttribute(attr))}");
-                        colors.Add(Util.GetGradientColor(min, max, (int)province.GetAttribute(attr)));
-                        colDic.Add(province.Id, Util.GetGradientColor(min, max, (int)province.GetAttribute(attr)));
+                        colDic.Add(province.Id,
+                            province.GetAttribute(attr) == (object)nul || (int)province.GetAttribute(attr) < min
+                                ? col.Value
+                                : Util.GetGradientColor(min, max, (int)province.GetAttribute(attr)));
                     }
 
                     //DebugPrints.CreateImage(colors, "C:\\Users\\david\\Downloads\\color_strip.png");
 
-                    DebugPrints.ColorMap(colDic, "C:\\Users\\david\\Downloads\\mapmode.bmp");
+                    Gui.ColorMap(colDic, "C:\\Users\\david\\Downloads\\mapmode.bmp");
                     break;
                 case MType.ColorTable:
                     break;
