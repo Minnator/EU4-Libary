@@ -349,49 +349,52 @@ namespace EU4_Parse_Lib
         }
         private static void InitProvinces(IReadOnlyDictionary<Color, List<Point>> dic)
         {
-            Dictionary<int, Province> provinces = new();
-            Dictionary<Color, int> colorIds = new();
+            Dictionary<int, Province> provinces = new Dictionary<int, Province>();
+            Dictionary<Color, int> colorIds = new Dictionary<Color, int>();
+
             var lines = File.ReadAllLines(Util.GetModOrVanillaPathFile(Path.Combine("map", "definition.csv")));
 
-            var matches = Regex.Matches(lines.ToArray().ArrayToString(), @"\s*(?:(\d+);(\d+);(\d+);(\d+);(.*);).*");
-            
-            foreach (var match in matches.Cast<Match>())
+            foreach (var line in lines)
             {
-                Color color;
-                try
+                var match = Regex.Match(line, @"\s*(?:(\d+);(\d+);(\d+);(\d+);(.*);).*");
+
+                if (!match.Success)
                 {
-                    color = Color.FromArgb(255, int.Parse(match.Groups[2].Value), int.Parse(match.Groups[3].Value), int.Parse(match.Groups[4].Value));
+                    continue;
                 }
-                catch (Exception)
+
+                int id, r, g, b;
+
+                if (!int.TryParse(match.Groups[1].Value, out id) ||
+                    !int.TryParse(match.Groups[2].Value, out r) ||
+                    !int.TryParse(match.Groups[3].Value, out g) ||
+                    !int.TryParse(match.Groups[4].Value, out b))
                 {
-                    Util.ErrorPopUp("Corrupted definitions.csv", $"There is an invalid value in the definition of Province: {match.Groups[1].Value}");
-                    throw;
+                    Util.ErrorPopUp("Corrupted definitions.csv", $"Invalid values in the definition line: {line}");
+                    throw new Exception("Corrupted definitions.csv");
                 }
-                Province p = new(color);
+
+                Color color = Color.FromArgb(255, r, g, b);
+                Province p = new Province(color);
+
                 if (dic.TryGetValue(color, out var entry))
                 {
                     p.Pixels = entry;
                 }
                 else
                 {
-                    Vars.NotOnMapProvinces.Add(match.Groups[1].Value, color);
+                    Vars.NotOnMapProvinces.Add(id.ToString(), color);
                     continue;
                 }
 
-                try
-                {
-                    p.Id = int.Parse(match.Groups[1].Value);
-                    provinces.Add(p.Id, p);
-                    colorIds.Add(color, int.Parse(match.Groups[1].Value));
-                }
-                catch (Exception)
-                {
-                    Util.ErrorPopUp("Corrupted definitions.csv", $"There is an invalid value in the definition of ProvinceID: {match.Groups[1].Value}");
-                    throw;
-                }
+                p.Id = id;
+                provinces.Add(id, p);
+                colorIds.Add(color, id);
             }
+
             Vars.ColorIds = colorIds;
             Vars.Provinces = provinces;
+
         }
         private static Dictionary<Color, List<Point>> GetAllPixels()
         {
@@ -428,7 +431,7 @@ namespace EU4_Parse_Lib
                         }
                         else
                         {
-                            colors.Add(col, new List<Point> { new (x, y) });
+                            colors.Add(col, new List<Point> { new(x, y) });
                         }
                     }
                 }
@@ -438,6 +441,7 @@ namespace EU4_Parse_Lib
 
             return colors;
         }
+
 
     }
 }
