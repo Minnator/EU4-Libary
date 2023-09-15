@@ -1,8 +1,9 @@
-﻿using EU4_Parse_Lib.DataClasses;
+﻿using System.Diagnostics;
+using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.MapModes;
-internal class GradientMapMode : IMapMode
+internal class ColorTableMapMode : IMapMode
 {
     public string Name { get; set; }
     public Scope MScope { get; set; }
@@ -15,19 +16,17 @@ internal class GradientMapMode : IMapMode
     public bool OnlyLandProvinces { get; set; }
     public bool UseGradient { get; set; }
     public List<ITrigger> Triggers { get; set; } = new();
-    public Dictionary<string, Color> ColorTable { get; set; } = new();
+    public Dictionary<string, Color> ColorTable { get; set; }
 
-    public GradientMapMode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, int min, int max, int nul, bool useGradient)
+    public ColorTableMapMode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, bool useGradient, Dictionary<string, Color> colorTable)
     {
         Name = name;
         MScope = scope;
         Type = type;
         Attribute = attribute;
         OnlyLandProvinces = onlyLandProvinces;
-        Min = min;
-        Max = max;
-        Null = nul;
         UseGradient = useGradient;
+        ColorTable = colorTable;
     }
 
     public Dictionary<int, Color> GetProvinceColor()
@@ -41,26 +40,33 @@ internal class GradientMapMode : IMapMode
                 {
                     foreach (var province in Vars.LandProvinces.Values)
                     {
-                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute)));
+                        dic.Add(province.Id,
+                            ColorTable.TryGetValue(province.GetAttribute(Attribute).ToString()!, out var col)
+                                ? col
+                                : Color.FromArgb(255, 0, 0, 0));
                     }
                 }
                 else
                 {
                     foreach (var province in Vars.Provinces.Values)
                     {
-                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute)));
+                        dic.Add(province.Id,
+                            ColorTable.TryGetValue(province.GetAttribute(Attribute).ToString()!, out var col)
+                                ? col
+                                : Color.FromArgb(255, 0, 0, 0));
                     }
                 }
                 break;
             case Scope.Country:
-                Parallel.ForEach(Vars.OnMapCountries.Values, country =>
+                foreach (var country in Vars.OnMapCountries.Values)
                 {
-                    var col = Util.GetGradientColor(Min, Max, (int)country.GetAttribute(Attribute));
-                    foreach (var id in country.provinces.Keys)
-                    {
-                        dic.TryAdd(id, col);
-                    }
-                });
+                    if (ColorTable.TryGetValue(country.GetAttribute(Attribute).ToString()!, out var col))
+                        foreach (var province in country.provinces.Keys)
+                            dic.Add(province, col);
+                    else
+                        foreach (var province in country.provinces.Keys)
+                            dic.Add(province, Color.FromArgb(255, 0, 0, 0));
+                }
                 break;
             case Scope.Ruler:
                 throw new NotImplementedException();
@@ -76,6 +82,7 @@ internal class GradientMapMode : IMapMode
                 break;
             case Scope.None:
                 throw new NotImplementedException();
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }

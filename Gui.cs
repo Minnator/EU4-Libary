@@ -22,7 +22,7 @@ namespace EU4_Parse_Lib
 
             RenderSelection(p, p.Color);
 
-            Vars.Map.Save("C:\\Users\\david\\Downloads\\justBorders.bmp", ImageFormat.Bmp);
+            Vars.Map!.Save("C:\\Users\\david\\Downloads\\justBorders.bmp", ImageFormat.Bmp);
 
             var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
             var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
@@ -35,6 +35,40 @@ namespace EU4_Parse_Lib
             Vars.Stopwatch.Reset();
         }
 
+
+        /// <summary>
+        /// Creates an abstract mapmode
+        /// </summary>
+        /// <param name="colors"></param>
+        /// <param name="outputPath"></param>
+        /// <returns></returns>
+        public static Bitmap AbstractColorMap(List<Color> colors, string outputPath)
+        {
+            // Create a blank bitmap to draw the map
+            Bitmap mapBitmap = new Bitmap(Vars.Map!.Width, Vars.Map.Height);
+
+            using (Graphics graphics = Graphics.FromImage(mapBitmap))
+            {
+                // Clear the bitmap with a background color (e.g., white)
+                graphics.Clear(Color.White);
+
+                int cnt = 0;
+                // Draw each region with its respective color
+                foreach (var kvp in Vars.LandProvinces.Values)
+                {
+                    List<Point> regionPoints = kvp.Pixels;
+                    Color regionColor = colors[cnt];
+                    cnt++;
+                    using (SolidBrush brush = new SolidBrush(regionColor))
+                    {
+                        PointF[] points = regionPoints.ConvertAll(p => new PointF(p.X, p.Y)).ToArray();
+                        graphics.FillPolygon(brush, points);
+                    }
+                }
+            }
+            mapBitmap.Save(outputPath, ImageFormat.Bmp);
+            return mapBitmap;
+        }
 
 
         /// <summary>
@@ -146,6 +180,7 @@ namespace EU4_Parse_Lib
             var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
             Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
+
             Vars.MainWindow.Map.Invalidate();
         }
 

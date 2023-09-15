@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using Emgu.CV.Dai;
 using EU4_Parse_Lib.DataClasses;
 using Timer = System.Windows.Forms.Timer;
 
@@ -26,6 +28,7 @@ namespace EU4_Parse_Lib
             var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
             var map = new Bitmap(combinedPath);
             Vars.Map = map;
+            Vars.OrgMap = map;
             CalculateMaxOffsets();
             ResetDisplayRect();
             UpdateDisplayedImage();
@@ -92,16 +95,6 @@ namespace EU4_Parse_Lib
         {
 
         }
-        public void SetPixel(int x, int y, Color newColor)
-        {
-            if (Vars.Map == null)
-                return;
-            if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
-                return;
-            Vars.Map.SetPixel(x, y, newColor);
-            UpdateDisplayedImage();
-        }
-
         private void Map_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right || Vars.Map == null)
@@ -112,7 +105,7 @@ namespace EU4_Parse_Lib
             if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
                 return;
             var color = Vars.Map.GetPixel(x, y);
-            
+
             if (!Vars.ColorIds.ContainsKey(color))
                 return;
 
@@ -128,7 +121,7 @@ namespace EU4_Parse_Lib
                 }
                 foreach (var pro in Vars.SelectedProvinces)
                 {
-                    Gui.RenderSelection(pro, Color.FromArgb(255,0,0,0));
+                    Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
                 }
                 Vars.SelectedProvinces.Clear();
                 Util.NextProvince(p);
@@ -140,15 +133,7 @@ namespace EU4_Parse_Lib
                 Vars.SelectedProvinces.Add(p);
                 Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
             }
-            /*
-            if (e.Button == MouseButtons.Middle)
-            {
-                // I cant remember what I wanted to put here
-            }
-            */
-
-            // Clear references to objects that are no longer needed
-            GC.Collect(); // Explicitly trigger garbage collection
+            GC.Collect();
         }
 
         private void Map_MouseHover(object sender, EventArgs e)
@@ -195,9 +180,18 @@ namespace EU4_Parse_Lib
 
         private void GenerateMouseTooltip(Point p)
         {
-            var color = Vars.Map!.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
+            Color color;
+            try
+            {
+                color = Vars.Map!.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return;
+            }
             if (color == _tooltipColor || color == Color.FromArgb(255, 0, 0, 0)) return;
-            if (!Vars.ColorIds.TryGetValue(color, out int id))
+            if (!Vars.ColorIds.TryGetValue(color, out var id))
             {
                 return;
             }
@@ -220,5 +214,60 @@ namespace EU4_Parse_Lib
         {
             Vars.ManageMapmodes = Gui.ShowForm<ManageMapmodes>();
         }
+        
+
+        private void ZoomInButton_Click(object sender, EventArgs e)
+        {
+            if (Vars.ZoomFactor >= 4)
+            {
+                Vars.ZoomFactor = 4;
+                return;
+            }
+            Vars.ZoomFactor *= 2;
+
+            Vars.MainWindow!.Map.Image = UpdatePictureBoxSize(Vars.OrgMap!, new Size((int)Vars.ZoomFactor, (int)Vars.ZoomFactor));
+
+            Debug.WriteLine(Vars.ZoomFactor);
+        }
+
+        private void ZoomOutButton_Click(object sender, EventArgs e)
+        {
+            if (Vars.ZoomFactor <= 1)
+            {
+                Vars.ZoomFactor = 1;
+                return;
+            }
+            // Decrease the zoom factor
+            Vars.ZoomFactor /= 2;
+            
+            Vars.MainWindow!.Map.Image = UpdatePictureBoxSize(Vars.OrgMap!, new Size((int)Vars.ZoomFactor, (int)Vars.ZoomFactor));
+            Debug.WriteLine(Vars.ZoomFactor);
+        }
+
+        public static Image UpdatePictureBoxSize(Image image, Size size)
+        {
+            int newWidth = image.Width + (image.Width * size.Width);
+            int newHeight = image.Height + (image.Height * size.Height);
+
+            // Create a new bitmap with the desired size
+            Bitmap resizedImage = new Bitmap(newWidth, newHeight);
+
+            using (Graphics graphics = Graphics.FromImage(resizedImage))
+            {
+                // Set the interpolation mode to high quality bicubic
+                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+
+                // Calculate the source and destination rectangles
+                Rectangle srcRect = new Rectangle(0, 0, image.Width, image.Height);
+                Rectangle destRect = new Rectangle(0, 0, newWidth, newHeight);
+
+                // Draw the image onto the resized bitmap with the desired size
+                graphics.DrawImage(image, destRect, srcRect, GraphicsUnit.Pixel);
+            }
+
+            return resizedImage;
+        }
+
+
     }
 }

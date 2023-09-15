@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
+using Emgu.CV.Cuda;
+using Emgu.CV.Reg;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
+using EU4_Parse_Lib.MapModes;
 using EU4_Parse_Lib.Triggers;
 
 namespace EU4_Parse_Lib
@@ -13,7 +16,7 @@ namespace EU4_Parse_Lib
         private Province _province = new(Color.FromArgb(255, 0, 0, 0));
         private Country _country = new("AND");
         private List<ITrigger> _triggers = new();
-        private Dictionary<object, Color> _colorTable = new();
+        private Dictionary<string, Color> _colorTable = new();
         private MType _type = MType.Gradient;
 
         public ManageMapmodes()
@@ -153,10 +156,10 @@ namespace EU4_Parse_Lib
                     MErrorBox.Text += "Select a valid trigger type!\n";
                     return;
                 case "MinTrigger":
-                    _triggers.Add(new MinTrigger(attr, TriggerValueBox.Text, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
+                    _triggers.Add(new MinTrigger(attr, int.Parse(TriggerValueBox.Text), scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                     break;
                 case "MaxTrigger":
-                    _triggers.Add(new MaxTrigger(attr, TriggerValueBox.Text, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
+                    _triggers.Add(new MaxTrigger(attr, int.Parse(TriggerValueBox.Text), scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                     break;
                 case "EqualsTrigger":
                     _triggers.Add(new EqualsTrigger(attr, TriggerValueBox.Text, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
@@ -316,6 +319,18 @@ namespace EU4_Parse_Lib
 
         private void SaveMapmodeButton_Click(object sender, EventArgs e)
         {
+            MErrorBox.Clear();
+            if (!Enum.TryParse(MapmodeScope.Text, out Scope scope))
+            {
+                MErrorBox.Text += $"[{MapmodeScope.Text}] is no legal scope!";
+                return;
+            }
+
+            var bName = VerifyMapmodeName();
+            if (!bName.Key)
+                return;
+
+            Attribute attr;
             switch (_type)
             {
                 case MType.Gradient:
@@ -326,72 +341,99 @@ namespace EU4_Parse_Lib
                         MErrorBox.Text += "Either [min] [max] [null] are not a number!";
                         return;
                     }
+
                     var col = Util.ParseColorFromString(GradColorBox.Text);
                     if (!col.Key)
                     {
                         MErrorBox.Text += $"[{GradColorBox.Text}] is in wrong color format: [r/g/b] or [r,g,b]";
                         return;
                     }
-                    Enum.TryParse(GradAttributeBox.Text, out Attribute attr);
-                    //_currentMapMode = new
-                    Dictionary<int, Color> colDic = new();
-                    foreach (var province in Vars.Provinces.Values)
+
+                    if (!Enum.TryParse(GradAttributeBox.Text, out attr))
                     {
-                        colDic.Add(province.Id,
-                            province.GetAttribute(attr) == (object)nul || (int)province.GetAttribute(attr) < min
-                                ? col.Value
-                                : Util.GetGradientColor(min, max, (int)province.GetAttribute(attr)));
+                        MErrorBox.Text += $"[{GradAttributeBox.Text}] is no legal attribute!";
+                        return;
                     }
 
-                    //DebugPrints.CreateImage(colors, "C:\\Users\\david\\Downloads\\color_strip.png");
+                    _currentMapMode = new GradientMapMode(bName.Value, scope, _type, attr, OnlyLandProvincesCheckBox.Checked, min, max, nul, true);
 
-                    Gui.ColorMap(colDic, "C:\\Users\\david\\Downloads\\mapmode.bmp");
                     break;
                 case MType.ColorTable:
+                    if (!Enum.TryParse(ColAtributeBox.Text, out  attr))
+                    {
+                        MErrorBox.Text += $"[{ColAtributeBox.Text}] is no legal attribute!";
+                        return;
+                    }
+
+                    if (_colorTable.Count < 1)
+                    {
+                        MErrorBox.Text += "There must be at least one entry!";
+                        return;
+                    }
+
+                    _currentMapMode = new ColorTableMapMode(bName.Value, scope, _type, attr,
+                        OnlyLandProvincesCheckBox.Checked, false, _colorTable);
+
                     break;
-                case MType.OncColorPerValue:
+                case MType.OneColorPerValue:
+
                     break;
                 case MType.TriggerList:
+                    if (!Enum.TryParse(TriggerAttributeBox.Text, out attr))
+                    {
+                        MErrorBox.Text += $"[{TriggerAttributeBox.Text}] is no legal attribute!";
+                        return;
+                    }
+                    if (FinalTriggersListBox.Items.Count < 1)
+                    {
+                        MErrorBox.Text += "There must be at least one entry in the final trigger list!";
+                        return;
+                    }
+                    List<ITrigger> f = new ();
+                    Match match;
+                    foreach (var item in FinalTriggersListBox.Items)
+                    {
+                        match = Regex.Match(item.ToString()!, @"(.*):");
+                        if (!match.Success)
+                            continue;
+                        f.Add(_triggers.Find(obj => obj.Name == match.Groups[1].Value));
+                    }
+
+                    _currentMapMode = new TriggerListMapmode(bName.Value, scope, _type, attr,
+                        OnlyLandProvincesCheckBox.Checked, f);
+
                     break;
                 default:
                     MErrorBox.Text = $"Illegal mapmodetype [{_type}]!";
                     return;
             }
+
+            if (_currentMapMode == null)
+            {
+                MErrorBox.Text = "CRITICAL ERROR OCCURED! Mapmode could not be created. Please verify all input values once more and try again!";
+                return;
+            }
+            Vars.MapModes.Add(bName.Value, _currentMapMode);
+
+            if (Vars.RederCreatedMapmodes)
+            {
+                _currentMapMode.RenderMapmode();
+            }
         }
 
-
-        /// <summary>
-        /// Creates an abstract mapmode
-        /// </summary>
-        /// <param name="colors"></param>
-        /// <param name="outputPath"></param>
-        /// <returns></returns>
-        public static Bitmap AbstractColorMap(List<Color> colors, string outputPath)
+        private KeyValuePair<bool, string> VerifyMapmodeName()
         {
-            // Create a blank bitmap to draw the map
-            Bitmap mapBitmap = new Bitmap(Vars.Map.Width, Vars.Map.Height);
-
-            using (Graphics graphics = Graphics.FromImage(mapBitmap))
+            if (string.IsNullOrWhiteSpace(MapModeNameBox.Text))
             {
-                // Clear the bitmap with a background color (e.g., white)
-                graphics.Clear(Color.White);
-
-                int cnt = 0;
-                // Draw each region with its respective color
-                foreach (var kvp in Vars.LandProvinces.Values)
-                {
-                    List<Point> regionPoints = kvp.Pixels;
-                    Color regionColor = colors[cnt];
-                    cnt++;
-                    using (SolidBrush brush = new SolidBrush(regionColor))
-                    {
-                        PointF[] points = regionPoints.ConvertAll(p => new PointF(p.X, p.Y)).ToArray();
-                        graphics.FillPolygon(brush, points);
-                    }
-                }
+                MErrorBox.Text = $"Map mode name [{MapModeNameBox.Text}] is empty or illegal!";
+                return new KeyValuePair<bool, string>(false, string.Empty);
             }
-            mapBitmap.Save(outputPath, ImageFormat.Bmp);
-            return mapBitmap;
+            if (Vars.MapModes.ContainsKey(MapModeNameBox.Text))
+            {
+                MErrorBox.Text = $"Map mode name [{MapModeNameBox.Text}] is already in use!";
+                return new KeyValuePair<bool, string>(false, string.Empty);
+            }
+            return new KeyValuePair<bool, string>(true, MapModeNameBox.Text);
         }
 
         private void AttributeToScopeTT_Popup(object sender, PopupEventArgs e)
@@ -650,7 +692,7 @@ namespace EU4_Parse_Lib
 
         private void UseOneColorPerValueButton_CheckedChanged(object sender, EventArgs e)
         {
-            _type = MType.OncColorPerValue;
+            _type = MType.OneColorPerValue;
         }
 
         private void UseTriggerButton_CheckedChanged(object sender, EventArgs e)

@@ -11,7 +11,7 @@ namespace EU4_Parse_Lib
 {
     public enum MType
     {
-        TriggerList, Gradient, ColorTable, OncColorPerValue
+        TriggerList, Gradient, ColorTable, OneColorPerValue
     }
     public enum Scope
     {
@@ -32,11 +32,14 @@ namespace EU4_Parse_Lib
     }
     public static class Vars
     {
-        public static float ZoomLevel = 1;
+        public static bool RederCreatedMapmodes = true; // TODO make settable in an interface aka settings
+
+        public static float ZoomFactor = 1f;
 
         public static readonly Stopwatch Stopwatch = new();
 
         public static Bitmap? Map;
+        public static Bitmap? OrgMap;
 
         public static TimeSpan TotalLoadTime = new ();
 
@@ -51,6 +54,7 @@ namespace EU4_Parse_Lib
         public static string VanillaFolder = "";
         public static string Language = "english";
         public static string DataPath = "";
+        public static string LastMapModePath = "C:\\Users\\david\\Downloads\\mapmode.bmp"; // TODO remove assignment on release
 
         public static Dictionary<int, Province> Provinces = new ();
         public static Dictionary<int, Province> RnvProvinces = new ();
@@ -60,6 +64,7 @@ namespace EU4_Parse_Lib
         public static Dictionary<int, Province> CoastalProvinces = new ();
 
         public static Dictionary<string, Country> Countries = new();
+        public static Dictionary<string, Country> OnMapCountries = new();
 
         public static Dictionary<string, Color> NotOnMapProvinces = new ();
 

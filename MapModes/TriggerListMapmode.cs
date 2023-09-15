@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EU4_Parse_Lib.DataClasses;
-using EU4_Parse_Lib.Interfaces;
+﻿using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.MapModes;
 internal class TriggerListMapmode : IMapMode
@@ -20,7 +14,7 @@ internal class TriggerListMapmode : IMapMode
     public bool OnlyLandProvinces { get; set; }
     public bool UseGradient { get; set; }
     public List<ITrigger> Triggers { get; set; }
-    public Dictionary<object, Color> ColorTable { get; set; } = new();
+    public Dictionary<string, Color> ColorTable { get; set; } = new();
 
     public TriggerListMapmode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, List<ITrigger> triggers)
     {
@@ -111,5 +105,10 @@ internal class TriggerListMapmode : IMapMode
         }
 
         return dic;
+    }
+
+    public void RenderMapmode()
+    {
+        Gui.ColorMap(GetProvinceColor(), Vars.LastMapModePath);
     }
 }

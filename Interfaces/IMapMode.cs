@@ -15,7 +15,9 @@ public interface IMapMode
     bool OnlyLandProvinces { get; set; }
     bool UseGradient { get; set; }
     List<ITrigger> Triggers { get; set; }
-    Dictionary<object, Color> ColorTable { get; set; }
+    Dictionary<string, Color> ColorTable { get; set; }
     public Dictionary<int, Color> GetProvinceColor();
-    
+
+    public void RenderMapmode();
+
 }

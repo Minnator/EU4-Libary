@@ -50,17 +50,22 @@ namespace EU4_Parse_Lib
             resetAllMapmodesToolStripMenuItem = new ToolStripMenuItem();
             tooltipToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
+            ZoomInButton = new Button();
+            ZoomOutButton = new Button();
+            panel1 = new Panel();
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
             menuStrip1.SuspendLayout();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // Map
             // 
-            Map.Location = new Point(331, 32);
+            Map.Location = new Point(0, 0);
             Map.Name = "Map";
             Map.Size = new Size(940, 720);
+            Map.SizeMode = PictureBoxSizeMode.AutoSize;
             Map.TabIndex = 0;
             Map.TabStop = false;
             Map.MouseClick += Map_MouseClick;
@@ -225,11 +230,42 @@ namespace EU4_Parse_Lib
             helpToolStripMenuItem.Text = "Help";
             helpToolStripMenuItem.Click += Help_MenuItem_Click;
             // 
+            // ZoomInButton
+            // 
+            ZoomInButton.Location = new Point(65, 145);
+            ZoomInButton.Name = "ZoomInButton";
+            ZoomInButton.Size = new Size(75, 23);
+            ZoomInButton.TabIndex = 10;
+            ZoomInButton.Text = "Zoom in";
+            ZoomInButton.UseVisualStyleBackColor = true;
+            ZoomInButton.Click += ZoomInButton_Click;
+            // 
+            // ZoomOutButton
+            // 
+            ZoomOutButton.Location = new Point(146, 145);
+            ZoomOutButton.Name = "ZoomOutButton";
+            ZoomOutButton.Size = new Size(75, 23);
+            ZoomOutButton.TabIndex = 11;
+            ZoomOutButton.Text = "Zoom out";
+            ZoomOutButton.UseVisualStyleBackColor = true;
+            ZoomOutButton.Click += ZoomOutButton_Click;
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(Map);
+            panel1.Location = new Point(332, 34);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(940, 720);
+            panel1.TabIndex = 12;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1284, 761);
+            Controls.Add(panel1);
+            Controls.Add(ZoomOutButton);
+            Controls.Add(ZoomInButton);
             Controls.Add(zoomTrackBar);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -238,8 +274,8 @@ namespace EU4_Parse_Lib
             Controls.Add(LeftButton);
             Controls.Add(DownButton);
             Controls.Add(RightButton);
-            Controls.Add(Map);
             Controls.Add(menuStrip1);
+            DoubleBuffered = true;
             MainMenuStrip = menuStrip1;
             Name = "MainWindow";
             Text = "Form1";
@@ -248,6 +284,8 @@ namespace EU4_Parse_Lib
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -273,5 +311,8 @@ namespace EU4_Parse_Lib
         private ToolStripMenuItem ManageMapModesMenu;
         private ToolStripMenuItem resetAllMapmodesToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
+        private Button ZoomInButton;
+        private Button ZoomOutButton;
+        private Panel panel1;
     }
 }

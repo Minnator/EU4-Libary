@@ -53,8 +53,8 @@ public class EqualsTrigger : ITrigger
         try
         {
             if (IsNegated)
-                return !p.GetAttribute(Attribute).Equals(Value);
-            return p.GetAttribute(Attribute).Equals(Value);
+                return !p.GetAttribute(Attribute).ToString()!.Equals(Value);
+            return p.GetAttribute(Attribute).ToString()!.Equals(Value);
         }
         catch
         {
@@ -66,8 +66,8 @@ public class EqualsTrigger : ITrigger
         try
         {
             if (IsNegated)
-                return !c.GetAttribute(Attribute).Equals(Value);
-            return c.GetAttribute(Attribute).Equals(Value);
+                return !c.GetAttribute(Attribute).ToString()!.Equals(Value);
+            return c.GetAttribute(Attribute).ToString()!.Equals(Value);
         }
         catch
         {

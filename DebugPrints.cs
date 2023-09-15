@@ -41,6 +41,16 @@ namespace EU4_Parse_Lib
 
         }
 
+        public static void PrintDirectory(Dictionary<string, Color> dic)
+        {
+            StringBuilder sb = new ();
+            foreach (var kvp in dic)
+            {
+                sb.AppendLine($"Key: {kvp.Key,10} - Value: {kvp.Value}");
+            }
+            Debug.WriteLine (sb.ToString ());
+        }
+
         public static void PrintTestTriggerValue()
         {
             StringBuilder sb = new();

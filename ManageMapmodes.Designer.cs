@@ -51,6 +51,8 @@
             OnlyLandProvincesCheckBox = new CheckBox();
             SaveMapmodeButton = new Button();
             GradianColorBox = new GroupBox();
+            label21 = new Label();
+            GradAttributeBox = new ComboBox();
             GradColorBox = new TextBox();
             label14 = new Label();
             NullValueBox = new TextBox();
@@ -93,8 +95,6 @@
             MapmodesTooltip = new ToolTip(components);
             AttributeToScopeTT = new ToolTip(components);
             FTLTooltip = new ToolTip(components);
-            GradAttributeBox = new ComboBox();
-            label21 = new Label();
             ManageMapmodesTab.SuspendLayout();
             CreateMapmodesTab.SuspendLayout();
             ColorTableBox.SuspendLayout();
@@ -358,6 +358,26 @@
             GradianColorBox.TabStop = false;
             GradianColorBox.Text = "Use gradient";
             // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Location = new Point(8, 158);
+            label21.Name = "label21";
+            label21.Size = new Size(57, 15);
+            label21.TabIndex = 20;
+            label21.Text = "Attribute:";
+            // 
+            // GradAttributeBox
+            // 
+            GradAttributeBox.AutoCompleteMode = AutoCompleteMode.Append;
+            GradAttributeBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+            GradAttributeBox.FormattingEnabled = true;
+            GradAttributeBox.Location = new Point(6, 176);
+            GradAttributeBox.Name = "GradAttributeBox";
+            GradAttributeBox.Size = new Size(93, 23);
+            GradAttributeBox.TabIndex = 20;
+            GradAttributeBox.Text = "Id";
+            // 
             // GradColorBox
             // 
             GradColorBox.Location = new Point(8, 127);
@@ -602,7 +622,6 @@
             // 
             AvailableTriggersList.FormattingEnabled = true;
             AvailableTriggersList.ItemHeight = 15;
-            AvailableTriggersList.Items.AddRange(new object[] { "trigger1", "trigger2" });
             AvailableTriggersList.Location = new Point(3, 37);
             AvailableTriggersList.Name = "AvailableTriggersList";
             AvailableTriggersList.Size = new Size(142, 94);
@@ -771,26 +790,6 @@
             FTLTooltip.InitialDelay = 0;
             FTLTooltip.ReshowDelay = 0;
             FTLTooltip.ShowAlways = true;
-            // 
-            // GradAttributeBox
-            // 
-            GradAttributeBox.AutoCompleteMode = AutoCompleteMode.Append;
-            GradAttributeBox.AutoCompleteSource = AutoCompleteSource.ListItems;
-            GradAttributeBox.FormattingEnabled = true;
-            GradAttributeBox.Location = new Point(6, 176);
-            GradAttributeBox.Name = "GradAttributeBox";
-            GradAttributeBox.Size = new Size(93, 23);
-            GradAttributeBox.TabIndex = 20;
-            GradAttributeBox.Text = "Id";
-            // 
-            // label21
-            // 
-            label21.AutoSize = true;
-            label21.Location = new Point(8, 158);
-            label21.Name = "label21";
-            label21.Size = new Size(57, 15);
-            label21.TabIndex = 20;
-            label21.Text = "Attribute:";
             // 
             // ManageMapmodes
             // 

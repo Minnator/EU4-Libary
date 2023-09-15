@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.Reflection.Metadata.Ecma335;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 
@@ -64,6 +62,7 @@ public class MinTrigger : ITrigger
         {
             if (p.GetAttribute(Attribute) is int num)
             {
+                Debug.WriteLine($"Is Number {num} > {Value}: {num > (Value as int? ?? -1)}");
                 return num > (Value as int? ?? -1);
             }
         }
