@@ -10,6 +10,16 @@ namespace EU4_Parse_Lib
 {
     public static class DebugPrints
     {
+        public static void PrintRandomColors()
+        {
+            StringBuilder sb = new();
+            foreach (var p in Vars.RandomColors)
+            {
+                sb.AppendLine($"{p.Key,4} | {p.Value}");
+            }
+            Saving.WriteLog(sb.ToString(), "RandomColors");
+        }
+
         public static void CreateImage(List<Color> colors, string outputPath)
         {
             if (colors == null || colors.Count == 0)

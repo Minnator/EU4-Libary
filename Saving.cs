@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Xml;
+using Newtonsoft.Json;
 
 namespace EU4_Parse_Lib;
 
@@ -47,13 +46,29 @@ public static class Saving
         using StreamWriter writer = new(path, append, Encoding.GetEncoding(1252));
         writer.Write(text);
     }
+
     /// <summary>
-    /// Saves an object in JSON formatting to a file relative to the app path
+    /// Saves an object in JSON formatting to a file relative to the app path appending if false by default
     /// </summary>
-    /// <param name="obj"></param>
+    /// <param name="list"></param>
     /// <param name="path"></param>
-    public static void SaveToJson(object obj, string path)
+    /// <param name="append"></param>
+    public static void SaveListToJson<T>(List<T> list, string path, bool append = false)
     {
-        File.WriteAllText(Path.Combine(Vars.AppPath, path), JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented));
+        var fullPath = Path.Combine(Vars.AppPath, path);
+        var json = JsonConvert.SerializeObject(list, Newtonsoft.Json.Formatting.Indented);
+
+        if (append)
+        {
+            File.AppendAllText(fullPath, json);
+        }
+        else
+        {
+            File.WriteAllText(fullPath, json);
+        }
     }
+
+
+
+
 }

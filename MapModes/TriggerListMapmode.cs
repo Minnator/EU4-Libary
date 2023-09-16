@@ -13,10 +13,11 @@ internal class TriggerListMapmode : IMapMode
     public Color NullColor { get; set; }
     public bool OnlyLandProvinces { get; set; }
     public bool UseGradient { get; set; }
+    public bool UserDefinedMapmode { get; set; }
     public List<ITrigger> Triggers { get; set; }
     public Dictionary<string, Color> ColorTable { get; set; } = new();
 
-    public TriggerListMapmode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, List<ITrigger> triggers)
+    public TriggerListMapmode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, List<ITrigger> triggers, bool userDefinedMapmode)
     {
         Name = name;
         MScope = scope;
@@ -24,6 +25,7 @@ internal class TriggerListMapmode : IMapMode
         Attribute = attribute;
         OnlyLandProvinces = onlyLandProvinces;
         Triggers = triggers;
+        UserDefinedMapmode = userDefinedMapmode;
     }
 
     public Dictionary<int, Color> GetProvinceColor()

@@ -4,10 +4,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.RegularExpressions;
 using Emgu.CV.Reg;
 using EU4_Parse_Lib.DataClasses;
 using Newtonsoft.Json;
+using YamlDotNet.Serialization;
 
 namespace EU4_Parse_Lib
 {
@@ -22,7 +24,6 @@ namespace EU4_Parse_Lib
                 var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
                 var map = new Bitmap(combinedPath);
                 Vars.Map = map;
-                Vars.AttributeNames = Util.EnumToList<Attribute>();
                 Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
                 Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
                 Vars.ScopeNames = Util.EnumToList<Scope>();
@@ -38,6 +39,7 @@ namespace EU4_Parse_Lib
                 LoadWithStopWatch("Areas", LoadAreas);
                 LoadWithStopWatch("Localization", LoadAllLocalization);
                 Gui.DrawBorderAroundRegions();
+                LoadWithStopWatch("Random Colors", FillRandomColorsList);
                 WriteDebugFiles();
                 Debug.WriteLine("Finished Loading");
             }
@@ -47,12 +49,18 @@ namespace EU4_Parse_Lib
             }
         }
 
+        private static void FillRandomColorsList()
+        {
+            // An additional 100 for safety and variability
+            Vars.RandomColors = Util.GenerateRandomColors(Vars.ColorIds.Count + 100);
+        }
+
         /// <summary>
         /// Executes a Method that DOES NOT have any parameters and logs the time it took.
         /// </summary>
         /// <param name="taskName"></param>
         /// <param name="action"></param>
-        public static void LoadWithStopWatch(string taskName, Action action)
+        private static void LoadWithStopWatch(string taskName, Action action)
         {
             Vars.Stopwatch.Start();
             action.Invoke();
@@ -74,17 +82,18 @@ namespace EU4_Parse_Lib
         private static void WriteDebugFiles()
         {
             Vars.Stopwatch.Start();
-            DebugPrints.PrintProvincesBorder(Vars.Provinces);
-            DebugPrints.PrintProvColDirectory(_pixDic);
-            DebugPrints.PrintProvincesEmpty(Vars.Provinces);
-            DebugPrints.PrintProvincesUnused(Vars.NotOnMapProvinces);
-            DebugPrints.PrintColorsToIds(Vars.ColorIds);
-            DebugPrints.PrintAreas(Vars.Areas);
-            DebugPrints.PrintProvincesContent(Vars.Provinces);
-            DebugPrints.PrintProvinceList();
+            //DebugPrints.PrintProvincesBorder(Vars.Provinces);
+            //DebugPrints.PrintProvColDirectory(_pixDic);
+            //DebugPrints.PrintProvincesEmpty(Vars.Provinces);
+            //DebugPrints.PrintProvincesUnused(Vars.NotOnMapProvinces);
+            //DebugPrints.PrintColorsToIds(Vars.ColorIds);
+            //DebugPrints.PrintAreas(Vars.Areas);
+            //DebugPrints.PrintProvincesContent(Vars.Provinces);
+            //DebugPrints.PrintProvinceList();
             DebugPrints.PrintLocData(Vars.LocalizationFiles);
-            DebugPrints.PrintAttributes(Vars.Provinces);
+            //DebugPrints.PrintAttributes(Vars.Provinces);
             DebugPrints.PrintTestTriggerValue();
+            DebugPrints.PrintRandomColors();
             Vars.Stopwatch.Stop();
             Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
             Vars.TimeStamps.Add($"Time Elapsed Debug Files:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
@@ -92,6 +101,7 @@ namespace EU4_Parse_Lib
             Vars.TimeStamps.Add("------------------------------|------------------|");
             Vars.TimeStamps.Add($"Total Time Elapsed:".PadRight(30) + $"| {Vars.TotalLoadTime} |");
             Saving.WriteLog(Vars.TimeStamps.ListToString(), "TimeComplexity");
+            
         }
 
         public static string GetLoc(string key)
@@ -137,37 +147,44 @@ namespace EU4_Parse_Lib
             Vars.Localization = loc;
             Vars.LocalizationFiles = locFiles;
         }
+        
         private static void LoadAreas()
         {
             var path = Util.GetModOrVanillaPathFile(Path.Combine("map", "area.txt"));
             var newContent = Reading.ReadFileUTF8Lines(path);
 
-            List<string> contentList = new();
+            var contentBuilder = new StringBuilder();
             foreach (var line in newContent)
             {
-                if (line != null && !(line.StartsWith('#') || line.Contains("color")))
-                    contentList.Add(line);
+                if (!string.IsNullOrEmpty(line) && !line.StartsWith('#') && !line.Contains("color"))
+                {
+                    contentBuilder.AppendLine(line);
+                }
             }
 
-            var content = contentList.ListToString();
-            //Saving.WriteLog(content, "AreaContent");
+            var content = contentBuilder.ToString();
+            // Saving.WriteLog(content, "AreaContent");
 
-            Dictionary<string, Area> areas = new();
+            var areas = new Dictionary<string, Area>();
+            var provinceRegex = new Regex(@"(?<name>[A-Za-z_]*)\s*=\s*{.*?(?<provinces>[^\}|^#]*)", RegexOptions.Singleline);
+            var matches = provinceRegex.Matches(content);
 
-            var matches = Regex.Matches(content, @"(?<name>[A-Za-z_]*)\s*=\s*{.*(?<provinces>[^\}|^#]*)");
-            foreach (var match in matches.Cast<Match>())
+            foreach (Match match in matches)
             {
-                Area area = new();
+                var area = new Area();
                 var name = match.Groups["name"].Value;
                 area.Name = name;
                 area.Provinces = Util.GetProvincesList(match.Groups["provinces"].Value);
                 areas.Add(name, area);
+
                 foreach (var province in area.Provinces)
                 {
                     Vars.Provinces[province].Area = area.Name;
                 }
             }
+
             Vars.Areas = areas;
+
         }
         private static void LoadDefaultMap()
         {

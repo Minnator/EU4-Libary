@@ -1,8 +1,10 @@
-﻿using EU4_Parse_Lib.DataClasses;
+﻿using System;
+using System.Collections.Concurrent;
+using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.MapModes;
-internal class GradientMapMode : IMapMode
+internal class OneColorPerValueMapMode : IMapMode
 {
     public string Name { get; set; }
     public Scope MScope { get; set; }
@@ -18,18 +20,22 @@ internal class GradientMapMode : IMapMode
     public List<ITrigger> Triggers { get; set; } = new();
     public Dictionary<string, Color> ColorTable { get; set; } = new();
 
-    public GradientMapMode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, int min, int max, int nul, bool useGradient, bool userDefinedMapmode)
+    public OneColorPerValueMapMode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, bool useGradient, bool userDefinedMapmode)
     {
         Name = name;
         MScope = scope;
         Type = type;
         Attribute = attribute;
         OnlyLandProvinces = onlyLandProvinces;
-        Min = min;
-        Max = max;
-        Null = nul;
         UseGradient = useGradient;
         UserDefinedMapmode = userDefinedMapmode;
+    }
+
+    private Color GenerateColor(string val, int cnt)
+    {
+        return ColorTable.TryGetValue(val, out var col) 
+            ? col 
+            : Vars.RandomColors[cnt];
     }
 
     public Dictionary<int, Color> GetProvinceColor()
@@ -39,22 +45,38 @@ internal class GradientMapMode : IMapMode
         switch (MScope)
         {
             case Scope.Province:
+                ColorTable = new Dictionary<string, Color>(Vars.ColorIds.Count);
                 if (OnlyLandProvinces)
                 {
+                    //TODO confirm which method is faster and more efficient
+
+                    //Parallel.ForEach(Vars.LandProvinces.Values, (province, state, index) =>
+                    //{
+                    //    var attributeValue = province.GetAttribute(Attribute).ToString();
+                    //    var color = GenerateColor(attributeValue, (int)index);
+                    //    dic.TryAdd(province.Id, color);
+                    //});
+
+
+                    var cnt = 0;
                     foreach (var province in Vars.LandProvinces.Values)
                     {
-                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute)));
+                        dic.Add(province.Id, GenerateColor(province.GetAttribute(Attribute).ToString()!, cnt));
+                        cnt++;
                     }
                 }
                 else
                 {
+                    var cnt = 0;
                     foreach (var province in Vars.Provinces.Values)
                     {
-                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute)));
+                        dic.Add(province.Id, GenerateColor(province.GetAttribute(Attribute).ToString()!, cnt));
+                        cnt++;
                     }
                 }
                 break;
             case Scope.Country:
+                ColorTable = new Dictionary<string, Color>(Vars.OnMapCountries.Count);
                 Parallel.ForEach(Vars.OnMapCountries.Values, country =>
                 {
                     var col = Util.GetGradientColor(Min, Max, (int)country.GetAttribute(Attribute));

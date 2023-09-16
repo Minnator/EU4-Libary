@@ -32,6 +32,9 @@
             ManageMapmodesTab = new TabControl();
             ManageMapmodesPage = new TabPage();
             CreateMapmodesTab = new TabPage();
+            OneColorPerValueBox = new GroupBox();
+            label10 = new Label();
+            OneColorPerValueAttributeBox = new ComboBox();
             ClearMErroLog = new Button();
             label20 = new Label();
             ColorTableBox = new GroupBox();
@@ -97,6 +100,7 @@
             FTLTooltip = new ToolTip(components);
             ManageMapmodesTab.SuspendLayout();
             CreateMapmodesTab.SuspendLayout();
+            OneColorPerValueBox.SuspendLayout();
             ColorTableBox.SuspendLayout();
             GradianColorBox.SuspendLayout();
             TriggerBox.SuspendLayout();
@@ -129,6 +133,7 @@
             // 
             // CreateMapmodesTab
             // 
+            CreateMapmodesTab.Controls.Add(OneColorPerValueBox);
             CreateMapmodesTab.Controls.Add(ClearMErroLog);
             CreateMapmodesTab.Controls.Add(label20);
             CreateMapmodesTab.Controls.Add(ColorTableBox);
@@ -153,11 +158,44 @@
             CreateMapmodesTab.Text = "Create Mapmodes";
             CreateMapmodesTab.UseVisualStyleBackColor = true;
             // 
+            // OneColorPerValueBox
+            // 
+            OneColorPerValueBox.Controls.Add(label10);
+            OneColorPerValueBox.Controls.Add(OneColorPerValueAttributeBox);
+            OneColorPerValueBox.Enabled = false;
+            OneColorPerValueBox.Location = new Point(506, 369);
+            OneColorPerValueBox.Name = "OneColorPerValueBox";
+            OneColorPerValueBox.Size = new Size(317, 48);
+            OneColorPerValueBox.TabIndex = 37;
+            OneColorPerValueBox.TabStop = false;
+            OneColorPerValueBox.Text = "Use once color per value";
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(9, 20);
+            label10.Name = "label10";
+            label10.Size = new Size(57, 15);
+            label10.TabIndex = 21;
+            label10.Text = "Attribute:";
+            // 
+            // OneColorPerValueAttributeBox
+            // 
+            OneColorPerValueAttributeBox.AutoCompleteMode = AutoCompleteMode.Append;
+            OneColorPerValueAttributeBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+            OneColorPerValueAttributeBox.FormattingEnabled = true;
+            OneColorPerValueAttributeBox.Location = new Point(77, 17);
+            OneColorPerValueAttributeBox.Name = "OneColorPerValueAttributeBox";
+            OneColorPerValueAttributeBox.Size = new Size(93, 23);
+            OneColorPerValueAttributeBox.TabIndex = 21;
+            OneColorPerValueAttributeBox.Text = "Id";
+            // 
             // ClearMErroLog
             // 
-            ClearMErroLog.Location = new Point(506, 448);
+            ClearMErroLog.Font = new Font("Segoe UI", 7F, FontStyle.Regular, GraphicsUnit.Point);
+            ClearMErroLog.Location = new Point(754, 432);
             ClearMErroLog.Name = "ClearMErroLog";
-            ClearMErroLog.Size = new Size(75, 23);
+            ClearMErroLog.Size = new Size(69, 21);
             ClearMErroLog.TabIndex = 36;
             ClearMErroLog.Text = "Clear log";
             ClearMErroLog.UseVisualStyleBackColor = true;
@@ -166,7 +204,7 @@
             // label20
             // 
             label20.AutoSize = true;
-            label20.Location = new Point(506, 381);
+            label20.Location = new Point(506, 434);
             label20.Name = "label20";
             label20.Size = new Size(55, 15);
             label20.TabIndex = 35;
@@ -185,7 +223,7 @@
             ColorTableBox.Controls.Add(ColColorBox);
             ColorTableBox.Location = new Point(506, 118);
             ColorTableBox.Name = "ColorTableBox";
-            ColorTableBox.Size = new Size(200, 260);
+            ColorTableBox.Size = new Size(317, 136);
             ColorTableBox.TabIndex = 34;
             ColorTableBox.TabStop = false;
             ColorTableBox.Text = "Use color table";
@@ -194,7 +232,7 @@
             // 
             AddToColorTable.Location = new Point(9, 106);
             AddToColorTable.Name = "AddToColorTable";
-            AddToColorTable.Size = new Size(185, 23);
+            AddToColorTable.Size = new Size(161, 23);
             AddToColorTable.TabIndex = 16;
             AddToColorTable.Text = "Add to color table";
             AddToColorTable.UseVisualStyleBackColor = true;
@@ -203,7 +241,7 @@
             // label18
             // 
             label18.AutoSize = true;
-            label18.Location = new Point(9, 134);
+            label18.Location = new Point(176, 16);
             label18.Name = "label18";
             label18.Size = new Size(62, 15);
             label18.TabIndex = 17;
@@ -220,9 +258,9 @@
             // 
             // ColortablePreview
             // 
-            ColortablePreview.Location = new Point(9, 152);
+            ColortablePreview.Location = new Point(176, 35);
             ColortablePreview.Name = "ColortablePreview";
-            ColortablePreview.Size = new Size(187, 102);
+            ColortablePreview.Size = new Size(135, 94);
             ColortablePreview.TabIndex = 11;
             ColortablePreview.UseCompatibleStateImageBehavior = false;
             ColortablePreview.View = View.List;
@@ -244,7 +282,7 @@
             ColAtributeBox.FormattingEnabled = true;
             ColAtributeBox.Location = new Point(81, 20);
             ColAtributeBox.Name = "ColAtributeBox";
-            ColAtributeBox.Size = new Size(113, 23);
+            ColAtributeBox.Size = new Size(89, 23);
             ColAtributeBox.TabIndex = 19;
             ColAtributeBox.Text = "Id";
             ColAtributeBox.SelectedValueChanged += ColAttributeBox_SelectedValueChanged;
@@ -253,7 +291,7 @@
             // 
             ColValueBox.Location = new Point(81, 49);
             ColValueBox.Name = "ColValueBox";
-            ColValueBox.Size = new Size(113, 23);
+            ColValueBox.Size = new Size(89, 23);
             ColValueBox.TabIndex = 13;
             // 
             // label17
@@ -269,7 +307,7 @@
             // 
             ColColorBox.Location = new Point(81, 78);
             ColColorBox.Name = "ColColorBox";
-            ColColorBox.Size = new Size(113, 23);
+            ColColorBox.Size = new Size(89, 23);
             ColColorBox.TabIndex = 15;
             // 
             // UseTriggerButton
@@ -310,11 +348,11 @@
             // MErrorBox
             // 
             MErrorBox.Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
-            MErrorBox.Location = new Point(506, 399);
+            MErrorBox.Location = new Point(506, 454);
             MErrorBox.Multiline = true;
             MErrorBox.Name = "MErrorBox";
             MErrorBox.ScrollBars = ScrollBars.Vertical;
-            MErrorBox.Size = new Size(317, 42);
+            MErrorBox.Size = new Size(317, 39);
             MErrorBox.TabIndex = 10;
             // 
             // OnlyLandProvincesCheckBox
@@ -331,9 +369,9 @@
             // 
             // SaveMapmodeButton
             // 
-            SaveMapmodeButton.Location = new Point(587, 447);
+            SaveMapmodeButton.Location = new Point(704, 499);
             SaveMapmodeButton.Name = "SaveMapmodeButton";
-            SaveMapmodeButton.Size = new Size(236, 23);
+            SaveMapmodeButton.Size = new Size(119, 23);
             SaveMapmodeButton.TabIndex = 8;
             SaveMapmodeButton.Text = "Save";
             SaveMapmodeButton.UseVisualStyleBackColor = true;
@@ -351,9 +389,9 @@
             GradianColorBox.Controls.Add(label12);
             GradianColorBox.Controls.Add(MinValueBox);
             GradianColorBox.Controls.Add(label11);
-            GradianColorBox.Location = new Point(712, 118);
+            GradianColorBox.Location = new Point(506, 260);
             GradianColorBox.Name = "GradianColorBox";
-            GradianColorBox.Size = new Size(111, 211);
+            GradianColorBox.Size = new Size(317, 103);
             GradianColorBox.TabIndex = 7;
             GradianColorBox.TabStop = false;
             GradianColorBox.Text = "Use gradient";
@@ -361,7 +399,7 @@
             // label21
             // 
             label21.AutoSize = true;
-            label21.Location = new Point(8, 158);
+            label21.Location = new Point(128, 48);
             label21.Name = "label21";
             label21.Size = new Size(57, 15);
             label21.TabIndex = 20;
@@ -372,7 +410,7 @@
             GradAttributeBox.AutoCompleteMode = AutoCompleteMode.Append;
             GradAttributeBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             GradAttributeBox.FormattingEnabled = true;
-            GradAttributeBox.Location = new Point(6, 176);
+            GradAttributeBox.Location = new Point(198, 45);
             GradAttributeBox.Name = "GradAttributeBox";
             GradAttributeBox.Size = new Size(93, 23);
             GradAttributeBox.TabIndex = 20;
@@ -380,7 +418,7 @@
             // 
             // GradColorBox
             // 
-            GradColorBox.Location = new Point(8, 127);
+            GradColorBox.Location = new Point(198, 16);
             GradColorBox.Name = "GradColorBox";
             GradColorBox.Size = new Size(93, 23);
             GradColorBox.TabIndex = 8;
@@ -390,7 +428,7 @@
             // label14
             // 
             label14.AutoSize = true;
-            label14.Location = new Point(8, 106);
+            label14.Location = new Point(128, 19);
             label14.Name = "label14";
             label14.Size = new Size(64, 15);
             label14.TabIndex = 7;
@@ -481,7 +519,7 @@
             TriggerBox.Controls.Add(label4);
             TriggerBox.Location = new Point(6, 118);
             TriggerBox.Name = "TriggerBox";
-            TriggerBox.Size = new Size(494, 359);
+            TriggerBox.Size = new Size(494, 375);
             TriggerBox.TabIndex = 4;
             TriggerBox.TabStop = false;
             TriggerBox.Text = "Trigger";
@@ -489,7 +527,7 @@
             // ModifyTriggerButton
             // 
             ModifyTriggerButton.Enabled = false;
-            ModifyTriggerButton.Location = new Point(157, 330);
+            ModifyTriggerButton.Location = new Point(157, 344);
             ModifyTriggerButton.Name = "ModifyTriggerButton";
             ModifyTriggerButton.Size = new Size(147, 23);
             ModifyTriggerButton.TabIndex = 37;
@@ -499,7 +537,7 @@
             // 
             // ResetListButton
             // 
-            ResetListButton.Location = new Point(309, 329);
+            ResetListButton.Location = new Point(309, 343);
             ResetListButton.Name = "ResetListButton";
             ResetListButton.Size = new Size(178, 23);
             ResetListButton.TabIndex = 35;
@@ -510,7 +548,7 @@
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(310, 196);
+            label9.Location = new Point(306, 195);
             label9.Name = "label9";
             label9.Size = new Size(181, 15);
             label9.TabIndex = 34;
@@ -520,9 +558,9 @@
             // 
             FinalTriggersListBox.FormattingEnabled = true;
             FinalTriggersListBox.ItemHeight = 15;
-            FinalTriggersListBox.Location = new Point(309, 214);
+            FinalTriggersListBox.Location = new Point(309, 213);
             FinalTriggersListBox.Name = "FinalTriggersListBox";
-            FinalTriggersListBox.Size = new Size(178, 109);
+            FinalTriggersListBox.Size = new Size(178, 124);
             FinalTriggersListBox.TabIndex = 33;
             FinalTriggersListBox.MouseDown += FinalTriggersListBox_MouseDown;
             FinalTriggersListBox.MouseHover += FinalTriggersListBox_MouseHover;
@@ -593,9 +631,9 @@
             SubTriggerGroup.Controls.Add(AvailableTriggersList);
             SubTriggerGroup.Controls.Add(SelectedSubTriggersList);
             SubTriggerGroup.Enabled = false;
-            SubTriggerGroup.Location = new Point(6, 185);
+            SubTriggerGroup.Location = new Point(6, 183);
             SubTriggerGroup.Name = "SubTriggerGroup";
-            SubTriggerGroup.Size = new Size(298, 138);
+            SubTriggerGroup.Size = new Size(298, 154);
             SubTriggerGroup.TabIndex = 21;
             SubTriggerGroup.TabStop = false;
             SubTriggerGroup.Text = "Subtriggers ( only for OR | AND )";
@@ -624,7 +662,7 @@
             AvailableTriggersList.ItemHeight = 15;
             AvailableTriggersList.Location = new Point(3, 37);
             AvailableTriggersList.Name = "AvailableTriggersList";
-            AvailableTriggersList.Size = new Size(142, 94);
+            AvailableTriggersList.Size = new Size(142, 109);
             AvailableTriggersList.TabIndex = 21;
             AvailableTriggersList.MouseDoubleClick += AvailableTriggersList_MouseDoubleClick;
             // 
@@ -633,7 +671,7 @@
             SelectedSubTriggersList.ItemHeight = 15;
             SelectedSubTriggersList.Location = new Point(151, 37);
             SelectedSubTriggersList.Name = "SelectedSubTriggersList";
-            SelectedSubTriggersList.Size = new Size(142, 94);
+            SelectedSubTriggersList.Size = new Size(142, 109);
             SelectedSubTriggersList.TabIndex = 22;
             SelectedSubTriggersList.MouseClick += SelectedSubTriggersList_MouseClick;
             SelectedSubTriggersList.MouseDoubleClick += SelectedSubTriggersList_MouseDoubleClick;
@@ -661,7 +699,7 @@
             // 
             // AddTriggerButton
             // 
-            AddTriggerButton.Location = new Point(6, 329);
+            AddTriggerButton.Location = new Point(6, 343);
             AddTriggerButton.Name = "AddTriggerButton";
             AddTriggerButton.Size = new Size(145, 23);
             AddTriggerButton.TabIndex = 10;
@@ -802,6 +840,8 @@
             ManageMapmodesTab.ResumeLayout(false);
             CreateMapmodesTab.ResumeLayout(false);
             CreateMapmodesTab.PerformLayout();
+            OneColorPerValueBox.ResumeLayout(false);
+            OneColorPerValueBox.PerformLayout();
             ColorTableBox.ResumeLayout(false);
             ColorTableBox.PerformLayout();
             GradianColorBox.ResumeLayout(false);
@@ -884,5 +924,7 @@
         private Button ClearMErroLog;
         private Label label21;
         private ComboBox GradAttributeBox;
+        private GroupBox OneColorPerValueBox;
+        private ComboBox OneColorPerValueAttributeBox;
     }
 }

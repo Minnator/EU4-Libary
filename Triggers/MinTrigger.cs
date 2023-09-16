@@ -62,7 +62,7 @@ public class MinTrigger : ITrigger
         {
             if (p.GetAttribute(Attribute) is int num)
             {
-                Debug.WriteLine($"Is Number {num} > {Value}: {num > (Value as int? ?? -1)}");
+                //Debug.WriteLine($"Is Number {num} > {Value}: {num > (Value as int? ?? -1)}");
                 return num > (Value as int? ?? -1);
             }
         }

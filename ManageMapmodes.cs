@@ -13,11 +13,10 @@ namespace EU4_Parse_Lib
     public partial class ManageMapmodes : Form
     {
         private IMapMode? _currentMapMode;
-        private Province _province = new(Color.FromArgb(255, 0, 0, 0));
-        private Country _country = new("AND");
         private List<ITrigger> _triggers = new();
         private Dictionary<string, Color> _colorTable = new();
         private MType _type = MType.Gradient;
+        private bool _overrideMapMode = false;
 
         public ManageMapmodes()
         {
@@ -46,12 +45,20 @@ namespace EU4_Parse_Lib
                     TriggerAttributeBox.Items.AddRange(Vars.ProvinceAttributeNames.ToArray<object>());
                     ColAtributeBox.Items.Clear();
                     ColAtributeBox.Items.AddRange(Vars.ProvinceAttributeNames.ToArray<object>());
+                    OneColorPerValueAttributeBox.Items.Clear();
+                    OneColorPerValueAttributeBox.Items.AddRange(Vars.ProvinceAttributeNames.ToArray<object>());
+                    GradAttributeBox.Items.Clear();
+                    GradAttributeBox.Items.AddRange(Vars.ProvinceAttributeNames.ToArray<object>());
                     break;
                 case "Country":
                     TriggerAttributeBox.Items.Clear();
                     TriggerAttributeBox.Items.AddRange(Vars.CountryAttributeNames.ToArray<object>());
                     ColAtributeBox.Items.Clear();
                     ColAtributeBox.Items.AddRange(Vars.CountryAttributeNames.ToArray<object>());
+                    OneColorPerValueAttributeBox.Items.Clear();
+                    OneColorPerValueAttributeBox.Items.AddRange(Vars.CountryAttributeNames.ToArray<object>());
+                    GradAttributeBox.Items.Clear();
+                    GradAttributeBox.Items.AddRange(Vars.CountryAttributeNames.ToArray<object>());
                     TriggerAttributeBox.Refresh();
                     ColAtributeBox.Refresh();
                     break;
@@ -60,6 +67,14 @@ namespace EU4_Parse_Lib
             }
         }
 
+        private void RefreshMapmodeNameList()
+        {
+            MapModeNameBox.Items.Clear();
+            foreach (var mapMode in Vars.MapModes.Values)
+            {
+                MapModeNameBox.Items.Add(mapMode.Name);
+            }
+        }
 
         private void AddTriggerButton_Click(object sender, EventArgs e)
         {
@@ -214,6 +229,73 @@ namespace EU4_Parse_Lib
             return triggers;
         }
 
+        private void LoadMapmode(IMapMode mapMode)
+        {
+            switch (mapMode.Type)
+            {
+                case MType.Gradient:
+                    _type = MType.Gradient;
+                    MinValueBox.Text = mapMode.Min.ToString();
+                    MaxValueBox.Text = mapMode.Max.ToString();
+                    NullValueBox.Text = mapMode.Null.ToString();
+                    GradColorBox.Text = $"{mapMode.NullColor.R},{mapMode.NullColor.G},{mapMode.NullColor.B}";
+                    GradAttributeBox.SelectedItem = mapMode.Attribute;
+                    ColorTableBox.Enabled = false;
+                    GradianColorBox.Enabled = true;
+                    TriggerBox.Enabled = false;
+                    OneColorPerValueBox.Enabled = false;
+                    break;
+                case MType.ColorTable:
+                    _type = MType.ColorTable;
+                    ColAtributeBox.SelectedItem = mapMode.Attribute;
+                    ColortablePreview.Items.Clear();
+                    foreach (var color in mapMode.ColorTable)
+                    {
+                        var item = new ListViewItem($"[{color.Key}] -> [{color.Value.R}/{color.Value.G}/{color.Value.B}]");
+                        ColortablePreview.Items.Add(item);
+                    }
+                    _colorTable = mapMode.ColorTable;
+                    ColValueBox.Clear();
+                    ColColorBox.Clear();
+                    ColorTableBox.Enabled = true;
+                    GradianColorBox.Enabled = false;
+                    TriggerBox.Enabled = false;
+                    OneColorPerValueBox.Enabled = false;
+                    break;
+                case MType.OneColorPerValue:
+                    _type = MType.OneColorPerValue;
+                    OneColorPerValueAttributeBox.SelectedItem = mapMode.Attribute;
+                    ColorTableBox.Enabled = false;
+                    GradianColorBox.Enabled = false;
+                    TriggerBox.Enabled = false;
+                    OneColorPerValueBox.Enabled = true;
+                    break;
+                case MType.TriggerList:
+                    _type = MType.TriggerList;
+                    TriggerNameBox.Items.Clear();
+                    TriggerTypeBox.SelectedItem = null;
+                    TriggerValueBox.Clear();
+                    TriggerScopeList.SelectedItem = null;
+                    TriggerAttributeBox.SelectedItem = null;
+                    IsNegatedCheckBox.Checked = false;
+                    AvailableTriggersList.Items.Clear();
+                    ExistingTriggersInMM.Items.Clear();
+                    FinalTriggersListBox.Items.Clear();
+                    foreach (var tri in mapMode.Triggers)
+                    {
+                        ExistingTriggersInMM.Items.Add($"[{tri.TName}] -> [{tri.Name}]");
+                        AvailableTriggersList.Items.Add(tri);
+                        FinalTriggersListBox.Items.Add(tri);
+                    }
+                    _triggers = mapMode.Triggers;
+                    ColorTableBox.Enabled = false;
+                    GradianColorBox.Enabled = false;
+                    TriggerBox.Enabled = true;
+                    OneColorPerValueBox.Enabled = false;
+                    break;
+            }
+        }
+
         private void LoadTriggerToInterface(ITrigger trigger)
         {
             TriggerNameBox.Text = trigger.Name;
@@ -315,6 +397,8 @@ namespace EU4_Parse_Lib
             {
                 _currentMapMode = value;
             }
+
+            LoadMapmode(value);
         }
 
         private void SaveMapmodeButton_Click(object sender, EventArgs e)
@@ -323,6 +407,7 @@ namespace EU4_Parse_Lib
             if (!Enum.TryParse(MapmodeScope.Text, out Scope scope))
             {
                 MErrorBox.Text += $"[{MapmodeScope.Text}] is no legal scope!";
+                _overrideMapMode = false;
                 return;
             }
 
@@ -339,6 +424,7 @@ namespace EU4_Parse_Lib
                         !int.TryParse(NullValueBox.Text, out var nul))
                     {
                         MErrorBox.Text += "Either [min] [max] [null] are not a number!";
+                        _overrideMapMode = false;
                         return;
                     }
 
@@ -346,61 +432,75 @@ namespace EU4_Parse_Lib
                     if (!col.Key)
                     {
                         MErrorBox.Text += $"[{GradColorBox.Text}] is in wrong color format: [r/g/b] or [r,g,b]";
+                        _overrideMapMode = false;
                         return;
                     }
 
                     if (!Enum.TryParse(GradAttributeBox.Text, out attr))
                     {
                         MErrorBox.Text += $"[{GradAttributeBox.Text}] is no legal attribute!";
+                        _overrideMapMode = false;
                         return;
                     }
 
-                    _currentMapMode = new GradientMapMode(bName.Value, scope, _type, attr, OnlyLandProvincesCheckBox.Checked, min, max, nul, true);
+                    _currentMapMode = new GradientMapMode(bName.Value, scope, _type, attr, OnlyLandProvincesCheckBox.Checked, min, max, nul, true, true);
 
                     break;
                 case MType.ColorTable:
-                    if (!Enum.TryParse(ColAtributeBox.Text, out  attr))
+                    if (!Enum.TryParse(ColAtributeBox.Text, out attr))
                     {
                         MErrorBox.Text += $"[{ColAtributeBox.Text}] is no legal attribute!";
+                        _overrideMapMode = false;
                         return;
                     }
 
                     if (_colorTable.Count < 1)
                     {
                         MErrorBox.Text += "There must be at least one entry!";
+                        _overrideMapMode = false;
                         return;
                     }
 
                     _currentMapMode = new ColorTableMapMode(bName.Value, scope, _type, attr,
-                        OnlyLandProvincesCheckBox.Checked, false, _colorTable);
+                        OnlyLandProvincesCheckBox.Checked, false, _colorTable, true);
 
                     break;
                 case MType.OneColorPerValue:
-
+                    if (!Enum.TryParse(OneColorPerValueAttributeBox.Text, out attr))
+                    {
+                        MErrorBox.Text += $"[{OneColorPerValueAttributeBox.Text}] is no legal attribute!";
+                        _overrideMapMode = false;
+                        return;
+                    }
+                    _currentMapMode = new OneColorPerValueMapMode(bName.Value, scope, _type, attr,
+                        OnlyLandProvincesCheckBox.Checked, false, true);
+                    Debug.WriteLine(_currentMapMode);
                     break;
                 case MType.TriggerList:
                     if (!Enum.TryParse(TriggerAttributeBox.Text, out attr))
                     {
                         MErrorBox.Text += $"[{TriggerAttributeBox.Text}] is no legal attribute!";
+                        _overrideMapMode = false;
                         return;
                     }
                     if (FinalTriggersListBox.Items.Count < 1)
                     {
                         MErrorBox.Text += "There must be at least one entry in the final trigger list!";
+                        _overrideMapMode = false;
                         return;
                     }
-                    List<ITrigger> f = new ();
+                    List<ITrigger> triggers = new();
                     Match match;
                     foreach (var item in FinalTriggersListBox.Items)
                     {
                         match = Regex.Match(item.ToString()!, @"(.*):");
                         if (!match.Success)
                             continue;
-                        f.Add(_triggers.Find(obj => obj.Name == match.Groups[1].Value));
+                        triggers.Add(_triggers.Find(obj => obj.Name == match.Groups[1].Value));
                     }
 
                     _currentMapMode = new TriggerListMapmode(bName.Value, scope, _type, attr,
-                        OnlyLandProvincesCheckBox.Checked, f);
+                        OnlyLandProvincesCheckBox.Checked, triggers, true);
 
                     break;
                 default:
@@ -413,12 +513,23 @@ namespace EU4_Parse_Lib
                 MErrorBox.Text = "CRITICAL ERROR OCCURED! Mapmode could not be created. Please verify all input values once more and try again!";
                 return;
             }
+
+            if (Vars.MapModes.ContainsKey(_currentMapMode.Name) || !_overrideMapMode) 
+                return;
+            Vars.MapModes.Remove(_currentMapMode.Name);
             Vars.MapModes.Add(bName.Value, _currentMapMode);
 
-            if (Vars.RederCreatedMapmodes)
+            RefreshMapmodeNameList();
+
+            if (Vars.RederCreatedMapmodes) //TODO make this a setting
             {
                 _currentMapMode.RenderMapmode();
             }
+
+            //Save all mapmodes to JSON
+            SaveMapModesToJson();
+
+            _overrideMapMode = false;
         }
 
         private KeyValuePair<bool, string> VerifyMapmodeName()
@@ -430,9 +541,18 @@ namespace EU4_Parse_Lib
             }
             if (Vars.MapModes.ContainsKey(MapModeNameBox.Text))
             {
-                MErrorBox.Text = $"Map mode name [{MapModeNameBox.Text}] is already in use!";
-                return new KeyValuePair<bool, string>(false, string.Empty);
+                var result = MessageBox.Show("This Map Mode name is already in use. Do you want to override it with the current information entered?", "Dublicate Map Mode name", MessageBoxButtons.OKCancel);
+                
+                if (result == DialogResult.Cancel)
+                {
+                    MErrorBox.Text = $"Map mode name [{MapModeNameBox.Text}] is already in use!";
+                    return new KeyValuePair<bool, string>(false, string.Empty);
+                }
             }
+            
+            Debug.WriteLine(_overrideMapMode);
+            _overrideMapMode = true;
+
             return new KeyValuePair<bool, string>(true, MapModeNameBox.Text);
         }
 
@@ -466,24 +586,28 @@ namespace EU4_Parse_Lib
                 ColorTableBox.Enabled = true;
                 GradianColorBox.Enabled = false;
                 TriggerBox.Enabled = false;
+                OneColorPerValueBox.Enabled = false;
             }
             if (UseGradiantButton.Checked)
             {
                 ColorTableBox.Enabled = false;
                 GradianColorBox.Enabled = true;
                 TriggerBox.Enabled = false;
+                OneColorPerValueBox.Enabled = false;
             }
             if (UseTriggerButton.Checked)
             {
                 ColorTableBox.Enabled = false;
                 GradianColorBox.Enabled = false;
                 TriggerBox.Enabled = true;
+                OneColorPerValueBox.Enabled = false;
             }
             if (UseOneColroPerValueButton.Checked)
             {
                 ColorTableBox.Enabled = false;
                 GradianColorBox.Enabled = false;
                 TriggerBox.Enabled = false;
+                OneColorPerValueBox.Enabled = true;
             }
         }
 
@@ -698,6 +822,25 @@ namespace EU4_Parse_Lib
         private void UseTriggerButton_CheckedChanged(object sender, EventArgs e)
         {
             _type = MType.TriggerList;
+        }
+
+        private void SaveMapModesToJson()
+        {
+            List<IMapMode> userMapModes = new();
+            List<IMapMode> genericMapModes = new();
+
+            foreach (var mapMode in Vars.MapModes.Values)
+            {
+                if (mapMode.UserDefinedMapmode)
+                    userMapModes.Add(mapMode);
+                else
+                    genericMapModes.Add(mapMode);
+            }
+
+            Debug.WriteLine($"Saving user map modes to: {Path.Combine(Vars.DataPath,  "userMapModes.json")}");
+            Debug.WriteLine($"Saving generic map modes to: {Path.Combine(Vars.DataPath, "genericMapModes.json")}");
+            Saving.SaveListToJson(userMapModes, Path.Combine(Vars.DataPath, "userMapModes.json"));
+            Saving.SaveListToJson(genericMapModes, Path.Combine(Vars.DataPath, "genericMapModes.json"));
         }
     }
 }

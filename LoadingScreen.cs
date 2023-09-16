@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography.Xml;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace EU4_Parse_Lib
+﻿namespace EU4_Parse_Lib
 {
     public partial class LoadingScreen : Form
     {
@@ -22,6 +11,7 @@ namespace EU4_Parse_Lib
 
             Vars.AppPath = Application.ExecutablePath.Replace("EU4 Parse Lib.exe", "");
             Vars.DataPath = Path.Combine(Vars.AppPath, "data");
+            Vars.User = Path.Combine(Vars.AppPath, "User");
 
             Vars.LoadingForm = this;
         }

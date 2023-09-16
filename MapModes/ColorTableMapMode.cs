@@ -15,10 +15,11 @@ internal class ColorTableMapMode : IMapMode
     public Color NullColor { get; set; }
     public bool OnlyLandProvinces { get; set; }
     public bool UseGradient { get; set; }
+    public bool UserDefinedMapmode { get; set; }
     public List<ITrigger> Triggers { get; set; } = new();
     public Dictionary<string, Color> ColorTable { get; set; }
 
-    public ColorTableMapMode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, bool useGradient, Dictionary<string, Color> colorTable)
+    public ColorTableMapMode(string name, Scope scope, MType type, Attribute attribute, bool onlyLandProvinces, bool useGradient, Dictionary<string, Color> colorTable, bool userDefinedMapmode)
     {
         Name = name;
         MScope = scope;
@@ -27,6 +28,7 @@ internal class ColorTableMapMode : IMapMode
         OnlyLandProvinces = onlyLandProvinces;
         UseGradient = useGradient;
         ColorTable = colorTable;
+        UserDefinedMapmode = userDefinedMapmode;
     }
 
     public Dictionary<int, Color> GetProvinceColor()

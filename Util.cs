@@ -19,6 +19,47 @@ namespace EU4_Parse_Lib
     public static class Util
     {
         /// <summary>
+        /// Generates a list filled with unique random colors
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static Dictionary<int, Color> GenerateRandomColors(int x)
+        {
+            var random = new Random();
+            var randomColorSet = new Dictionary<int, Color>();
+
+            while (randomColorSet.Count < x)
+            {
+                Color color;
+
+                do
+                {
+                    var r = random.Next(256);
+                    var g = random.Next(256);
+                    var b = random.Next(256);
+                    
+                    switch (random.Next(3))
+                    {
+                        case 0:
+                            r = (r + 1) % 256;
+                            break;
+                        case 1:
+                            g = (g + 1) % 256;
+                            break;
+                        case 2:
+                            b = (b + 1) % 256;
+                            break;
+                    }
+                    color = Color.FromArgb(255, r, g, b);
+                }
+                while (randomColorSet.ContainsValue(color));
+
+                randomColorSet.Add(randomColorSet.Count, color);
+            }
+            return randomColorSet;
+        }
+
+        /// <summary>
         /// calculates the colors used in a gradient to display in gradient mapmode types
         /// </summary>
         /// <param name="minValue"></param>

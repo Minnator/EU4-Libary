@@ -44,11 +44,11 @@ namespace EU4_Parse_Lib
         public static TimeSpan TotalLoadTime = new ();
 
         public static List<string> TimeStamps = new();
-        public static List<string> AttributeNames = new();
         public static List<string> CountryAttributeNames = new();
         public static List<string> ProvinceAttributeNames = new();
         public static List<string> ScopeNames = new();
 
+        public static string User = "";
         public static string AppPath = "";
         public static string ModFolder = "";
         public static string VanillaFolder = "";
@@ -73,7 +73,7 @@ namespace EU4_Parse_Lib
 
         public static Dictionary<string, IMapMode> MapModes = new();
 
-        public static Dictionary<string, string> Localization = new ();
+        public static Dictionary<string, string> Localization = new (116000);
         
         public static Dictionary<string, int> LocalizationFiles = new ();
 
@@ -85,7 +85,8 @@ namespace EU4_Parse_Lib
 
         public static Dictionary<string, Area> Areas = new();
 
-        
+        public static Dictionary<int, Color> RandomColors = new();
+
 
         // FORMS
 
