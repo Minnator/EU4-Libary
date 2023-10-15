@@ -21,6 +21,8 @@ namespace EU4_Parse_Lib
         public ManageMapmodes()
         {
             InitializeComponent();
+            GradColorPreview.BackColor = Color.FromArgb(255, 0, 19, 86);
+            TableColorPreview.BackColor = Color.FromArgb(255, 0, 155, 155);
 
             ColorTableBox.Enabled = false;
             GradianColorBox.Enabled = true;
@@ -514,7 +516,7 @@ namespace EU4_Parse_Lib
                 return;
             }
 
-            if (Vars.MapModes.ContainsKey(_currentMapMode.Name) || !_overrideMapMode) 
+            if (Vars.MapModes.ContainsKey(_currentMapMode.Name) || !_overrideMapMode)
                 return;
             Vars.MapModes.Remove(_currentMapMode.Name);
             Vars.MapModes.Add(bName.Value, _currentMapMode);
@@ -525,6 +527,8 @@ namespace EU4_Parse_Lib
             {
                 _currentMapMode.RenderMapmode();
             }
+
+            //Vars.MapMode = _currentMapMode;
 
             //Save all mapmodes to JSON
             SaveMapModesToJson();
@@ -542,14 +546,14 @@ namespace EU4_Parse_Lib
             if (Vars.MapModes.ContainsKey(MapModeNameBox.Text))
             {
                 var result = MessageBox.Show("This Map Mode name is already in use. Do you want to override it with the current information entered?", "Dublicate Map Mode name", MessageBoxButtons.OKCancel);
-                
+
                 if (result == DialogResult.Cancel)
                 {
                     MErrorBox.Text = $"Map mode name [{MapModeNameBox.Text}] is already in use!";
                     return new KeyValuePair<bool, string>(false, string.Empty);
                 }
             }
-            
+
             Debug.WriteLine(_overrideMapMode);
             _overrideMapMode = true;
 
@@ -837,10 +841,42 @@ namespace EU4_Parse_Lib
                     genericMapModes.Add(mapMode);
             }
 
-            Debug.WriteLine($"Saving user map modes to: {Path.Combine(Vars.DataPath,  "userMapModes.json")}");
+            Debug.WriteLine($"Saving user map modes to: {Path.Combine(Vars.DataPath, "userMapModes.json")}");
             Debug.WriteLine($"Saving generic map modes to: {Path.Combine(Vars.DataPath, "genericMapModes.json")}");
             Saving.SaveListToJson(userMapModes, Path.Combine(Vars.DataPath, "userMapModes.json"));
             Saving.SaveListToJson(genericMapModes, Path.Combine(Vars.DataPath, "genericMapModes.json"));
+        }
+
+        private void ColColorBox_TextChanged(object sender, EventArgs e)
+        {
+            var kvp = Util.ParseColorFromString(ColColorBox.Text);
+            if (!kvp.Key)
+            {
+                TableColorPreview.BackColor = Color.Transparent;
+                return;
+            }
+            TableColorPreview.BackColor = kvp.Value;
+        }
+
+        private void GradColorBox_TextChanged(object sender, EventArgs e)
+        {
+            var kvp = Util.ParseColorFromString(GradColorBox.Text);
+            if (!kvp.Key)
+            {
+                GradColorPreview.BackColor = Color.Transparent;
+                return;
+            }
+            GradColorPreview.BackColor = kvp.Value;
+        }
+
+        private void ManageMapmodes_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Gui.PopulateMainWindowMapModes();
+        }
+
+        private void ManageMapmodes_Load(object sender, EventArgs e)
+        {
+            RefreshMapmodeNameList();
         }
     }
 }

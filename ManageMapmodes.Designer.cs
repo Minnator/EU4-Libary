@@ -38,6 +38,7 @@
             ClearMErroLog = new Button();
             label20 = new Label();
             ColorTableBox = new GroupBox();
+            TableColorPreview = new Panel();
             AddToColorTable = new Button();
             label18 = new Label();
             label15 = new Label();
@@ -54,6 +55,7 @@
             OnlyLandProvincesCheckBox = new CheckBox();
             SaveMapmodeButton = new Button();
             GradianColorBox = new GroupBox();
+            GradColorPreview = new Panel();
             label21 = new Label();
             GradAttributeBox = new ComboBox();
             GradColorBox = new TextBox();
@@ -212,6 +214,7 @@
             // 
             // ColorTableBox
             // 
+            ColorTableBox.Controls.Add(TableColorPreview);
             ColorTableBox.Controls.Add(AddToColorTable);
             ColorTableBox.Controls.Add(label18);
             ColorTableBox.Controls.Add(label15);
@@ -227,6 +230,14 @@
             ColorTableBox.TabIndex = 34;
             ColorTableBox.TabStop = false;
             ColorTableBox.Text = "Use color table";
+            // 
+            // TableColorPreview
+            // 
+            TableColorPreview.BackColor = Color.Transparent;
+            TableColorPreview.Location = new Point(54, 78);
+            TableColorPreview.Name = "TableColorPreview";
+            TableColorPreview.Size = new Size(23, 23);
+            TableColorPreview.TabIndex = 22;
             // 
             // AddToColorTable
             // 
@@ -309,6 +320,9 @@
             ColColorBox.Name = "ColColorBox";
             ColColorBox.Size = new Size(89, 23);
             ColColorBox.TabIndex = 15;
+            ColColorBox.Text = "0,155,155";
+            ColColorBox.TextAlign = HorizontalAlignment.Center;
+            ColColorBox.TextChanged += ColColorBox_TextChanged;
             // 
             // UseTriggerButton
             // 
@@ -379,6 +393,7 @@
             // 
             // GradianColorBox
             // 
+            GradianColorBox.Controls.Add(GradColorPreview);
             GradianColorBox.Controls.Add(label21);
             GradianColorBox.Controls.Add(GradAttributeBox);
             GradianColorBox.Controls.Add(GradColorBox);
@@ -396,6 +411,14 @@
             GradianColorBox.TabStop = false;
             GradianColorBox.Text = "Use gradient";
             // 
+            // GradColorPreview
+            // 
+            GradColorPreview.BackColor = Color.Transparent;
+            GradColorPreview.Location = new Point(288, 16);
+            GradColorPreview.Name = "GradColorPreview";
+            GradColorPreview.Size = new Size(23, 23);
+            GradColorPreview.TabIndex = 21;
+            // 
             // label21
             // 
             label21.AutoSize = true;
@@ -412,7 +435,7 @@
             GradAttributeBox.FormattingEnabled = true;
             GradAttributeBox.Location = new Point(198, 45);
             GradAttributeBox.Name = "GradAttributeBox";
-            GradAttributeBox.Size = new Size(93, 23);
+            GradAttributeBox.Size = new Size(113, 23);
             GradAttributeBox.TabIndex = 20;
             GradAttributeBox.Text = "Id";
             // 
@@ -420,10 +443,11 @@
             // 
             GradColorBox.Location = new Point(198, 16);
             GradColorBox.Name = "GradColorBox";
-            GradColorBox.Size = new Size(93, 23);
+            GradColorBox.Size = new Size(84, 23);
             GradColorBox.TabIndex = 8;
-            GradColorBox.Text = "0,0,0";
+            GradColorBox.Text = "0,19,86";
             GradColorBox.TextAlign = HorizontalAlignment.Center;
+            GradColorBox.TextChanged += GradColorBox_TextChanged;
             // 
             // label14
             // 
@@ -837,6 +861,8 @@
             Controls.Add(ManageMapmodesTab);
             Name = "ManageMapmodes";
             Text = "Mapmode Manager";
+            FormClosing += ManageMapmodes_FormClosing;
+            Load += ManageMapmodes_Load;
             ManageMapmodesTab.ResumeLayout(false);
             CreateMapmodesTab.ResumeLayout(false);
             CreateMapmodesTab.PerformLayout();
@@ -926,5 +952,7 @@
         private ComboBox GradAttributeBox;
         private GroupBox OneColorPerValueBox;
         private ComboBox OneColorPerValueAttributeBox;
+        private Panel TableColorPreview;
+        private Panel GradColorPreview;
     }
 }

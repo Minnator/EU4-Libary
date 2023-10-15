@@ -11,7 +11,9 @@ namespace EU4_Parse_Lib
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new LoadingScreen());
+            var mv = new MainWindow();
+            mv.Visible = false;
+            Application.Run(mv);
         }
     }
 }

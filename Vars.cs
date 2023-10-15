@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 
@@ -32,6 +27,8 @@ namespace EU4_Parse_Lib
     }
     public static class Vars
     {
+        public static ContextMenuStrip MapRightClickMenu = new ();
+
         public static bool RederCreatedMapmodes = true; // TODO make settable in an interface aka settings
 
         public static float ZoomFactor = 1f;
@@ -40,6 +37,10 @@ namespace EU4_Parse_Lib
 
         public static Bitmap? Map;
         public static Bitmap? OrgMap;
+        public static Bitmap? ProvincesBmp;
+        public static Bitmap? SelecteMapMode;
+
+        public static IMapMode? MapMode;
 
         public static TimeSpan TotalLoadTime = new ();
 
@@ -54,7 +55,6 @@ namespace EU4_Parse_Lib
         public static string VanillaFolder = "";
         public static string Language = "english";
         public static string DataPath = "";
-        public static string LastMapModePath = "C:\\Users\\david\\Downloads\\mapmode.bmp"; // TODO remove assignment on release
 
         public static Dictionary<int, Province> Provinces = new ();
         public static Dictionary<int, Province> RnvProvinces = new ();
@@ -69,6 +69,7 @@ namespace EU4_Parse_Lib
         public static Dictionary<string, Color> NotOnMapProvinces = new ();
 
         public static Dictionary<Attribute, Func<bool>> AttrToValue = new();
+
         public static Dictionary<Scope, Type> ScopeToType = new();
 
         public static Dictionary<string, IMapMode> MapModes = new();
@@ -94,6 +95,7 @@ namespace EU4_Parse_Lib
         public static LoadingScreen? LoadingForm;
         public static WebBrowserForm? WebBrowserForm;
         public static ManageMapmodes? ManageMapmodes;
+        public static FileEditor? FileEditor;
         
         public static object BitmapLock = new (); // Lock for bitmap access
     }

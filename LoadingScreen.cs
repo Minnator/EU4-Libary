@@ -46,6 +46,9 @@
             Vars.MainWindow = Gui.ShowForm<MainWindow>();
             //Vars.MainWindow.Location = (Point)new Size(Location.X + Width, Location.Y);
             ParseManager.LoadAll();
+            Vars.MainWindow.INIT();
+            Vars.MainWindow.Opacity = 100;
+            Dispose();
         }
 
         private void LoadingScreen_FormClosed(object sender, FormClosedEventArgs e)

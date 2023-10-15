@@ -43,21 +43,25 @@ internal class GradientMapMode : IMapMode
                 {
                     foreach (var province in Vars.LandProvinces.Values)
                     {
-                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute)));
+                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute), NullColor, Null));
                     }
+                    foreach (var seaProvince in Vars.SeaProvinces.Values)
+                    {
+                        dic.Add(seaProvince.Id, seaProvince.Color);
+                    }        
                 }
                 else
                 {
                     foreach (var province in Vars.Provinces.Values)
                     {
-                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute)));
+                        dic.Add(province.Id, Util.GetGradientColor(Min, Max, (int)province.GetAttribute(Attribute), NullColor, Null));
                     }
                 }
                 break;
             case Scope.Country:
                 Parallel.ForEach(Vars.OnMapCountries.Values, country =>
                 {
-                    var col = Util.GetGradientColor(Min, Max, (int)country.GetAttribute(Attribute));
+                    var col = Util.GetGradientColor(Min, Max, (int)country.GetAttribute(Attribute), NullColor, Null);
                     foreach (var id in country.provinces.Keys)
                     {
                         dic.TryAdd(id, col);
@@ -87,7 +91,7 @@ internal class GradientMapMode : IMapMode
 
     public void RenderMapmode()
     {
-        Gui.ColorMap(GetProvinceColor(), Vars.LastMapModePath );
+        Gui.ColorMap(GetProvinceColor());
     }
 
     public override string ToString()

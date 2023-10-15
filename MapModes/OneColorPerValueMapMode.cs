@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 
@@ -64,6 +65,10 @@ internal class OneColorPerValueMapMode : IMapMode
                         dic.Add(province.Id, GenerateColor(province.GetAttribute(Attribute).ToString()!, cnt));
                         cnt++;
                     }
+                    foreach (var seaProvince in Vars.SeaProvinces.Values)
+                    {
+                        dic.Add(seaProvince.Id, seaProvince.Color);
+                    }
                 }
                 else
                 {
@@ -79,7 +84,7 @@ internal class OneColorPerValueMapMode : IMapMode
                 ColorTable = new Dictionary<string, Color>(Vars.OnMapCountries.Count);
                 Parallel.ForEach(Vars.OnMapCountries.Values, country =>
                 {
-                    var col = Util.GetGradientColor(Min, Max, (int)country.GetAttribute(Attribute));
+                    var col = Util.GetGradientColor(Min, Max, (int)country.GetAttribute(Attribute), NullColor, Null);
                     foreach (var id in country.provinces.Keys)
                     {
                         dic.TryAdd(id, col);
@@ -106,10 +111,9 @@ internal class OneColorPerValueMapMode : IMapMode
 
         return dic;
     }
-
     public void RenderMapmode()
     {
-        Gui.ColorMap(GetProvinceColor(), Vars.LastMapModePath );
+        Gui.ColorMap(GetProvinceColor());
     }
 
     public override string ToString()

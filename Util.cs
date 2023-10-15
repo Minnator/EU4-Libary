@@ -66,8 +66,10 @@ namespace EU4_Parse_Lib
         /// <param name="maxValue"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static Color GetGradientColor(int minValue, int maxValue, int value)
+        public static Color GetGradientColor(int minValue, int maxValue, int value, Color nullColor, int nullValue)
         {
+            if (value <= nullValue)
+                return nullColor;
             // Ensure value is within the range [minValue, maxValue]
             value = Math.Max(minValue, Math.Min(maxValue, value));
 
@@ -400,7 +402,7 @@ namespace EU4_Parse_Lib
         public static KeyValuePair<bool, Color> ParseColorFromString(string input)
         {
             var colMatch = Regex.Match(input, @"(?<r>[0-9]{1,3})[,|\/](?<g>[0-9]{1,3})[,|\/](?<b>[0-9]{1,3})");
-            return !colMatch.Success
+            return !colMatch.Success || int.Parse(colMatch.Groups["r"].ToString()) > 255 || int.Parse(colMatch.Groups["g"].ToString()) > 255 || int.Parse(colMatch.Groups["b"].ToString()) > 255
                 ? new KeyValuePair<bool, Color>(false, Color.FromArgb(255, 0, 0, 0))
                 : new KeyValuePair<bool, Color>(true, Color.FromArgb(255, int.Parse(colMatch.Groups["r"].ToString()),
                     int.Parse(colMatch.Groups["g"].ToString()), int.Parse(colMatch.Groups["b"].ToString())));

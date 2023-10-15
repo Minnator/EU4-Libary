@@ -49,6 +49,10 @@ internal class TriggerListMapmode : IMapMode
                             dic.Add(province.Id, Color.FromArgb(255, 0, 204, 0));
                         }
                     }
+                    foreach (var seaProvince in Vars.SeaProvinces.Values)
+                    {
+                        dic.Add(seaProvince.Id, seaProvince.Color);
+                    }
                 }
                 else
                 {
@@ -111,6 +115,6 @@ internal class TriggerListMapmode : IMapMode
 
     public void RenderMapmode()
     {
-        Gui.ColorMap(GetProvinceColor(), Vars.LastMapModePath);
+        Gui.ColorMap(GetProvinceColor());
     }
 }

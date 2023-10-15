@@ -1,34 +1,49 @@
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-using System.Xml.Linq;
-using Emgu.CV.Dai;
-using EU4_Parse_Lib.DataClasses;
+using YamlDotNet.Core.Tokens;
 using Timer = System.Windows.Forms.Timer;
 
 namespace EU4_Parse_Lib
 {
     public partial class MainWindow : Form
     {
+
         private const int MoveAmount = 50;
         public Rectangle DisplayRect;
         private int _maxXOffset;
         private int _maxYOffset;
-
-        // Hover tooltip over Map
+        
         private bool _isMouseOverPictureBox;
         private readonly Timer _cooldownTimer = new();
         private Point _lastMouseLocation;
-        private Color _tooltipColor = Color.FromArgb(255, 0, 0, 0);
 
         public MainWindow()
         {
+            Vars.MainWindow = this;
+            Vars.MainWindow.Visible = false;
             InitializeComponent();
-            var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
-            var map = new Bitmap(combinedPath);
-            Vars.Map = map;
-            Vars.OrgMap = map;
+
+            var loadingScreen = Gui.ShowForm<LoadingScreen>();
+            Vars.LoadingForm = loadingScreen;
+
+
+        }
+
+        public void INIT()
+        {
+            try
+            {
+                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
+                var map = new Bitmap(combinedPath);
+                Vars.Map = map;
+                Vars.OrgMap = map;
+            }
+            catch (Exception e)
+            {
+                Util.ErrorPopUp("Map Loading Error", $"No Valid [province.bmp] file found\n {e}");
+                throw;
+            }
             CalculateMaxOffsets();
             ResetDisplayRect();
             UpdateDisplayedImage();
@@ -36,6 +51,13 @@ namespace EU4_Parse_Lib
             // Initialize the cooldown timer
             _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
             _cooldownTimer.Tick += CooldownTimer_Tick!;
+
+            Gui.DrawBorderAroundRegions();
+            Loading.LoadWithStopWatch("Random Colors", Loading.FillRandomColorsList);
+            Loading.WriteDebugFiles();
+
+            Vars.MainWindow!.Visible = true;
+            Vars.MainWindow = Gui.ShowForm<MainWindow>();
         }
 
         private void CalculateMaxOffsets()
@@ -75,22 +97,31 @@ namespace EU4_Parse_Lib
 
             UpdateDisplayedImage();
         }
+
+        #region Map Movement via buttons
+
         private void RightButton_Click(object sender, EventArgs e)
         {
             MoveBitmap(MoveAmount * StepsizeMove.Value, 0);
         }
+
         private void DownButton_Click(object sender, EventArgs e)
         {
             MoveBitmap(0, MoveAmount * StepsizeMove.Value);
         }
+
         private void LeftButton_Click(object sender, EventArgs e)
         {
             MoveBitmap(-MoveAmount * StepsizeMove.Value, 0);
         }
+
         private void UpButton_Click(object sender, EventArgs e)
         {
             MoveBitmap(0, -MoveAmount * StepsizeMove.Value);
         }
+
+        #endregion
+        
         private void zoomTrackBar_ValueChanged(object sender, EventArgs e)
         {
 
@@ -101,50 +132,53 @@ namespace EU4_Parse_Lib
                 return;
             var x = e.X + DisplayRect.X;
             var y = e.Y + DisplayRect.Y;
-
+            //Verify that it is in bounds
             if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
                 return;
+            //Get Color an verify there is an entry for it
             var color = Vars.Map.GetPixel(x, y);
-
             if (!Vars.ColorIds.ContainsKey(color))
                 return;
 
-            if (e.Button == MouseButtons.Left)
+            switch (e.Button)
             {
-                var p = Vars.Provinces[Vars.ColorIds[color]];
-                if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(p))
+                case MouseButtons.Left when ModifierKeys == Keys.Control:
                 {
-                    Gui.RenderSelection(p, Color.FromArgb(255, 0, 0, 0));
-                    //Util.SetProvinceBorder(p, p.Color);
+                    var p = Vars.Provinces[Vars.ColorIds[color]];
+                    Vars.SelectedProvinces.Add(p);
+                    Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
+                    break;
+                }
+                case MouseButtons.Left:
+                {
+                    var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
+                    if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
+                    {
+                        Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
+                        Vars.SelectedProvinces.Clear();
+                        return;
+                    }
+                    foreach (var pro in Vars.SelectedProvinces)
+                    {
+                        Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
+                    }
                     Vars.SelectedProvinces.Clear();
-                    return;
+                    Util.NextProvince(currentProvince);
+                    Vars.SelectedProvinces.Add(currentProvince);
+                    break;
                 }
-                foreach (var pro in Vars.SelectedProvinces)
-                {
-                    Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
-                }
-                Vars.SelectedProvinces.Clear();
-                Util.NextProvince(p);
-                Vars.SelectedProvinces.Add(p);
             }
-            else
-            {
-                var p = Vars.Provinces[Vars.ColorIds[color]];
-                Vars.SelectedProvinces.Add(p);
-                Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
-            }
+            //I can't find the memory leak here
             GC.Collect();
         }
 
         private void Map_MouseHover(object sender, EventArgs e)
         {
-            if (sender is not PictureBox pictureBox) return;
+            if (sender is not PictureBox pictureBox) 
+                return;
             var clientMouseLocation = pictureBox.PointToClient(Cursor.Position);
-
-            var mouseX = clientMouseLocation.X;
-            var mouseY = clientMouseLocation.Y;
-
-            GenerateMouseTooltip(new Point(mouseX, mouseY));
+            
+            GenerateMouseTooltip(new Point(clientMouseLocation.X, clientMouseLocation.Y));
         }
 
 
@@ -160,7 +194,8 @@ namespace EU4_Parse_Lib
 
         private void Map_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!_isMouseOverPictureBox) return;
+            if (!_isMouseOverPictureBox) 
+                return;
             if (_lastMouseLocation == new Point(e.X, e.Y)) return;
 
             _cooldownTimer.Interval = 400;
@@ -178,32 +213,29 @@ namespace EU4_Parse_Lib
             _cooldownTimer.Tick -= CooldownTimer_Tick!;
         }
 
+        /// <summary>
+        /// Gets data of the pixel at the mouse position and creates a tooltip with it
+        /// </summary>
+        /// <param name="p"></param>
         private void GenerateMouseTooltip(Point p)
         {
-            Color color;
-            try
-            {
-                color = Vars.Map!.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+            if (Vars.Map == null)
                 return;
-            }
-            if (color == _tooltipColor || color == Color.FromArgb(255, 0, 0, 0)) return;
-            if (!Vars.ColorIds.TryGetValue(color, out var id))
-            {
+            var pixelColor = Vars.Map.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
+
+            if (!Vars.ColorIds.TryGetValue(pixelColor, out var id))
                 return;
-            }
+
+            //TODO Replace by fully customizable tooltip and its own class
             var area = Vars.Provinces[id].Area;
-            // TODO expand when more data is available.
-
-            //Debug.WriteLine($"{name} [{id}]\nArea: {area}");
-
             _tt.SetToolTip(Vars.MainWindow!.Map, $"{Loading.GetLoc($"PROV{id}")} [{id}]\nArea: {area}");
-            _tooltipColor = color;
         }
 
+        /// <summary>
+        /// Displays the Readme with some basic instructions on the use of this product
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Help_MenuItem_Click(object sender, EventArgs e)
         {
             Vars.WebBrowserForm = Gui.ShowForm<WebBrowserForm>();
@@ -215,59 +247,68 @@ namespace EU4_Parse_Lib
             Vars.ManageMapmodes = Gui.ShowForm<ManageMapmodes>();
         }
         
-
         private void ZoomInButton_Click(object sender, EventArgs e)
         {
-            if (Vars.ZoomFactor >= 4)
-            {
-                Vars.ZoomFactor = 4;
-                return;
-            }
-            Vars.ZoomFactor *= 2;
-
-            Vars.MainWindow!.Map.Image = UpdatePictureBoxSize(Vars.OrgMap!, new Size((int)Vars.ZoomFactor, (int)Vars.ZoomFactor));
-
-            Debug.WriteLine(Vars.ZoomFactor);
+            //TODO implement working zoom
         }
 
         private void ZoomOutButton_Click(object sender, EventArgs e)
         {
-            if (Vars.ZoomFactor <= 1)
-            {
-                Vars.ZoomFactor = 1;
-                return;
-            }
-            // Decrease the zoom factor
-            Vars.ZoomFactor /= 2;
-            
-            Vars.MainWindow!.Map.Image = UpdatePictureBoxSize(Vars.OrgMap!, new Size((int)Vars.ZoomFactor, (int)Vars.ZoomFactor));
-            Debug.WriteLine(Vars.ZoomFactor);
+            //TODO implement working zoom
         }
-
-        public static Image UpdatePictureBoxSize(Image image, Size size)
+        
+        public void OnMapModeSelection(object sender, EventArgs e)
         {
-            int newWidth = image.Width + (image.Width * size.Width);
-            int newHeight = image.Height + (image.Height * size.Height);
-
-            // Create a new bitmap with the desired size
-            Bitmap resizedImage = new Bitmap(newWidth, newHeight);
-
-            using (Graphics graphics = Graphics.FromImage(resizedImage))
-            {
-                // Set the interpolation mode to high quality bicubic
-                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-
-                // Calculate the source and destination rectangles
-                Rectangle srcRect = new Rectangle(0, 0, image.Width, image.Height);
-                Rectangle destRect = new Rectangle(0, 0, newWidth, newHeight);
-
-                // Draw the image onto the resized bitmap with the desired size
-                graphics.DrawImage(image, destRect, srcRect, GraphicsUnit.Pixel);
-            }
-
-            return resizedImage;
+            var button = (Button)sender;
+            if (!Vars.MapModes.TryGetValue(button.Text, out var mapMode))
+                return;
+            Vars.MapMode = mapMode;
+            Gui.ChangeMapmode();
+        }
+        
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
+            Visible = false;
         }
 
+        private void MainRightClickMenu_Opening(object sender, CancelEventArgs e)
+        {
+            //Conditions to disable some options if requirements are not met
+            if (Vars.SelectedProvinces.Count > 1)
+            {
+                ChangeColorContext.Enabled = false;
+                OpenCountryFileContext.Enabled = false;
+                OpenProvinceFileContext.Enabled = false;
+            }
+            else
+            {
+                ChangeColorContext.Enabled = true;
+                OpenCountryFileContext.Enabled = true;
+                OpenProvinceFileContext.Enabled = true;
+            }
+        }
 
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            Debug.WriteLine($"Pressed: {e.KeyCode}");
+            switch (e.KeyCode)
+            {
+                case Keys.W:
+                    MoveBitmap(0, -MoveAmount * StepsizeMove.Value);
+                    break;
+                case Keys.A:
+                    MoveBitmap(-MoveAmount * StepsizeMove.Value, 0);
+                    break;
+                case Keys.S:
+                    MoveBitmap(0, MoveAmount * StepsizeMove.Value);
+                    break;
+                case Keys.D:
+                    MoveBitmap(MoveAmount * StepsizeMove.Value, 0);
+                    break;
+            }
+        }
+        
     }
+
+
 }

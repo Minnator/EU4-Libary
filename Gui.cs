@@ -2,15 +2,100 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using EU4_Parse_Lib.DataClasses;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static System.Windows.Forms.ListViewItem;
 
 namespace EU4_Parse_Lib
 {
     public static class Gui
     {
+        public static void PopulateMainWindowMapModes()
+        {
+            Vars.MainWindow!.MapModeButtons.Controls.Clear();
+            var it = false;
+            var lBt = string.Empty;
+            foreach (var mapMode in Vars.MapModes.Values)
+            {
+                if (!it)
+                {
+                    lBt = mapMode.Name;
+                    it = true;
+                }
+                else
+                {
+                    CreateMapModeButtons(lBt, mapMode.Name);
+                    it = false;
+                    lBt = string.Empty;
+                }
+            }
+
+            if (lBt == string.Empty) 
+                return;
+            TableLayoutPanel rowPanel = new();
+            rowPanel.ColumnCount = 2;
+            rowPanel.Height = 25; // TODO fix the height and the drop down of the already created mapmodes on load
+
+            Button button1 = new();
+            button1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            button1.Text = lBt;
+            button1.Click += Vars.MainWindow!.OnMapModeSelection!;
+
+            rowPanel.Controls.Add(button1);
+            
+            Vars.MainWindow!.MapModeButtons.Controls.Add(rowPanel);
+        }
+
+        private static void CreateMapModeButtons(string leftButtonText, string rightButtonText)
+        {
+            //Debug.WriteLine($"Adding: {leftButtonText} and {rightButtonText}");
+
+            TableLayoutPanel rowPanel = new ();
+            rowPanel.ColumnCount = 2;
+            rowPanel.Height = 25; 
+            
+            Button button1 = new ();
+            button1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            button1.Text = leftButtonText;
+            button1.Click += Vars.MainWindow!.OnMapModeSelection!;
+            
+            Button button2 = new ();
+            button2.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            button2.Text = rightButtonText;
+            button2.Click += Vars.MainWindow!.OnMapModeSelection!;
+
+            rowPanel.Controls.Add(button1);
+            rowPanel.Controls.Add(button2);
+            
+            Vars.MainWindow!.MapModeButtons.Controls.Add(rowPanel);
+        }
+
+
+        /// <summary>
+        /// Loads the currently selected MapMode. If an error occurs a pop up is issued with according information
+        /// </summary>
+        public static void ChangeMapmode()
+        {
+            if (Vars.MapMode == null || Vars.MainWindow!.Map == null)
+            {
+                Util.ErrorPopUp("Critical Error", $"Failed to load {Vars.MapMode} - mapmode. Consider resetting the map, check the mapmode for errors in {Vars.DataPath}\\userMapModes.json, or restarting the application!");
+                return;
+            }
+            
+            Vars.SelecteMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
+
+            Vars.MainWindow.Map.Image = Vars.SelecteMapMode;
+
+            var offsetX = Math.Max(0, Math.Min(Vars.Map!.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
+            var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
+
+            Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
+            Vars.MainWindow.Map.Invalidate();
+        }
+
+
         /// <summary>
         /// Draws the black borders
         /// </summary>
-        /// <param name="borderColor"></param>
         public static void DrawBorderAroundRegions()
         {
             Vars.Stopwatch.Start();
@@ -22,16 +107,17 @@ namespace EU4_Parse_Lib
 
             RenderSelection(p, p.Color);
 
-            Vars.Map!.Save("C:\\Users\\david\\Downloads\\justBorders.bmp", ImageFormat.Bmp);
+            Vars.ProvincesBmp = Vars.Map;
+            //Vars.ProvincesBmp!.Save("C:\\Users\\david\\Downloads\\provinces.bmp", ImageFormat.Bmp);
 
-            var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
+            var offsetX = Math.Max(0, Math.Min(Vars.Map!.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
             var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
             Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
             Vars.MainWindow.Map.Invalidate();
 
             Vars.Stopwatch.Stop();
-            Vars.TimeStamps.Add($"Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
+            Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
             Vars.Stopwatch.Reset();
         }
 
@@ -45,25 +131,23 @@ namespace EU4_Parse_Lib
         public static Bitmap AbstractColorMap(List<Color> colors, string outputPath)
         {
             // Create a blank bitmap to draw the map
-            Bitmap mapBitmap = new Bitmap(Vars.Map!.Width, Vars.Map.Height);
+            var mapBitmap = new Bitmap(Vars.Map!.Width, Vars.Map.Height);
 
-            using (Graphics graphics = Graphics.FromImage(mapBitmap))
+            using (var graphics = Graphics.FromImage(mapBitmap))
             {
                 // Clear the bitmap with a background color (e.g., white)
                 graphics.Clear(Color.White);
 
-                int cnt = 0;
+                var cnt = 0;
                 // Draw each region with its respective color
                 foreach (var kvp in Vars.LandProvinces.Values)
                 {
-                    List<Point> regionPoints = kvp.Pixels;
-                    Color regionColor = colors[cnt];
+                    var regionPoints = kvp.Pixels;
+                    var regionColor = colors[cnt];
                     cnt++;
-                    using (SolidBrush brush = new SolidBrush(regionColor))
-                    {
-                        PointF[] points = regionPoints.ConvertAll(p => new PointF(p.X, p.Y)).ToArray();
-                        graphics.FillPolygon(brush, points);
-                    }
+                    using var brush = new SolidBrush(regionColor);
+                    var points = regionPoints.ConvertAll(p => new PointF(p.X, p.Y)).ToArray();
+                    graphics.FillPolygon(brush, points);
                 }
             }
             mapBitmap.Save(outputPath, ImageFormat.Bmp);
@@ -77,7 +161,7 @@ namespace EU4_Parse_Lib
         /// <param name="colors"></param>
         /// <param name="file"></param>
         /// <exception cref="ArgumentException"></exception>
-        public static void ColorMap(Dictionary<int, Color> colors, string file)
+        public static Bitmap ColorMap(Dictionary<int, Color> colors)
         {
             Vars.Stopwatch.Start();
             if (colors == null || colors.Count == 0)
@@ -134,7 +218,36 @@ namespace EU4_Parse_Lib
             Vars.TimeStamps.Add($"Time Elapsed Creating Map:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
             //Debug.WriteLine($"Creating map: {Vars.Stopwatch.Elapsed}");
             Vars.Stopwatch.Reset();
-            mapBitmap.Save(file, ImageFormat.Bmp); //TODO remove on final version
+            //mapBitmap.Save("C:\\Users\\david\\Downloads\\mapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
+            using (var bmp = mapBitmap)
+            {
+                Vars.SelecteMapMode = bmp;
+                // Image processing code here
+                try
+                {
+                    bmp.Save("C:\\Users\\david\\Downloads\\BBmapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
+                    using (var temp = Loading.ProcessBitmap(bmp))
+                    {
+                        Assert.IsNotNull(temp);
+                        Assert.IsInstanceOfType(temp, typeof(Bitmap));
+                        using (var freshBitmap = new Bitmap(temp))
+                        {
+                            freshBitmap.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
+                        }
+
+                    }
+                    // bmp.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp);
+                }
+                catch (Exception ex)
+                { 
+                    Util.ErrorPopUp(ex.Message, ex.StackTrace);
+                }
+            }
+
+            
+            Vars.MainWindow!.Map.Image = Image.FromFile("C:\\Users\\david\\Downloads\\bmp.bmp");
+
+            return mapBitmap;
         }
 
         /// <summary>

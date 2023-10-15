@@ -47,6 +47,10 @@ internal class ColorTableMapMode : IMapMode
                                 ? col
                                 : Color.FromArgb(255, 0, 0, 0));
                     }
+                    foreach (var seaProvince in Vars.SeaProvinces.Values)
+                    {
+                        dic.Add(seaProvince.Id, seaProvince.Color);
+                    }
                 }
                 else
                 {
@@ -94,7 +98,7 @@ internal class ColorTableMapMode : IMapMode
 
     public void RenderMapmode()
     {
-        Gui.ColorMap(GetProvinceColor(), Vars.LastMapModePath );
+        Gui.ColorMap(GetProvinceColor());
     }
 
     public override string ToString()

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
+﻿using System.Diagnostics;
 using System.Drawing.Imaging;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
-using Emgu.CV.Reg;
 using EU4_Parse_Lib.DataClasses;
 using Newtonsoft.Json;
-using YamlDotNet.Serialization;
 
 namespace EU4_Parse_Lib
 {
@@ -24,6 +18,7 @@ namespace EU4_Parse_Lib
                 var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
                 var map = new Bitmap(combinedPath);
                 Vars.Map = map;
+                Vars.SelecteMapMode = new Bitmap(map.Width, map.Height);
                 Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
                 Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
                 Vars.ScopeNames = Util.EnumToList<Scope>();
@@ -34,22 +29,23 @@ namespace EU4_Parse_Lib
                 Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
                 Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
                 Vars.Stopwatch.Reset();
+                //LoadWithStopWatch("bmp Test", ProcessBitmap);
                 LoadWithStopWatch("Borders", GenerateBorders);
                 LoadWithStopWatch("default.map", LoadDefaultMap);
                 LoadWithStopWatch("Areas", LoadAreas);
                 LoadWithStopWatch("Localization", LoadAllLocalization);
-                Gui.DrawBorderAroundRegions();
-                LoadWithStopWatch("Random Colors", FillRandomColorsList);
-                WriteDebugFiles();
                 Debug.WriteLine("Finished Loading");
             }
-            catch (InvalidCastException ex)
+            catch (Exception ex)
             {
-                throw new Exception("fuuuuuuuuuuuuuuuuuuuuuuuuck" + ex);
+                throw new Exception("Error During loading. Try restarting ur application or contact a programmer.\n" + ex);
             }
         }
 
-        private static void FillRandomColorsList()
+        /// <summary>
+        /// Pregenerate random colors for later use to speed up performance in other parts of the code
+        /// </summary>
+        public static void FillRandomColorsList()
         {
             // An additional 100 for safety and variability
             Vars.RandomColors = Util.GenerateRandomColors(Vars.ColorIds.Count + 100);
@@ -60,7 +56,7 @@ namespace EU4_Parse_Lib
         /// </summary>
         /// <param name="taskName"></param>
         /// <param name="action"></param>
-        private static void LoadWithStopWatch(string taskName, Action action)
+        public static void LoadWithStopWatch(string taskName, Action action)
         {
             Vars.Stopwatch.Start();
             action.Invoke();
@@ -69,6 +65,7 @@ namespace EU4_Parse_Lib
             Vars.TimeStamps.Add($"Time Elapsed {taskName}:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
             Vars.Stopwatch.Reset();
         }
+
         /// <summary>
         /// Deserialize any kind of object form JSON of the given path relative to app path
         /// </summary>
@@ -79,17 +76,21 @@ namespace EU4_Parse_Lib
             var json = File.ReadAllText(Path.Combine(Vars.AppPath, path));
             return JsonConvert.DeserializeObject<List<object>>(json) ?? new List<object>();
         }
-        private static void WriteDebugFiles()
+
+        /// <summary>
+        /// Writes all Debug files. TODO needs to be adjusted accordingly on release
+        /// </summary>
+        public static void WriteDebugFiles()
         {
             Vars.Stopwatch.Start();
-            //DebugPrints.PrintProvincesBorder(Vars.Provinces);
-            //DebugPrints.PrintProvColDirectory(_pixDic);
-            //DebugPrints.PrintProvincesEmpty(Vars.Provinces);
-            //DebugPrints.PrintProvincesUnused(Vars.NotOnMapProvinces);
-            //DebugPrints.PrintColorsToIds(Vars.ColorIds);
-            //DebugPrints.PrintAreas(Vars.Areas);
-            //DebugPrints.PrintProvincesContent(Vars.Provinces);
-            //DebugPrints.PrintProvinceList();
+            DebugPrints.PrintProvincesBorder(Vars.Provinces);
+            DebugPrints.PrintProvColDirectory(_pixDic);
+            DebugPrints.PrintProvincesEmpty(Vars.Provinces);
+            DebugPrints.PrintProvincesUnused(Vars.NotOnMapProvinces);
+            DebugPrints.PrintColorsToIds(Vars.ColorIds);
+            DebugPrints.PrintAreas(Vars.Areas);
+            DebugPrints.PrintProvincesContent(Vars.Provinces);
+            DebugPrints.PrintProvinceList();
             DebugPrints.PrintLocData(Vars.LocalizationFiles);
             //DebugPrints.PrintAttributes(Vars.Provinces);
             DebugPrints.PrintTestTriggerValue();
@@ -101,13 +102,14 @@ namespace EU4_Parse_Lib
             Vars.TimeStamps.Add("------------------------------|------------------|");
             Vars.TimeStamps.Add($"Total Time Elapsed:".PadRight(30) + $"| {Vars.TotalLoadTime} |");
             Saving.WriteLog(Vars.TimeStamps.ListToString(), "TimeComplexity");
-            
+
         }
 
         public static string GetLoc(string key)
         {
-            return Vars.Localization.TryGetValue(key, out var name) ? name : "-1";
+            return Vars.Localization.TryGetValue(key, out var name) ? name : $"missing [{Vars.Language}] localization";
         }
+
         /// <summary>
         /// first read in the mod localization and then the vanilla localization.
         /// Does not care about the number in loc yet - feature for future
@@ -147,7 +149,7 @@ namespace EU4_Parse_Lib
             Vars.Localization = loc;
             Vars.LocalizationFiles = locFiles;
         }
-        
+
         private static void LoadAreas()
         {
             var path = Util.GetModOrVanillaPathFile(Path.Combine("map", "area.txt"));
@@ -199,7 +201,7 @@ namespace EU4_Parse_Lib
             Dictionary<int, Province> land = new();
 
             var match = Regex.Match(content, pattern);
-            
+
             foreach (var item in Util.GetProvincesList(match.Groups["seaProvs"].Value))
             {
                 sea.Add(item,
@@ -226,7 +228,7 @@ namespace EU4_Parse_Lib
                         ? province
                         : new Province(Color.FromArgb(255, 0, 0, 0)));
 
-            
+
             foreach (var p in Vars.Provinces)
             {
                 if (sea.ContainsKey(p.Key))
@@ -239,16 +241,16 @@ namespace EU4_Parse_Lib
                     continue;
                 land.Add(p.Key, p.Value);
             }
-            foreach (var p in rnv)
+            foreach (var p in rnv.Keys)
             {
-                if (sea.ContainsKey(p.Key))
-                    sea.Remove(p.Key);
-                if (lake.ContainsKey(p.Key))
-                    lake.Remove(p.Key);
-                if (coastal.ContainsKey(p.Key))
-                    coastal.Remove(p.Key);
-                if (land.ContainsKey(p.Key))
-                    land.Remove(p.Key);
+                if (sea.ContainsKey(p))
+                    sea.Remove(p);
+                if (lake.ContainsKey(p))
+                    lake.Remove(p);
+                if (coastal.ContainsKey(p))
+                    coastal.Remove(p);
+                if (land.ContainsKey(p))
+                    land.Remove(p);
             }
             Vars.SeaProvinces = sea;
             Vars.RnvProvinces = rnv;
@@ -316,58 +318,93 @@ namespace EU4_Parse_Lib
             Vars.Map.UnlockBits(bmpData);
         }
 
-
-        private static bool HasAdjacentPixelWithNewColor(int x, int y, Color color)
+        public static unsafe Bitmap ProcessBitmap(Bitmap bmp)
         {
-            if (Vars.Map == null)
-                return false;
-            var width = Vars.Map.Width;
-            var height = Vars.Map.Height;
+            int width = bmp.Width;
+            int height = bmp.Height;
+            Bitmap processedBitmap = new Bitmap(width, height);
 
-            // Calculate boundaries for iteration
-            var startX = Math.Max(0, x - 1);
-            var startY = Math.Max(0, y - 1);
-            var endX = Math.Min(width - 1, x + 1);
-            var endY = Math.Min(height - 1, y + 1);
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            BitmapData processedData = processedBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
 
-            var bmpData = Vars.Map.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, Vars.Map.PixelFormat);
-
-            var hasAdjacentColor = false;
-
-            unsafe
+            try
             {
-                for (var dx = startX; dx <= endX; dx++)
+                const int batchSize = 16; // Process pixels in batches
+
+                Parallel.For(0, height, y =>
                 {
-                    for (var dy = startY; dy <= endY; dy++)
+                    for (var x = 0; x < width; x += batchSize)
                     {
-                        if (dx == x && dy == y)
+                        var batchEndX = Math.Min(x + batchSize, width);
+
+                        for (var batchX = x; batchX < batchEndX; batchX++)
                         {
-                            continue; // Skip the current pixel
+                            var pixelPtr = (byte*)bmpData.Scan0 + y * bmpData.Stride + batchX * 3; // Assuming 24bpp
+
+                            var b = pixelPtr[0];
+                            var g = pixelPtr[1];
+                            var r = pixelPtr[2];
+
+                            if (b == 0 && g == 0 && r == 0) 
+                                continue; // Skip fully black pixels
+
+                            var hasDifferentColorNeighbor = false;
+                            for (var dx = -1; dx <= 1 && !hasDifferentColorNeighbor; dx++)
+                            {
+                                for (var dy = -1; dy <= 1 && !hasDifferentColorNeighbor; dy++)
+                                {
+                                    var neighborX = batchX + dx;
+                                    var neighborY = y + dy;
+
+                                    if (neighborX < 0 || neighborX >= width ||
+                                        neighborY < 0 || neighborY >= height ||
+                                        dx == 0 && dy == 0) 
+                                        continue; // Skip the current pixel
+
+                                    var neighborPtr = (byte*)bmpData.Scan0 + neighborY * bmpData.Stride + neighborX * 3;
+                                    var nb = neighborPtr[0];
+                                    var ng = neighborPtr[1];
+                                    var nr = neighborPtr[2];
+
+                                    if (nb == 0 && ng == 0 && nr == 0) 
+                                        continue; // Skip fully black neighbors
+
+                                    if (nb != b || ng != g || nr != r)
+                                    {
+                                        hasDifferentColorNeighbor = true;
+                                    }
+                                }
+                            }
+                            if (hasDifferentColorNeighbor) 
+                                continue;
+
+                            // Set the pixel in the processed bitmap
+                            var processedPixelPtr = (byte*)processedData.Scan0 + y * processedData.Stride + batchX * 3;
+                            processedPixelPtr[0] = b; // B
+                            processedPixelPtr[1] = g; // G
+                            processedPixelPtr[2] = r; // R
+
                         }
-
-                        var pixelPtr = (byte*)bmpData.Scan0 + dy * bmpData.Stride + dx * 3; // Assuming 24bpp
-
-                        var b = pixelPtr[0];
-                        var g = pixelPtr[1];
-                        var r = pixelPtr[2];
-
-                        var adjacentColor = Color.FromArgb(255, r, g, b);
-
-                        if (adjacentColor == color) continue;
-                        hasAdjacentColor = true;
-                        break; // Exit early if adjacent color is different from specified color
                     }
-                }
+                });
             }
-
-            Vars.Map.UnlockBits(bmpData);
-
-            return hasAdjacentColor;
+            finally
+            {
+                bmp.UnlockBits(bmpData);
+                processedBitmap.UnlockBits(processedData);
+                processedBitmap.Save("C:\\Users\\david\\Downloads\\bmp.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
+            }
+            return processedBitmap;
         }
+        // TODO MEMORY LEAK HERE. PUT IN USING. Fix Crash on second execution
+
+
+
+
         private static void InitProvinces(IReadOnlyDictionary<Color, List<Point>> dic)
         {
-            Dictionary<int, Province> provinces = new Dictionary<int, Province>();
-            Dictionary<Color, int> colorIds = new Dictionary<Color, int>();
+            Dictionary<int, Province> provinces = new Dictionary<int, Province>(5000);
+            Dictionary<Color, int> colorIds = new Dictionary<Color, int>(5000);
 
             var lines = File.ReadAllLines(Util.GetModOrVanillaPathFile(Path.Combine("map", "definition.csv")));
 
@@ -415,6 +452,7 @@ namespace EU4_Parse_Lib
         }
         private static Dictionary<Color, List<Point>> GetAllPixels()
         {
+
             Dictionary<Color, List<Point>> colors = new();
             if (Vars.Map == null)
                 return colors;
@@ -456,6 +494,9 @@ namespace EU4_Parse_Lib
 
             Vars.Map.UnlockBits(bmpData);
 
+            Vars.Stopwatch.Stop();
+            Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
+            Vars.Stopwatch.Reset();
             return colors;
         }
 
