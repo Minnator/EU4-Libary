@@ -12,10 +12,7 @@ namespace EU4_Parse_Lib
         private static Dictionary<Color, List<Point>> _pixDic = new();
 
         public static void LoadAll()
-        {
-            try
-            {
-                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
+        {                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
                 var map = new Bitmap(combinedPath);
                 Vars.Map = map;
                 Vars.SelecteMapMode = new Bitmap(map.Width, map.Height);
@@ -35,6 +32,9 @@ namespace EU4_Parse_Lib
                 LoadWithStopWatch("Areas", LoadAreas);
                 LoadWithStopWatch("Localization", LoadAllLocalization);
                 Debug.WriteLine("Finished Loading");
+            try
+            {
+
             }
             catch (Exception ex)
             {
@@ -128,6 +128,7 @@ namespace EU4_Parse_Lib
 
             if (ymlFiles.Count <= 0) return;
 
+            Dictionary<string, string> localizationHashCollisions = new();
             Dictionary<string, string> loc = new();
             Dictionary<string, int> locFiles = new();
 
@@ -138,55 +139,66 @@ namespace EU4_Parse_Lib
                 foreach (var line in lines)
                 {
                     var match = Regex.Match(line, @"(?<key>.*):\d\s+""(?<value>.*)""");
-                    if (!match.Success) continue;
+                    if (!match.Success) 
+                        continue;
                     var id = match.Groups["key"].Value.Trim();
                     var name = match.Groups["value"].Value.Trim();
-                    if (loc.ContainsKey(id)) continue;
+                    if (loc.ContainsKey(id))
+                    {
+                        localizationHashCollisions.Add(id, name);
+                        continue;
+                    }
                     loc[id] = name;
                 }
             }
 
             Vars.Localization = loc;
             Vars.LocalizationFiles = locFiles;
+            Vars.LocalizationHashCollisions = localizationHashCollisions;
         }
 
         private static void LoadAreas()
         {
             var path = Util.GetModOrVanillaPathFile(Path.Combine("map", "area.txt"));
             var newContent = Reading.ReadFileUTF8Lines(path);
+            var stringBuilder = new StringBuilder();
 
-            var contentBuilder = new StringBuilder();
+            //Filtering Comments and optional that are not important to the areas themselves
             foreach (var line in newContent)
             {
-                if (!string.IsNullOrEmpty(line) && !line.StartsWith('#') && !line.Contains("color"))
-                {
-                    contentBuilder.AppendLine(line);
-                }
+                if (string.IsNullOrEmpty(line) || line.StartsWith('#') || line.Contains("color")) 
+                    continue;
+                stringBuilder.AppendLine(line);
             }
 
-            var content = contentBuilder.ToString();
+            var content = stringBuilder.ToString();
             // Saving.WriteLog(content, "AreaContent");
 
-            var areas = new Dictionary<string, Area>();
+            var areaDictionary = new Dictionary<string, Area>();
             var provinceRegex = new Regex(@"(?<name>[A-Za-z_]*)\s*=\s*{.*?(?<provinces>[^\}|^#]*)", RegexOptions.Singleline);
             var matches = provinceRegex.Matches(content);
 
             foreach (Match match in matches)
             {
-                var area = new Area();
-                var name = match.Groups["name"].Value;
-                area.Name = name;
-                area.Provinces = Util.GetProvincesList(match.Groups["provinces"].Value);
-                areas.Add(name, area);
-
-                foreach (var province in area.Provinces)
+                var area = new Area
                 {
-                    Vars.Provinces[province].Area = area.Name;
+                    Name = match.Groups["name"].Value,
+                    Provinces = Util.GetProvincesList(match.Groups["provinces"].Value),
+                    Prosperity = 0,
+                    Edict = "-1",
+                    IsStated = false
+                };
+                areaDictionary.Add(area.Name, area);
+
+                foreach (var provinceId in area.Provinces)
+                {
+                    if (!Vars.Provinces.TryGetValue(provinceId, out var province)) 
+                        continue;
+                    province.Area = area.Name;
                 }
             }
-
-            Vars.Areas = areas;
-
+            Vars.Areas.Clear();
+            Vars.Areas = areaDictionary;
         }
         private static void LoadDefaultMap()
         {
@@ -231,27 +243,20 @@ namespace EU4_Parse_Lib
 
             foreach (var p in Vars.Provinces)
             {
-                if (sea.ContainsKey(p.Key))
+                if (sea.ContainsKey(p.Key) || rnv.ContainsKey(p.Key) || lake.ContainsKey(p.Key) || coastal.ContainsKey(p.Key))
                     continue;
-                if (rnv.ContainsKey(p.Key))
-                    continue;
-                if (lake.ContainsKey(p.Key))
-                    continue;
-                if (coastal.ContainsKey(p.Key))
-                    continue;
+
                 land.Add(p.Key, p.Value);
             }
+
             foreach (var p in rnv.Keys)
             {
-                if (sea.ContainsKey(p))
-                    sea.Remove(p);
-                if (lake.ContainsKey(p))
-                    lake.Remove(p);
-                if (coastal.ContainsKey(p))
-                    coastal.Remove(p);
-                if (land.ContainsKey(p))
-                    land.Remove(p);
+                sea.Remove(p);
+                lake.Remove(p);
+                coastal.Remove(p);
+                land.Remove(p);
             }
+
             Vars.SeaProvinces = sea;
             Vars.RnvProvinces = rnv;
             Vars.LakeProvinces = lake;
@@ -396,11 +401,6 @@ namespace EU4_Parse_Lib
             }
             return processedBitmap;
         }
-        // TODO MEMORY LEAK HERE. PUT IN USING. Fix Crash on second execution
-
-
-
-
         private static void InitProvinces(IReadOnlyDictionary<Color, List<Point>> dic)
         {
             Dictionary<int, Province> provinces = new Dictionary<int, Province>(5000);

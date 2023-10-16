@@ -189,7 +189,7 @@ namespace EU4_Parse_Lib
 
         /// <summary>
         /// Returns a list of all numbers in that string, if they are separated by an empty space
-        /// Has no error log yet for failed Parsing to int
+        /// TODO Has no error log yet for failed Parsing to int
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>

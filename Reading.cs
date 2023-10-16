@@ -28,13 +28,15 @@ public static class Reading
     }
     /// <summary>
     /// Reads all text as UTF-8 and returns it as a string
-    /// Does NOT check if file exists
+    /// Does check if file exists
     /// </summary>
     /// <param name="path"></param>
-    public static List<string?> ReadFileUTF8Lines(string path)
+    public static List<string> ReadFileUTF8Lines(string path)
     {
+        if (!File.Exists(path))
+            return new List<string>();
         using StreamReader reader = new (path, Encoding.UTF8);
-        List<string?> lines = new ();
+        List<string> lines = new ();
 
         string? line;
         while ((line = reader.ReadLine()) != null)

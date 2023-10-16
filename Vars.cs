@@ -75,6 +75,7 @@ namespace EU4_Parse_Lib
         public static Dictionary<string, IMapMode> MapModes = new();
 
         public static Dictionary<string, string> Localization = new (116000);
+        public static Dictionary<string, string> LocalizationHashCollisions = new (); //TODO print and notify the user --> Notification system?
         
         public static Dictionary<string, int> LocalizationFiles = new ();
 
