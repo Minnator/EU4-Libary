@@ -81,7 +81,7 @@ namespace EU4_Parse_Lib
                 return;
             }
             
-            Vars.SelecteMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
+            Vars.SelecteMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
 
             Vars.MainWindow.Map.Image = Vars.SelecteMapMode;
 

@@ -168,7 +168,7 @@ namespace EU4_Parse_Lib
             {
                 if (string.IsNullOrEmpty(line) || line.StartsWith('#') || line.Contains("color")) 
                     continue;
-                stringBuilder.AppendLine(line);
+                stringBuilder.AppendLine(Util.RemoveCommentFromLine(line));
             }
 
             var content = stringBuilder.ToString();

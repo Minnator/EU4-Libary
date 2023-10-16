@@ -30,10 +30,6 @@
         {
             components = new System.ComponentModel.Container();
             Map = new PictureBox();
-            RightButton = new Button();
-            DownButton = new Button();
-            LeftButton = new Button();
-            UpButton = new Button();
             StepsizeMove = new TrackBar();
             label1 = new Label();
             label2 = new Label();
@@ -47,6 +43,7 @@
             ManageMapModesMenu = new ToolStripMenuItem();
             resetAllMapmodesToolStripMenuItem = new ToolStripMenuItem();
             tooltipToolStripMenuItem = new ToolStripMenuItem();
+            StatisticsTollStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             ZoomInButton = new Button();
             ZoomOutButton = new Button();
@@ -56,11 +53,48 @@
             OpenProvinceFileContext = new ToolStripMenuItem();
             OpenCountryFileContext = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
-            ChangeColorContext = new ToolStripMenuItem();
+            QuickSelectionContext = new ToolStripMenuItem();
+            SelectOwnerContext = new ToolStripMenuItem();
+            SelectAllCoresContext = new ToolStripMenuItem();
+            ProvinceCoresContext = new ToolStripComboBox();
+            SelectAreaContext = new ToolStripMenuItem();
+            SelectRegionContext = new ToolStripMenuItem();
+            SelectTradenodeContext = new ToolStripMenuItem();
+            SelectSuperRegionContext = new ToolStripMenuItem();
+            SelectContinentContext = new ToolStripMenuItem();
+            toolStripSeparator3 = new ToolStripSeparator();
+            AddToContextCollection = new ToolStripMenuItem();
+            AddToAreaContext = new ToolStripMenuItem();
+            AddToRegionContext = new ToolStripMenuItem();
+            AddToTradeNodeContext = new ToolStripMenuItem();
+            AddToSuperRegionContext = new ToolStripMenuItem();
+            AddToContinentContext = new ToolStripMenuItem();
+            AddClaimsCoresContext = new ToolStripMenuItem();
+            AddCoreSelectionContext = new ToolStripComboBox();
+            AddPermaClaimContext = new ToolStripComboBox();
+            AddClaimContext = new ToolStripComboBox();
+            AddModifierMenuContext = new ToolStripMenuItem();
+            AddProvinceModifierSelectionContext = new ToolStripComboBox();
+            AddCountryModifierSelectionContext = new ToolStripComboBox();
+            toolStripSeparator4 = new ToolStripSeparator();
+            RemoveCoresClaimsContext = new ToolStripMenuItem();
+            RemoveCoresSelectionContext = new ToolStripComboBox();
+            RemovePermaClaimsContext = new ToolStripComboBox();
+            RemoveClaimContext = new ToolStripComboBox();
+            RemoveModifierMenuContext = new ToolStripMenuItem();
+            RemoveProvinceModifierContext = new ToolStripComboBox();
+            RemoveCountryModifierContext = new ToolStripComboBox();
             ColorChangeScopeContext = new ToolStripComboBox();
             toolStripMenuItem1 = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             ConfirmColorChangeContext = new ToolStripMenuItem();
+            SelectReligionContext = new ToolStripMenuItem();
+            ReligionSelectionContext = new ToolStripComboBox();
+            CultureSelectionMenuContext = new ToolStripMenuItem();
+            SelectCultureContext = new ToolStripComboBox();
+            AdvancedSelectionMenuContext = new ToolStripMenuItem();
+            CustomTriggerSelectionContext = new ToolStripMenuItem();
+            RandomSelectionContext = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
@@ -82,46 +116,6 @@
             Map.MouseLeave += Map_MouseLeave;
             Map.MouseHover += Map_MouseHover;
             Map.MouseMove += Map_MouseMove;
-            // 
-            // RightButton
-            // 
-            RightButton.Location = new Point(110, 170);
-            RightButton.Name = "RightButton";
-            RightButton.Size = new Size(56, 23);
-            RightButton.TabIndex = 1;
-            RightButton.Text = "right";
-            RightButton.UseVisualStyleBackColor = true;
-            RightButton.Click += RightButton_Click;
-            // 
-            // DownButton
-            // 
-            DownButton.Location = new Point(80, 202);
-            DownButton.Name = "DownButton";
-            DownButton.Size = new Size(56, 23);
-            DownButton.TabIndex = 2;
-            DownButton.Text = "down";
-            DownButton.UseVisualStyleBackColor = true;
-            DownButton.Click += DownButton_Click;
-            // 
-            // LeftButton
-            // 
-            LeftButton.Location = new Point(48, 170);
-            LeftButton.Name = "LeftButton";
-            LeftButton.Size = new Size(56, 23);
-            LeftButton.TabIndex = 3;
-            LeftButton.Text = "left";
-            LeftButton.UseVisualStyleBackColor = true;
-            LeftButton.Click += LeftButton_Click;
-            // 
-            // UpButton
-            // 
-            UpButton.Location = new Point(80, 136);
-            UpButton.Name = "UpButton";
-            UpButton.Size = new Size(56, 23);
-            UpButton.TabIndex = 4;
-            UpButton.Text = "up";
-            UpButton.UseVisualStyleBackColor = true;
-            UpButton.Click += UpButton_Click;
             // 
             // StepsizeMove
             // 
@@ -180,7 +174,7 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { settingsToolStripMenuItem, mapmodesToolStripMenuItem, tooltipToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { settingsToolStripMenuItem, mapmodesToolStripMenuItem, tooltipToolStripMenuItem, StatisticsTollStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1163, 24);
@@ -232,6 +226,13 @@
             tooltipToolStripMenuItem.Size = new Size(55, 20);
             tooltipToolStripMenuItem.Text = "Tooltip";
             // 
+            // StatisticsTollStripMenuItem
+            // 
+            StatisticsTollStripMenuItem.Name = "StatisticsTollStripMenuItem";
+            StatisticsTollStripMenuItem.Size = new Size(65, 20);
+            StatisticsTollStripMenuItem.Text = "Statistics";
+            StatisticsTollStripMenuItem.Click += StatisticsTollStripMenuItem_Click;
+            // 
             // helpToolStripMenuItem
             // 
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
@@ -280,34 +281,250 @@
             // 
             // MainRightClickMenu
             // 
-            MainRightClickMenu.Items.AddRange(new ToolStripItem[] { OpenProvinceFileContext, OpenCountryFileContext, toolStripSeparator1, ChangeColorContext });
+            MainRightClickMenu.Items.AddRange(new ToolStripItem[] { OpenProvinceFileContext, OpenCountryFileContext, toolStripSeparator1, QuickSelectionContext, AdvancedSelectionMenuContext, toolStripSeparator3, AddToContextCollection, AddClaimsCoresContext, AddModifierMenuContext, toolStripSeparator4, RemoveCoresClaimsContext, RemoveModifierMenuContext });
             MainRightClickMenu.Name = "contextMenuStrip1";
-            MainRightClickMenu.Size = new Size(174, 76);
+            MainRightClickMenu.Size = new Size(216, 242);
             MainRightClickMenu.Opening += MainRightClickMenu_Opening;
             // 
             // OpenProvinceFileContext
             // 
             OpenProvinceFileContext.Name = "OpenProvinceFileContext";
-            OpenProvinceFileContext.Size = new Size(173, 22);
+            OpenProvinceFileContext.Size = new Size(215, 22);
             OpenProvinceFileContext.Text = "Open Province File";
             // 
             // OpenCountryFileContext
             // 
             OpenCountryFileContext.Name = "OpenCountryFileContext";
-            OpenCountryFileContext.Size = new Size(173, 22);
+            OpenCountryFileContext.Size = new Size(215, 22);
             OpenCountryFileContext.Text = "Open Country file";
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(170, 6);
+            toolStripSeparator1.Size = new Size(212, 6);
             // 
-            // ChangeColorContext
+            // QuickSelectionContext
             // 
-            ChangeColorContext.DropDownItems.AddRange(new ToolStripItem[] { ColorChangeScopeContext, toolStripMenuItem1, toolStripSeparator2, ConfirmColorChangeContext });
-            ChangeColorContext.Name = "ChangeColorContext";
-            ChangeColorContext.Size = new Size(173, 22);
-            ChangeColorContext.Text = "Change Color";
+            QuickSelectionContext.DropDownItems.AddRange(new ToolStripItem[] { SelectOwnerContext, SelectAllCoresContext, SelectAreaContext, SelectRegionContext, SelectTradenodeContext, SelectSuperRegionContext, SelectContinentContext, SelectReligionContext, CultureSelectionMenuContext });
+            QuickSelectionContext.Name = "QuickSelectionContext";
+            QuickSelectionContext.Size = new Size(215, 22);
+            QuickSelectionContext.Text = "Quick Selection";
+            // 
+            // SelectOwnerContext
+            // 
+            SelectOwnerContext.Name = "SelectOwnerContext";
+            SelectOwnerContext.Size = new Size(172, 22);
+            SelectOwnerContext.Text = "Select Owner";
+            // 
+            // SelectAllCoresContext
+            // 
+            SelectAllCoresContext.DropDownItems.AddRange(new ToolStripItem[] { ProvinceCoresContext });
+            SelectAllCoresContext.Name = "SelectAllCoresContext";
+            SelectAllCoresContext.Size = new Size(172, 22);
+            SelectAllCoresContext.Text = "Select all cores";
+            // 
+            // ProvinceCoresContext
+            // 
+            ProvinceCoresContext.DropDownStyle = ComboBoxStyle.DropDownList;
+            ProvinceCoresContext.Name = "ProvinceCoresContext";
+            ProvinceCoresContext.Size = new Size(121, 23);
+            // 
+            // SelectAreaContext
+            // 
+            SelectAreaContext.Name = "SelectAreaContext";
+            SelectAreaContext.Size = new Size(172, 22);
+            SelectAreaContext.Text = "Select Area";
+            // 
+            // SelectRegionContext
+            // 
+            SelectRegionContext.Name = "SelectRegionContext";
+            SelectRegionContext.Size = new Size(172, 22);
+            SelectRegionContext.Text = "Select Region";
+            // 
+            // SelectTradenodeContext
+            // 
+            SelectTradenodeContext.Name = "SelectTradenodeContext";
+            SelectTradenodeContext.Size = new Size(172, 22);
+            SelectTradenodeContext.Text = "Select Tradenode";
+            // 
+            // SelectSuperRegionContext
+            // 
+            SelectSuperRegionContext.Name = "SelectSuperRegionContext";
+            SelectSuperRegionContext.Size = new Size(172, 22);
+            SelectSuperRegionContext.Text = "Select Superregion";
+            // 
+            // SelectContinentContext
+            // 
+            SelectContinentContext.Name = "SelectContinentContext";
+            SelectContinentContext.Size = new Size(172, 22);
+            SelectContinentContext.Text = "Select Continent";
+            // 
+            // toolStripSeparator3
+            // 
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new Size(212, 6);
+            // 
+            // AddToContextCollection
+            // 
+            AddToContextCollection.DropDownItems.AddRange(new ToolStripItem[] { AddToAreaContext, AddToRegionContext, AddToTradeNodeContext, AddToSuperRegionContext, AddToContinentContext });
+            AddToContextCollection.Name = "AddToContextCollection";
+            AddToContextCollection.Size = new Size(215, 22);
+            AddToContextCollection.Text = "Add to Collection";
+            AddToContextCollection.ToolTipText = "Remove the selected provinces from all other collections of the selected type";
+            // 
+            // AddToAreaContext
+            // 
+            AddToAreaContext.Name = "AddToAreaContext";
+            AddToAreaContext.Size = new Size(177, 22);
+            AddToAreaContext.Text = "Add to Area";
+            // 
+            // AddToRegionContext
+            // 
+            AddToRegionContext.Name = "AddToRegionContext";
+            AddToRegionContext.Size = new Size(177, 22);
+            AddToRegionContext.Text = "Add to Region";
+            // 
+            // AddToTradeNodeContext
+            // 
+            AddToTradeNodeContext.Name = "AddToTradeNodeContext";
+            AddToTradeNodeContext.Size = new Size(177, 22);
+            AddToTradeNodeContext.Text = "Add to Tradenode";
+            // 
+            // AddToSuperRegionContext
+            // 
+            AddToSuperRegionContext.Name = "AddToSuperRegionContext";
+            AddToSuperRegionContext.Size = new Size(177, 22);
+            AddToSuperRegionContext.Text = "Add to Superregion";
+            // 
+            // AddToContinentContext
+            // 
+            AddToContinentContext.Name = "AddToContinentContext";
+            AddToContinentContext.Size = new Size(177, 22);
+            AddToContinentContext.Text = "Add to Continent";
+            // 
+            // AddClaimsCoresContext
+            // 
+            AddClaimsCoresContext.DropDownItems.AddRange(new ToolStripItem[] { AddCoreSelectionContext, AddPermaClaimContext, AddClaimContext });
+            AddClaimsCoresContext.Name = "AddClaimsCoresContext";
+            AddClaimsCoresContext.Size = new Size(215, 22);
+            AddClaimsCoresContext.Text = "Add Cores / Claims";
+            // 
+            // AddCoreSelectionContext
+            // 
+            AddCoreSelectionContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            AddCoreSelectionContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            AddCoreSelectionContext.Name = "AddCoreSelectionContext";
+            AddCoreSelectionContext.Size = new Size(121, 23);
+            AddCoreSelectionContext.Sorted = true;
+            AddCoreSelectionContext.Text = "Core";
+            AddCoreSelectionContext.ToolTipText = "Add a Core";
+            // 
+            // AddPermaClaimContext
+            // 
+            AddPermaClaimContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            AddPermaClaimContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            AddPermaClaimContext.Name = "AddPermaClaimContext";
+            AddPermaClaimContext.Size = new Size(121, 23);
+            AddPermaClaimContext.Text = "Permanent claim";
+            AddPermaClaimContext.ToolTipText = "Add a permanent claim";
+            // 
+            // AddClaimContext
+            // 
+            AddClaimContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            AddClaimContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            AddClaimContext.Name = "AddClaimContext";
+            AddClaimContext.Size = new Size(121, 23);
+            AddClaimContext.Text = "Claim";
+            AddClaimContext.ToolTipText = "Add a claim";
+            // 
+            // AddModifierMenuContext
+            // 
+            AddModifierMenuContext.DropDownItems.AddRange(new ToolStripItem[] { AddProvinceModifierSelectionContext, AddCountryModifierSelectionContext });
+            AddModifierMenuContext.Name = "AddModifierMenuContext";
+            AddModifierMenuContext.Size = new Size(215, 22);
+            AddModifierMenuContext.Text = "Add Modifier (Duration -1)";
+            // 
+            // AddProvinceModifierSelectionContext
+            // 
+            AddProvinceModifierSelectionContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            AddProvinceModifierSelectionContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            AddProvinceModifierSelectionContext.Name = "AddProvinceModifierSelectionContext";
+            AddProvinceModifierSelectionContext.Size = new Size(121, 23);
+            AddProvinceModifierSelectionContext.Text = "Province scope";
+            AddProvinceModifierSelectionContext.ToolTipText = "Add a province modifier";
+            // 
+            // AddCountryModifierSelectionContext
+            // 
+            AddCountryModifierSelectionContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            AddCountryModifierSelectionContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            AddCountryModifierSelectionContext.Name = "AddCountryModifierSelectionContext";
+            AddCountryModifierSelectionContext.Size = new Size(121, 23);
+            AddCountryModifierSelectionContext.Text = "Country scope";
+            AddCountryModifierSelectionContext.ToolTipText = "Add a country modifier";
+            // 
+            // toolStripSeparator4
+            // 
+            toolStripSeparator4.Name = "toolStripSeparator4";
+            toolStripSeparator4.Size = new Size(212, 6);
+            // 
+            // RemoveCoresClaimsContext
+            // 
+            RemoveCoresClaimsContext.DropDownItems.AddRange(new ToolStripItem[] { RemoveCoresSelectionContext, RemovePermaClaimsContext, RemoveClaimContext });
+            RemoveCoresClaimsContext.Name = "RemoveCoresClaimsContext";
+            RemoveCoresClaimsContext.Size = new Size(215, 22);
+            RemoveCoresClaimsContext.Text = "Remove Cores / Claims";
+            // 
+            // RemoveCoresSelectionContext
+            // 
+            RemoveCoresSelectionContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            RemoveCoresSelectionContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            RemoveCoresSelectionContext.Name = "RemoveCoresSelectionContext";
+            RemoveCoresSelectionContext.Size = new Size(121, 23);
+            RemoveCoresSelectionContext.Text = "Core";
+            RemoveCoresSelectionContext.ToolTipText = "Remove a core";
+            // 
+            // RemovePermaClaimsContext
+            // 
+            RemovePermaClaimsContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            RemovePermaClaimsContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            RemovePermaClaimsContext.Name = "RemovePermaClaimsContext";
+            RemovePermaClaimsContext.Size = new Size(121, 23);
+            RemovePermaClaimsContext.Text = "Permanent Claim";
+            RemovePermaClaimsContext.ToolTipText = "Remove permanent claim";
+            // 
+            // RemoveClaimContext
+            // 
+            RemoveClaimContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            RemoveClaimContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            RemoveClaimContext.Name = "RemoveClaimContext";
+            RemoveClaimContext.Size = new Size(121, 23);
+            RemoveClaimContext.Text = "Claim";
+            RemoveClaimContext.ToolTipText = "Remove claim";
+            // 
+            // RemoveModifierMenuContext
+            // 
+            RemoveModifierMenuContext.DropDownItems.AddRange(new ToolStripItem[] { RemoveProvinceModifierContext, RemoveCountryModifierContext });
+            RemoveModifierMenuContext.Name = "RemoveModifierMenuContext";
+            RemoveModifierMenuContext.Size = new Size(215, 22);
+            RemoveModifierMenuContext.Text = "Remove Modifier";
+            // 
+            // RemoveProvinceModifierContext
+            // 
+            RemoveProvinceModifierContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            RemoveProvinceModifierContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            RemoveProvinceModifierContext.Name = "RemoveProvinceModifierContext";
+            RemoveProvinceModifierContext.Size = new Size(121, 23);
+            RemoveProvinceModifierContext.Text = "Province scope";
+            RemoveProvinceModifierContext.ToolTipText = "Remove province modifier";
+            // 
+            // RemoveCountryModifierContext
+            // 
+            RemoveCountryModifierContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            RemoveCountryModifierContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            RemoveCountryModifierContext.Name = "RemoveCountryModifierContext";
+            RemoveCountryModifierContext.Size = new Size(121, 23);
+            RemoveCountryModifierContext.Text = "Country scope";
+            RemoveCountryModifierContext.ToolTipText = "Remove country modifier";
             // 
             // ColorChangeScopeContext
             // 
@@ -333,6 +550,58 @@
             ConfirmColorChangeContext.Size = new Size(217, 22);
             ConfirmColorChangeContext.Text = "Confirm";
             // 
+            // SelectReligionContext
+            // 
+            SelectReligionContext.DropDownItems.AddRange(new ToolStripItem[] { ReligionSelectionContext });
+            SelectReligionContext.Name = "SelectReligionContext";
+            SelectReligionContext.Size = new Size(172, 22);
+            SelectReligionContext.Text = "Select Religion";
+            // 
+            // ReligionSelectionContext
+            // 
+            ReligionSelectionContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            ReligionSelectionContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            ReligionSelectionContext.Name = "ReligionSelectionContext";
+            ReligionSelectionContext.Size = new Size(121, 23);
+            ReligionSelectionContext.Text = "e.g. catholic";
+            ReligionSelectionContext.ToolTipText = "Enter religion here";
+            // 
+            // CultureSelectionMenuContext
+            // 
+            CultureSelectionMenuContext.DropDownItems.AddRange(new ToolStripItem[] { SelectCultureContext });
+            CultureSelectionMenuContext.Name = "CultureSelectionMenuContext";
+            CultureSelectionMenuContext.Size = new Size(172, 22);
+            CultureSelectionMenuContext.Text = "Select Culture";
+            // 
+            // SelectCultureContext
+            // 
+            SelectCultureContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            SelectCultureContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            SelectCultureContext.Name = "SelectCultureContext";
+            SelectCultureContext.Size = new Size(121, 23);
+            SelectCultureContext.Text = "e.g. saxon";
+            SelectCultureContext.ToolTipText = "enter culture here";
+            // 
+            // AdvancedSelectionMenuContext
+            // 
+            AdvancedSelectionMenuContext.DropDownItems.AddRange(new ToolStripItem[] { CustomTriggerSelectionContext, RandomSelectionContext });
+            AdvancedSelectionMenuContext.Name = "AdvancedSelectionMenuContext";
+            AdvancedSelectionMenuContext.Size = new Size(215, 22);
+            AdvancedSelectionMenuContext.Text = "Advanced Selection";
+            // 
+            // CustomTriggerSelectionContext
+            // 
+            CustomTriggerSelectionContext.Name = "CustomTriggerSelectionContext";
+            CustomTriggerSelectionContext.Size = new Size(278, 22);
+            CustomTriggerSelectionContext.Text = "Custom trigger selection";
+            CustomTriggerSelectionContext.ToolTipText = "Selects all provinces applicable to a custom trigger";
+            // 
+            // RandomSelectionContext
+            // 
+            RandomSelectionContext.Name = "RandomSelectionContext";
+            RandomSelectionContext.Size = new Size(278, 22);
+            RandomSelectionContext.Text = "Select random province from selection";
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -347,10 +616,6 @@
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(StepsizeMove);
-            Controls.Add(UpButton);
-            Controls.Add(LeftButton);
-            Controls.Add(DownButton);
-            Controls.Add(RightButton);
             Controls.Add(menuStrip1);
             DoubleBuffered = true;
             KeyPreview = true;
@@ -375,10 +640,6 @@
         #endregion
 
         public PictureBox Map;
-        private Button RightButton;
-        private Button DownButton;
-        private Button LeftButton;
-        private Button UpButton;
         private TrackBar StepsizeMove;
         private Label label1;
         private Label label2;
@@ -405,10 +666,48 @@
         private ToolStripMenuItem OpenProvinceFileContext;
         private ToolStripMenuItem OpenCountryFileContext;
         private ToolStripSeparator toolStripSeparator1;
-        private ToolStripMenuItem ChangeColorContext;
         private ToolStripComboBox ColorChangeScopeContext;
         private ToolStripMenuItem toolStripMenuItem1;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem ConfirmColorChangeContext;
+        private ToolStripMenuItem QuickSelectionContext;
+        private ToolStripMenuItem SelectOwnerContext;
+        private ToolStripMenuItem SelectAllCoresContext;
+        private ToolStripComboBox ProvinceCoresContext;
+        private ToolStripMenuItem SelectAreaContext;
+        private ToolStripMenuItem SelectRegionContext;
+        private ToolStripMenuItem SelectTradenodeContext;
+        private ToolStripMenuItem SelectSuperRegionContext;
+        private ToolStripMenuItem SelectContinentContext;
+        private ToolStripSeparator toolStripSeparator3;
+        private ToolStripMenuItem AddToContextCollection;
+        private ToolStripMenuItem AddToAreaContext;
+        private ToolStripMenuItem AddToRegionContext;
+        private ToolStripMenuItem AddToTradeNodeContext;
+        private ToolStripMenuItem AddToSuperRegionContext;
+        private ToolStripMenuItem AddToContinentContext;
+        private ToolStripMenuItem AddClaimsCoresContext;
+        private ToolStripComboBox AddCoreSelectionContext;
+        private ToolStripComboBox AddPermaClaimContext;
+        private ToolStripComboBox AddClaimContext;
+        private ToolStripMenuItem AddModifierMenuContext;
+        private ToolStripComboBox AddProvinceModifierSelectionContext;
+        private ToolStripComboBox AddCountryModifierSelectionContext;
+        private ToolStripSeparator toolStripSeparator4;
+        private ToolStripMenuItem RemoveCoresClaimsContext;
+        private ToolStripComboBox RemoveCoresSelectionContext;
+        private ToolStripComboBox RemovePermaClaimsContext;
+        private ToolStripComboBox RemoveClaimContext;
+        private ToolStripMenuItem RemoveModifierMenuContext;
+        private ToolStripComboBox RemoveProvinceModifierContext;
+        private ToolStripComboBox RemoveCountryModifierContext;
+        private ToolStripMenuItem StatisticsTollStripMenuItem;
+        private ToolStripMenuItem SelectReligionContext;
+        private ToolStripComboBox ReligionSelectionContext;
+        private ToolStripMenuItem CultureSelectionMenuContext;
+        private ToolStripComboBox SelectCultureContext;
+        private ToolStripMenuItem AdvancedSelectionMenuContext;
+        private ToolStripMenuItem CustomTriggerSelectionContext;
+        private ToolStripMenuItem RandomSelectionContext;
     }
 }

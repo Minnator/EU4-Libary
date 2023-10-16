@@ -13,7 +13,7 @@ namespace EU4_Parse_Lib
         public Rectangle DisplayRect;
         private int _maxXOffset;
         private int _maxYOffset;
-        
+
         private bool _isMouseOverPictureBox;
         private readonly Timer _cooldownTimer = new();
         private Point _lastMouseLocation;
@@ -121,7 +121,7 @@ namespace EU4_Parse_Lib
         }
 
         #endregion
-        
+
         private void zoomTrackBar_ValueChanged(object sender, EventArgs e)
         {
 
@@ -143,30 +143,30 @@ namespace EU4_Parse_Lib
             switch (e.Button)
             {
                 case MouseButtons.Left when ModifierKeys == Keys.Control:
-                {
-                    var p = Vars.Provinces[Vars.ColorIds[color]];
-                    Vars.SelectedProvinces.Add(p);
-                    Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
-                    break;
-                }
+                    {
+                        var p = Vars.Provinces[Vars.ColorIds[color]];
+                        Vars.SelectedProvinces.Add(p);
+                        Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
+                        break;
+                    }
                 case MouseButtons.Left:
-                {
-                    var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
-                    if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
                     {
-                        Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
+                        var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
+                        if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
+                        {
+                            Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
+                            Vars.SelectedProvinces.Clear();
+                            return;
+                        }
+                        foreach (var pro in Vars.SelectedProvinces)
+                        {
+                            Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
+                        }
                         Vars.SelectedProvinces.Clear();
-                        return;
+                        Util.NextProvince(currentProvince);
+                        Vars.SelectedProvinces.Add(currentProvince);
+                        break;
                     }
-                    foreach (var pro in Vars.SelectedProvinces)
-                    {
-                        Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
-                    }
-                    Vars.SelectedProvinces.Clear();
-                    Util.NextProvince(currentProvince);
-                    Vars.SelectedProvinces.Add(currentProvince);
-                    break;
-                }
             }
             //I can't find the memory leak here
             GC.Collect();
@@ -174,10 +174,10 @@ namespace EU4_Parse_Lib
 
         private void Map_MouseHover(object sender, EventArgs e)
         {
-            if (sender is not PictureBox pictureBox) 
+            if (sender is not PictureBox pictureBox)
                 return;
             var clientMouseLocation = pictureBox.PointToClient(Cursor.Position);
-            
+
             GenerateMouseTooltip(new Point(clientMouseLocation.X, clientMouseLocation.Y));
         }
 
@@ -194,7 +194,7 @@ namespace EU4_Parse_Lib
 
         private void Map_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!_isMouseOverPictureBox) 
+            if (!_isMouseOverPictureBox)
                 return;
             if (_lastMouseLocation == new Point(e.X, e.Y)) return;
 
@@ -246,7 +246,7 @@ namespace EU4_Parse_Lib
         {
             Vars.ManageMapmodes = Gui.ShowForm<ManageMapmodes>();
         }
-        
+
         private void ZoomInButton_Click(object sender, EventArgs e)
         {
             //TODO implement working zoom
@@ -256,7 +256,7 @@ namespace EU4_Parse_Lib
         {
             //TODO implement working zoom
         }
-        
+
         public void OnMapModeSelection(object sender, EventArgs e)
         {
             var button = (Button)sender;
@@ -265,7 +265,7 @@ namespace EU4_Parse_Lib
             Vars.MapMode = mapMode;
             Gui.ChangeMapmode();
         }
-        
+
         private void MainWindow_Load(object sender, EventArgs e)
         {
             Visible = false;
@@ -276,13 +276,11 @@ namespace EU4_Parse_Lib
             //Conditions to disable some options if requirements are not met
             if (Vars.SelectedProvinces.Count > 1)
             {
-                ChangeColorContext.Enabled = false;
                 OpenCountryFileContext.Enabled = false;
                 OpenProvinceFileContext.Enabled = false;
             }
             else
             {
-                ChangeColorContext.Enabled = true;
                 OpenCountryFileContext.Enabled = true;
                 OpenProvinceFileContext.Enabled = true;
             }
@@ -307,7 +305,11 @@ namespace EU4_Parse_Lib
                     break;
             }
         }
-        
+
+        private void StatisticsTollStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
 

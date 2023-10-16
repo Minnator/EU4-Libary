@@ -407,5 +407,14 @@ namespace EU4_Parse_Lib
                 : new KeyValuePair<bool, Color>(true, Color.FromArgb(255, int.Parse(colMatch.Groups["r"].ToString()),
                     int.Parse(colMatch.Groups["g"].ToString()), int.Parse(colMatch.Groups["b"].ToString())));
         }
+
+        public static string RemoveCommentFromLine(string line)
+        {
+            var commentIndex = line.IndexOf('#');
+
+            return commentIndex >= 0 
+                ? line.Substring(0, commentIndex).TrimEnd() 
+                : line;
+        }
     }
 }

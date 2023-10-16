@@ -38,8 +38,7 @@ public static class Reading
         using StreamReader reader = new (path, Encoding.UTF8);
         List<string> lines = new ();
 
-        string? line;
-        while ((line = reader.ReadLine()) != null)
+        while (reader.ReadLine() is { } line)
             lines.Add(line);
         return lines;
     }

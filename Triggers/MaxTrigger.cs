@@ -94,5 +94,3 @@ public class MaxTrigger : ITrigger
             : $"{Name}: [{Attribute}] > [{Value}]";
     }
 }
-
-//TODO Add other trigger types: complexTriggers (AND | OR)

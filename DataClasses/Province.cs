@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Windows.Forms.MonthCalendar;
-
-namespace EU4_Parse_Lib.DataClasses
+﻿namespace EU4_Parse_Lib.DataClasses
 {
     public class Province
     {
@@ -21,7 +14,7 @@ namespace EU4_Parse_Lib.DataClasses
         public string Area { get; set; } = "-1";
         public string Name { get; set; } = "-1";
 
-        public readonly Dictionary<Attribute, Func<Province, object>> Attributes = new ()
+        private readonly Dictionary<Attribute, Func<Province, object>> Attributes = new ()
         {
             { Attribute.Id, province => province.Id },
             { Attribute.Area, province => province.Area },
