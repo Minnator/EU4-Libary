@@ -493,7 +493,6 @@ namespace EU4_Parse_Lib
             }
 
             Vars.Map.UnlockBits(bmpData);
-
             Vars.Stopwatch.Stop();
             Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
             Vars.Stopwatch.Reset();

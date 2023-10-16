@@ -62,6 +62,13 @@
             SelectTradenodeContext = new ToolStripMenuItem();
             SelectSuperRegionContext = new ToolStripMenuItem();
             SelectContinentContext = new ToolStripMenuItem();
+            SelectReligionContext = new ToolStripMenuItem();
+            ReligionSelectionContext = new ToolStripComboBox();
+            CultureSelectionMenuContext = new ToolStripMenuItem();
+            SelectCultureContext = new ToolStripComboBox();
+            AdvancedSelectionMenuContext = new ToolStripMenuItem();
+            CustomTriggerSelectionContext = new ToolStripMenuItem();
+            RandomSelectionContext = new ToolStripMenuItem();
             toolStripSeparator3 = new ToolStripSeparator();
             AddToContextCollection = new ToolStripMenuItem();
             AddToAreaContext = new ToolStripMenuItem();
@@ -88,13 +95,6 @@
             toolStripMenuItem1 = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             ConfirmColorChangeContext = new ToolStripMenuItem();
-            SelectReligionContext = new ToolStripMenuItem();
-            ReligionSelectionContext = new ToolStripComboBox();
-            CultureSelectionMenuContext = new ToolStripMenuItem();
-            SelectCultureContext = new ToolStripComboBox();
-            AdvancedSelectionMenuContext = new ToolStripMenuItem();
-            CustomTriggerSelectionContext = new ToolStripMenuItem();
-            RandomSelectionContext = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
@@ -111,6 +111,7 @@
             Map.SizeMode = PictureBoxSizeMode.AutoSize;
             Map.TabIndex = 0;
             Map.TabStop = false;
+            Map.Paint += Map_Paint;
             Map.MouseClick += Map_MouseClick;
             Map.MouseEnter += Map_MouseEnter;
             Map.MouseLeave += Map_MouseLeave;
@@ -283,7 +284,7 @@
             // 
             MainRightClickMenu.Items.AddRange(new ToolStripItem[] { OpenProvinceFileContext, OpenCountryFileContext, toolStripSeparator1, QuickSelectionContext, AdvancedSelectionMenuContext, toolStripSeparator3, AddToContextCollection, AddClaimsCoresContext, AddModifierMenuContext, toolStripSeparator4, RemoveCoresClaimsContext, RemoveModifierMenuContext });
             MainRightClickMenu.Name = "contextMenuStrip1";
-            MainRightClickMenu.Size = new Size(216, 242);
+            MainRightClickMenu.Size = new Size(216, 220);
             MainRightClickMenu.Opening += MainRightClickMenu_Opening;
             // 
             // OpenProvinceFileContext
@@ -358,6 +359,58 @@
             SelectContinentContext.Name = "SelectContinentContext";
             SelectContinentContext.Size = new Size(172, 22);
             SelectContinentContext.Text = "Select Continent";
+            // 
+            // SelectReligionContext
+            // 
+            SelectReligionContext.DropDownItems.AddRange(new ToolStripItem[] { ReligionSelectionContext });
+            SelectReligionContext.Name = "SelectReligionContext";
+            SelectReligionContext.Size = new Size(172, 22);
+            SelectReligionContext.Text = "Select Religion";
+            // 
+            // ReligionSelectionContext
+            // 
+            ReligionSelectionContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            ReligionSelectionContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            ReligionSelectionContext.Name = "ReligionSelectionContext";
+            ReligionSelectionContext.Size = new Size(121, 23);
+            ReligionSelectionContext.Text = "e.g. catholic";
+            ReligionSelectionContext.ToolTipText = "Enter religion here";
+            // 
+            // CultureSelectionMenuContext
+            // 
+            CultureSelectionMenuContext.DropDownItems.AddRange(new ToolStripItem[] { SelectCultureContext });
+            CultureSelectionMenuContext.Name = "CultureSelectionMenuContext";
+            CultureSelectionMenuContext.Size = new Size(172, 22);
+            CultureSelectionMenuContext.Text = "Select Culture";
+            // 
+            // SelectCultureContext
+            // 
+            SelectCultureContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            SelectCultureContext.AutoCompleteSource = AutoCompleteSource.ListItems;
+            SelectCultureContext.Name = "SelectCultureContext";
+            SelectCultureContext.Size = new Size(121, 23);
+            SelectCultureContext.Text = "e.g. saxon";
+            SelectCultureContext.ToolTipText = "enter culture here";
+            // 
+            // AdvancedSelectionMenuContext
+            // 
+            AdvancedSelectionMenuContext.DropDownItems.AddRange(new ToolStripItem[] { CustomTriggerSelectionContext, RandomSelectionContext });
+            AdvancedSelectionMenuContext.Name = "AdvancedSelectionMenuContext";
+            AdvancedSelectionMenuContext.Size = new Size(215, 22);
+            AdvancedSelectionMenuContext.Text = "Advanced Selection";
+            // 
+            // CustomTriggerSelectionContext
+            // 
+            CustomTriggerSelectionContext.Name = "CustomTriggerSelectionContext";
+            CustomTriggerSelectionContext.Size = new Size(278, 22);
+            CustomTriggerSelectionContext.Text = "Custom trigger selection";
+            CustomTriggerSelectionContext.ToolTipText = "Selects all provinces applicable to a custom trigger";
+            // 
+            // RandomSelectionContext
+            // 
+            RandomSelectionContext.Name = "RandomSelectionContext";
+            RandomSelectionContext.Size = new Size(278, 22);
+            RandomSelectionContext.Text = "Select random province from selection";
             // 
             // toolStripSeparator3
             // 
@@ -549,58 +602,6 @@
             ConfirmColorChangeContext.Name = "ConfirmColorChangeContext";
             ConfirmColorChangeContext.Size = new Size(217, 22);
             ConfirmColorChangeContext.Text = "Confirm";
-            // 
-            // SelectReligionContext
-            // 
-            SelectReligionContext.DropDownItems.AddRange(new ToolStripItem[] { ReligionSelectionContext });
-            SelectReligionContext.Name = "SelectReligionContext";
-            SelectReligionContext.Size = new Size(172, 22);
-            SelectReligionContext.Text = "Select Religion";
-            // 
-            // ReligionSelectionContext
-            // 
-            ReligionSelectionContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            ReligionSelectionContext.AutoCompleteSource = AutoCompleteSource.ListItems;
-            ReligionSelectionContext.Name = "ReligionSelectionContext";
-            ReligionSelectionContext.Size = new Size(121, 23);
-            ReligionSelectionContext.Text = "e.g. catholic";
-            ReligionSelectionContext.ToolTipText = "Enter religion here";
-            // 
-            // CultureSelectionMenuContext
-            // 
-            CultureSelectionMenuContext.DropDownItems.AddRange(new ToolStripItem[] { SelectCultureContext });
-            CultureSelectionMenuContext.Name = "CultureSelectionMenuContext";
-            CultureSelectionMenuContext.Size = new Size(172, 22);
-            CultureSelectionMenuContext.Text = "Select Culture";
-            // 
-            // SelectCultureContext
-            // 
-            SelectCultureContext.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            SelectCultureContext.AutoCompleteSource = AutoCompleteSource.ListItems;
-            SelectCultureContext.Name = "SelectCultureContext";
-            SelectCultureContext.Size = new Size(121, 23);
-            SelectCultureContext.Text = "e.g. saxon";
-            SelectCultureContext.ToolTipText = "enter culture here";
-            // 
-            // AdvancedSelectionMenuContext
-            // 
-            AdvancedSelectionMenuContext.DropDownItems.AddRange(new ToolStripItem[] { CustomTriggerSelectionContext, RandomSelectionContext });
-            AdvancedSelectionMenuContext.Name = "AdvancedSelectionMenuContext";
-            AdvancedSelectionMenuContext.Size = new Size(215, 22);
-            AdvancedSelectionMenuContext.Text = "Advanced Selection";
-            // 
-            // CustomTriggerSelectionContext
-            // 
-            CustomTriggerSelectionContext.Name = "CustomTriggerSelectionContext";
-            CustomTriggerSelectionContext.Size = new Size(278, 22);
-            CustomTriggerSelectionContext.Text = "Custom trigger selection";
-            CustomTriggerSelectionContext.ToolTipText = "Selects all provinces applicable to a custom trigger";
-            // 
-            // RandomSelectionContext
-            // 
-            RandomSelectionContext.Name = "RandomSelectionContext";
-            RandomSelectionContext.Size = new Size(278, 22);
-            RandomSelectionContext.Text = "Select random province from selection";
             // 
             // MainWindow
             // 

@@ -310,6 +310,12 @@ namespace EU4_Parse_Lib
         {
 
         }
+
+        private void Map_Paint(object sender, PaintEventArgs e)
+        {
+            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.None;
+        }
     }
 
 

@@ -264,7 +264,7 @@ namespace EU4_Parse_Lib
 
             var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
             var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
-
+            Debug.WriteLine($"#############STRIDE:  {bmpData.Stride}");
             try
             {
                 var bytesPerPixel = Image.GetPixelFormatSize(Vars.Map.PixelFormat) / 8;
@@ -280,7 +280,6 @@ namespace EU4_Parse_Lib
                         pixelPtr[0] = color.B; // Blue component
                         pixelPtr[1] = color.G; // Green component
                         pixelPtr[2] = color.R; // Red component
-                        pixelPtr[3] = color.A; // Alpha component (transparency)
                     });
                 }
             }
@@ -288,7 +287,9 @@ namespace EU4_Parse_Lib
             {
                 Vars.Map.UnlockBits(bmpData);
             }
+            
 
+            Vars.Map.Save("C:\\Users\\david\\Downloads\\test.bmp", ImageFormat.Bmp);
             var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
             var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
