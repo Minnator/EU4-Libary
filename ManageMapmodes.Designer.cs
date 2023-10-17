@@ -94,7 +94,7 @@
             TriggerTypeBox = new ComboBox();
             label4 = new Label();
             UseGradiantButton = new RadioButton();
-            MapmodeScope = new ComboBox();
+            MapModeScope = new ComboBox();
             label2 = new Label();
             label1 = new Label();
             MapmodesTooltip = new ToolTip(components);
@@ -149,7 +149,7 @@
             CreateMapmodesTab.Controls.Add(UseColorTableButton);
             CreateMapmodesTab.Controls.Add(TriggerBox);
             CreateMapmodesTab.Controls.Add(UseGradiantButton);
-            CreateMapmodesTab.Controls.Add(MapmodeScope);
+            CreateMapmodesTab.Controls.Add(MapModeScope);
             CreateMapmodesTab.Controls.Add(label2);
             CreateMapmodesTab.Controls.Add(label1);
             CreateMapmodesTab.Location = new Point(27, 4);
@@ -389,7 +389,7 @@
             SaveMapmodeButton.TabIndex = 8;
             SaveMapmodeButton.Text = "Save";
             SaveMapmodeButton.UseVisualStyleBackColor = true;
-            SaveMapmodeButton.Click += SaveMapmodeButton_Click;
+            SaveMapmodeButton.Click += SaveMapModeButton_Click;
             // 
             // GradianColorBox
             // 
@@ -811,17 +811,17 @@
             UseGradiantButton.CheckedChanged += UseGradientButton_CheckedChanged;
             UseGradiantButton.Click += MapModeTypeSelection_Click;
             // 
-            // MapmodeScope
+            // MapModeScope
             // 
-            MapmodeScope.DisplayMember = "Province";
-            MapmodeScope.DropDownStyle = ComboBoxStyle.DropDownList;
-            MapmodeScope.FormattingEnabled = true;
-            MapmodeScope.Items.AddRange(new object[] { "Province", "Country" });
-            MapmodeScope.Location = new Point(121, 35);
-            MapmodeScope.Name = "MapmodeScope";
-            MapmodeScope.Size = new Size(189, 23);
-            MapmodeScope.TabIndex = 3;
-            MapmodeScope.SelectedValueChanged += MapmodeScope_SelectedValueChanged;
+            MapModeScope.DisplayMember = "Province";
+            MapModeScope.DropDownStyle = ComboBoxStyle.DropDownList;
+            MapModeScope.FormattingEnabled = true;
+            MapModeScope.Items.AddRange(new object[] { "Province", "Country" });
+            MapModeScope.Location = new Point(121, 35);
+            MapModeScope.Name = "MapModeScope";
+            MapModeScope.Size = new Size(189, 23);
+            MapModeScope.TabIndex = 3;
+            MapModeScope.SelectedValueChanged += MapModeScope_SelectedValueChanged;
             // 
             // label2
             // 
@@ -885,7 +885,7 @@
         private TabPage ManageMapmodesPage;
         private TabPage CreateMapmodesTab;
         private Label label1;
-        private ComboBox MapmodeScope;
+        private ComboBox MapModeScope;
         private Label label2;
         private GroupBox TriggerBox;
         private ComboBox TriggerTypeBox;

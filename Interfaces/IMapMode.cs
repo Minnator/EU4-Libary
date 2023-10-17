@@ -19,6 +19,6 @@ public interface IMapMode
     Dictionary<string, Color> ColorTable { get; set; }
     public Dictionary<int, Color> GetProvinceColor();
 
-    public void RenderMapmode();
+    public void RenderMapMode();
 
 }

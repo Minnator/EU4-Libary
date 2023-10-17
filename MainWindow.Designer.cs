@@ -76,6 +76,7 @@
             AddToTradeNodeContext = new ToolStripMenuItem();
             AddToSuperRegionContext = new ToolStripMenuItem();
             AddToContinentContext = new ToolStripMenuItem();
+            AddToProvinceGroupContext = new ToolStripMenuItem();
             AddClaimsCoresContext = new ToolStripMenuItem();
             AddCoreSelectionContext = new ToolStripComboBox();
             AddPermaClaimContext = new ToolStripComboBox();
@@ -95,6 +96,7 @@
             toolStripMenuItem1 = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             ConfirmColorChangeContext = new ToolStripMenuItem();
+            ReloadLocalisationToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
@@ -111,7 +113,6 @@
             Map.SizeMode = PictureBoxSizeMode.AutoSize;
             Map.TabIndex = 0;
             Map.TabStop = false;
-            Map.Paint += Map_Paint;
             Map.MouseClick += Map_MouseClick;
             Map.MouseEnter += Map_MouseEnter;
             Map.MouseLeave += Map_MouseLeave;
@@ -184,7 +185,7 @@
             // 
             // settingsToolStripMenuItem
             // 
-            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clearAllUserDefinedFilesToolStripMenuItem });
+            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clearAllUserDefinedFilesToolStripMenuItem, ReloadLocalisationToolStripMenuItem });
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             settingsToolStripMenuItem.Size = new Size(61, 20);
             settingsToolStripMenuItem.Text = "Settings";
@@ -419,7 +420,7 @@
             // 
             // AddToContextCollection
             // 
-            AddToContextCollection.DropDownItems.AddRange(new ToolStripItem[] { AddToAreaContext, AddToRegionContext, AddToTradeNodeContext, AddToSuperRegionContext, AddToContinentContext });
+            AddToContextCollection.DropDownItems.AddRange(new ToolStripItem[] { AddToAreaContext, AddToRegionContext, AddToTradeNodeContext, AddToSuperRegionContext, AddToContinentContext, AddToProvinceGroupContext });
             AddToContextCollection.Name = "AddToContextCollection";
             AddToContextCollection.Size = new Size(215, 22);
             AddToContextCollection.Text = "Add to Collection";
@@ -428,32 +429,38 @@
             // AddToAreaContext
             // 
             AddToAreaContext.Name = "AddToAreaContext";
-            AddToAreaContext.Size = new Size(177, 22);
+            AddToAreaContext.Size = new Size(194, 22);
             AddToAreaContext.Text = "Add to Area";
             // 
             // AddToRegionContext
             // 
             AddToRegionContext.Name = "AddToRegionContext";
-            AddToRegionContext.Size = new Size(177, 22);
+            AddToRegionContext.Size = new Size(194, 22);
             AddToRegionContext.Text = "Add to Region";
             // 
             // AddToTradeNodeContext
             // 
             AddToTradeNodeContext.Name = "AddToTradeNodeContext";
-            AddToTradeNodeContext.Size = new Size(177, 22);
+            AddToTradeNodeContext.Size = new Size(194, 22);
             AddToTradeNodeContext.Text = "Add to Tradenode";
             // 
             // AddToSuperRegionContext
             // 
             AddToSuperRegionContext.Name = "AddToSuperRegionContext";
-            AddToSuperRegionContext.Size = new Size(177, 22);
+            AddToSuperRegionContext.Size = new Size(194, 22);
             AddToSuperRegionContext.Text = "Add to Superregion";
             // 
             // AddToContinentContext
             // 
             AddToContinentContext.Name = "AddToContinentContext";
-            AddToContinentContext.Size = new Size(177, 22);
+            AddToContinentContext.Size = new Size(194, 22);
             AddToContinentContext.Text = "Add to Continent";
+            // 
+            // AddToProvinceGroupContext
+            // 
+            AddToProvinceGroupContext.Name = "AddToProvinceGroupContext";
+            AddToProvinceGroupContext.Size = new Size(194, 22);
+            AddToProvinceGroupContext.Text = "Add to province group";
             // 
             // AddClaimsCoresContext
             // 
@@ -603,6 +610,13 @@
             ConfirmColorChangeContext.Size = new Size(217, 22);
             ConfirmColorChangeContext.Text = "Confirm";
             // 
+            // ReloadLocalisationToolStripMenuItem
+            // 
+            ReloadLocalisationToolStripMenuItem.Name = "ReloadLocalisationToolStripMenuItem";
+            ReloadLocalisationToolStripMenuItem.Size = new Size(208, 22);
+            ReloadLocalisationToolStripMenuItem.Text = "Reload Localisation";
+            ReloadLocalisationToolStripMenuItem.Click += ReloadLocalizationToolStripMenuItem_Click;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -710,5 +724,7 @@
         private ToolStripMenuItem AdvancedSelectionMenuContext;
         private ToolStripMenuItem CustomTriggerSelectionContext;
         private ToolStripMenuItem RandomSelectionContext;
+        private ToolStripMenuItem AddToProvinceGroupContext;
+        private ToolStripMenuItem ReloadLocalisationToolStripMenuItem;
     }
 }

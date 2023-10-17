@@ -38,7 +38,7 @@ namespace EU4_Parse_Lib
         public static Bitmap? Map;
         public static Bitmap? OrgMap;
         public static Bitmap? ProvincesBmp;
-        public static Bitmap? SelecteMapMode;
+        public static Bitmap SelectedMapMode;
 
         public static IMapMode? MapMode;
 

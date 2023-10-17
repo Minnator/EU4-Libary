@@ -33,9 +33,9 @@ namespace EU4_Parse_Lib
             AttributeToScopeTT.SetToolTip(TriggerAttributeBox, "List will be generated once a scope is chosen!");
         }
 
-        private void MapmodeScope_SelectedValueChanged(object sender, EventArgs e)
+        private void MapModeScope_SelectedValueChanged(object sender, EventArgs e)
         {
-            var item = MapmodeScope.SelectedItem;
+            var item = MapModeScope.SelectedItem;
             if (item == null)
                 return;
             item = item.ToString();
@@ -69,7 +69,7 @@ namespace EU4_Parse_Lib
             }
         }
 
-        private void RefreshMapmodeNameList()
+        private void RefreshMapModeNameList()
         {
             MapModeNameBox.Items.Clear();
             foreach (var mapMode in Vars.MapModes.Values)
@@ -137,10 +137,10 @@ namespace EU4_Parse_Lib
 
             #region Trigger Value Validation
 
-            var item = MapmodeScope.SelectedItem;
+            var item = MapModeScope.SelectedItem;
             if (item == null)
             {
-                MErrorBox.Text += $"Map mode scope [ {MapmodeScope.Text} ] is not valid\n";
+                MErrorBox.Text += $"Map mode scope [ {MapModeScope.Text} ] is not valid\n";
                 return;
             }
             item = item.ToString();
@@ -182,7 +182,7 @@ namespace EU4_Parse_Lib
                     _triggers.Add(new EqualsTrigger(attr, TriggerValueBox.Text, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                     break;
                 case "OrTrigger":
-                    List<ITrigger> tri = ItemsToTriggers();
+                    var tri = ItemsToTriggers();
                     Debug.WriteLine(tri.Count);
                     foreach (var trigger in tri)
                     {
@@ -219,19 +219,17 @@ namespace EU4_Parse_Lib
                 ITrigger? first = null;
                 foreach (var trigger in _triggers)
                 {
-                    if (Equals(trigger.ToString(), item.ToString()))
-                    {
-                        first = trigger;
-                        break;
-                    }
+                    if (!Equals(trigger.ToString(), item.ToString())) 
+                        continue;
+                    first = trigger;
+                    break;
                 }
-
                 triggers.Add(first!);
             }
             return triggers;
         }
 
-        private void LoadMapmode(IMapMode mapMode)
+        private void LoadMapMode(IMapMode mapMode)
         {
             switch (mapMode.Type)
             {
@@ -398,17 +396,17 @@ namespace EU4_Parse_Lib
             if (Vars.MapModes.TryGetValue(MapModeNameBox.SelectedItem.ToString()!, out var value))
             {
                 _currentMapMode = value;
+                LoadMapMode(value);
             }
 
-            LoadMapmode(value);
         }
 
-        private void SaveMapmodeButton_Click(object sender, EventArgs e)
+        private void SaveMapModeButton_Click(object sender, EventArgs e)
         {
             MErrorBox.Clear();
-            if (!Enum.TryParse(MapmodeScope.Text, out Scope scope))
+            if (!Enum.TryParse(MapModeScope.Text, out Scope scope))
             {
-                MErrorBox.Text += $"[{MapmodeScope.Text}] is no legal scope!";
+                MErrorBox.Text += $"[{MapModeScope.Text}] is no legal scope!";
                 _overrideMapMode = false;
                 return;
             }
@@ -521,11 +519,11 @@ namespace EU4_Parse_Lib
             Vars.MapModes.Remove(_currentMapMode.Name);
             Vars.MapModes.Add(bName.Value, _currentMapMode);
 
-            RefreshMapmodeNameList();
+            RefreshMapModeNameList();
 
             if (Vars.RederCreatedMapmodes) //TODO make this a setting
             {
-                _currentMapMode.RenderMapmode();
+                _currentMapMode.RenderMapMode();
             }
 
             //Vars.MapMode = _currentMapMode;
@@ -562,7 +560,7 @@ namespace EU4_Parse_Lib
 
         private void AttributeToScopeTT_Popup(object sender, PopupEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(MapmodeScope.Text) || string.IsNullOrWhiteSpace(TriggerScopeList.Text))
+            if (string.IsNullOrWhiteSpace(MapModeScope.Text) || string.IsNullOrWhiteSpace(TriggerScopeList.Text))
                 e.Cancel = true;
         }
 
@@ -876,7 +874,7 @@ namespace EU4_Parse_Lib
 
         private void ManageMapmodes_Load(object sender, EventArgs e)
         {
-            RefreshMapmodeNameList();
+            RefreshMapModeNameList();
         }
     }
 }

@@ -12,10 +12,14 @@ namespace EU4_Parse_Lib
         private static Dictionary<Color, List<Point>> _pixDic = new();
 
         public static void LoadAll()
-        {                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
+        {
+            try
+            {
+                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
                 var map = new Bitmap(combinedPath);
                 Vars.Map = map;
-                Vars.SelecteMapMode = new Bitmap(map.Width, map.Height);
+                Vars.OrgMap = map;
+                Vars.SelectedMapMode = map;
                 Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
                 Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
                 Vars.ScopeNames = Util.EnumToList<Scope>();
@@ -32,9 +36,6 @@ namespace EU4_Parse_Lib
                 LoadWithStopWatch("Areas", LoadAreas);
                 LoadWithStopWatch("Localization", LoadAllLocalization);
                 Debug.WriteLine("Finished Loading");
-            try
-            {
-
             }
             catch (Exception ex)
             {
@@ -43,7 +44,7 @@ namespace EU4_Parse_Lib
         }
 
         /// <summary>
-        /// Pregenerate random colors for later use to speed up performance in other parts of the code
+        /// Pre generate random colors for later use to speed up performance in other parts of the code
         /// </summary>
         public static void FillRandomColorsList()
         {
@@ -107,54 +108,81 @@ namespace EU4_Parse_Lib
 
         public static string GetLoc(string key)
         {
-            return Vars.Localization.TryGetValue(key, out var name) ? name : $"missing [{Vars.Language}] localization";
+            return Vars.Localization.TryGetValue(key, out var name) 
+                ? name 
+                : $"missing [{Vars.Language}] localization";
         }
 
         /// <summary>
         /// first read in the mod localization and then the vanilla localization.
         /// Does not care about the number in loc yet - feature for future
         /// </summary>
-        private static void LoadAllLocalization()
+        public static void LoadAllLocalization()
         {
             var ymlFiles = new List<string>();
             Vars.Localization.Clear();
 
-            var path = Path.Combine(Vars.ModFolder, "localisation");
-            if (Directory.Exists(path))
-                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.Language}.yml").ToList());
-            path = Path.Combine(Vars.VanillaFolder, "localisation");
-            if (Directory.Exists(path))
-                ymlFiles.AddRange(Directory.GetFiles(path, $"*_l_{Vars.Language}.yml").ToList());
-
-            if (ymlFiles.Count <= 0) return;
-
-            Dictionary<string, string> localizationHashCollisions = new();
-            Dictionary<string, string> loc = new();
-            Dictionary<string, int> locFiles = new();
-
-            foreach (var ymlPath in ymlFiles)
+            // Combine the paths for localization folders
+            var modLocalizationPath = Path.Combine(Vars.ModFolder, "localisation");
+            var vanillaLocalizationPath = Path.Combine(Vars.VanillaFolder, "localisation");
+            if (Directory.Exists(modLocalizationPath))
             {
-                var lines = File.ReadAllLines(ymlPath);
-                locFiles[ymlPath] = lines.Length;
-                foreach (var line in lines)
-                {
-                    var match = Regex.Match(line, @"(?<key>.*):\d\s+""(?<value>.*)""");
-                    if (!match.Success) 
-                        continue;
-                    var id = match.Groups["key"].Value.Trim();
-                    var name = match.Groups["value"].Value.Trim();
-                    if (loc.ContainsKey(id))
-                    {
-                        localizationHashCollisions.Add(id, name);
-                        continue;
-                    }
-                    loc[id] = name;
-                }
+                ymlFiles.AddRange(Directory.GetFiles(modLocalizationPath, $"*_l_{Vars.Language}.yml").ToList());
             }
+            if (Directory.Exists(vanillaLocalizationPath))
+            {
+                ymlFiles.AddRange(Directory.GetFiles(vanillaLocalizationPath, $"*_l_{Vars.Language}.yml").ToList());
+            }
+           
+            if (ymlFiles.Count <= 0) 
+                return;
+            {
+                // Use a compiled regex pattern
+                var regex = new Regex(@"(?<key>.*):\d\s+""(?<value>.*)""", RegexOptions.Compiled);
 
-            Vars.Localization = loc;
-            Vars.LocalizationFiles = locFiles;
-            Vars.LocalizationHashCollisions = localizationHashCollisions;
+                var localizationHashCollisions = new Dictionary<string, string>();
+                var loc = new Dictionary<string, string>(120000);
+                var locFiles = new Dictionary<string, int>(130);
+
+                // Use Parallel.ForEach to process files in parallel
+                Parallel.ForEach(ymlFiles, ymlPath =>
+                {
+                    try
+                    {
+                        var lines = File.ReadAllLines(ymlPath);
+
+                        locFiles[ymlPath] = lines.Length;
+
+                        foreach (var line in lines)
+                        {
+                            var match = regex.Match(line);
+                            if (!match.Success)
+                                continue;
+                            var id = match.Groups["key"].Value.Trim();
+                            var name = match.Groups["value"].Value.Trim();
+
+                            if (loc.ContainsKey(id))
+                            {
+                                var nameBuilder = new StringBuilder(name);
+
+                                lock (localizationHashCollisions)
+                                    localizationHashCollisions[id] = nameBuilder.ToString();
+                            }
+                            else
+                                lock (loc)
+                                    loc[id] = name;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"An error occurred while processing {ymlPath}: {ex.Message}");
+                    }
+                });
+
+                Vars.Localization = loc;
+                Vars.LocalizationFiles = locFiles;
+                Vars.LocalizationHashCollisions = localizationHashCollisions;
+            }
         }
 
         private static void LoadAreas()
@@ -214,32 +242,10 @@ namespace EU4_Parse_Lib
 
             var match = Regex.Match(content, pattern);
 
-            foreach (var item in Util.GetProvincesList(match.Groups["seaProvs"].Value))
-            {
-                sea.Add(item,
-                    Vars.Provinces.TryGetValue(item, out var province)
-                        ? province
-                        : new Province(Color.FromArgb(255, 0, 0, 0)));
-            }
-
-            foreach (var item in Util.GetProvincesList(match.Groups["RnvProvs"].Value))
-                rnv.Add(item,
-                    Vars.Provinces.TryGetValue(item, out var province)
-                        ? province
-                        : new Province(Color.FromArgb(255, 0, 0, 0)));
-
-            foreach (var item in Util.GetProvincesList(match.Groups["LakeProvs"].Value))
-                lake.Add(item,
-                    Vars.Provinces.TryGetValue(item, out var province)
-                        ? province
-                        : new Province(Color.FromArgb(255, 0, 0, 0)));
-
-            foreach (var item in Util.GetProvincesList(match.Groups["CostalProvs"].Value))
-                land.Add(item,
-                    Vars.Provinces.TryGetValue(item, out var province)
-                        ? province
-                        : new Province(Color.FromArgb(255, 0, 0, 0)));
-
+            AddProvincesToDictionary(match.Groups["seaProvs"].Value, sea);
+            AddProvincesToDictionary(match.Groups["RnvProvs"].Value, rnv);
+            AddProvincesToDictionary(match.Groups["LakeProvs"].Value, lake);
+            AddProvincesToDictionary(match.Groups["CostalProvs"].Value, land);
 
             foreach (var p in Vars.Provinces)
             {
@@ -262,6 +268,17 @@ namespace EU4_Parse_Lib
             Vars.LakeProvinces = lake;
             Vars.CoastalProvinces = coastal;
             Vars.LandProvinces = land;
+        }
+
+        private static void AddProvincesToDictionary(string provinceList, IDictionary<int, Province> dictionary)
+        {
+            foreach (var item in Util.GetProvincesList(provinceList))
+            {
+                dictionary.Add(item,
+                    Vars.Provinces.TryGetValue(item, out var province)
+                        ? province
+                        : new Province(Color.FromArgb(255, 0, 0, 0)));
+            }
         }
 
         private static unsafe void GenerateBorders()
@@ -325,13 +342,12 @@ namespace EU4_Parse_Lib
 
         public static unsafe Bitmap ProcessBitmap(Bitmap bmp)
         {
-            int width = bmp.Width;
-            int height = bmp.Height;
-            Bitmap processedBitmap = new Bitmap(width, height);
+            var width = bmp.Width;
+            var height = bmp.Height;
+            var processedBitmap = new Bitmap(width, height);
 
-            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            BitmapData processedData = processedBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            var processedData = processedBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
             try
             {
                 const int batchSize = 16; // Process pixels in batches
@@ -403,8 +419,8 @@ namespace EU4_Parse_Lib
         }
         private static void InitProvinces(IReadOnlyDictionary<Color, List<Point>> dic)
         {
-            Dictionary<int, Province> provinces = new Dictionary<int, Province>(5000);
-            Dictionary<Color, int> colorIds = new Dictionary<Color, int>(5000);
+            var provinces = new Dictionary<int, Province>(5000);
+            var colorIds = new Dictionary<Color, int>(5000);
 
             var lines = File.ReadAllLines(Util.GetModOrVanillaPathFile(Path.Combine("map", "definition.csv")));
 
@@ -413,28 +429,22 @@ namespace EU4_Parse_Lib
                 var match = Regex.Match(line, @"\s*(?:(\d+);(\d+);(\d+);(\d+);(.*);).*");
 
                 if (!match.Success)
-                {
                     continue;
-                }
 
-                int id, r, g, b;
-
-                if (!int.TryParse(match.Groups[1].Value, out id) ||
-                    !int.TryParse(match.Groups[2].Value, out r) ||
-                    !int.TryParse(match.Groups[3].Value, out g) ||
-                    !int.TryParse(match.Groups[4].Value, out b))
+                if (!int.TryParse(match.Groups[1].Value, out var id) ||
+                    !int.TryParse(match.Groups[2].Value, out var r) ||
+                    !int.TryParse(match.Groups[3].Value, out var g) ||
+                    !int.TryParse(match.Groups[4].Value, out var b))
                 {
                     Util.ErrorPopUp("Corrupted definitions.csv", $"Invalid values in the definition line: {line}");
                     throw new Exception("Corrupted definitions.csv");
                 }
 
-                Color color = Color.FromArgb(255, r, g, b);
-                Province p = new Province(color);
+                var color = Color.FromArgb(255, r, g, b);
+                var p = new Province(color);
 
                 if (dic.TryGetValue(color, out var entry))
-                {
                     p.Pixels = entry;
-                }
                 else
                 {
                     Vars.NotOnMapProvinces.Add(id.ToString(), color);
@@ -445,15 +455,13 @@ namespace EU4_Parse_Lib
                 provinces.Add(id, p);
                 colorIds.Add(color, id);
             }
-
             Vars.ColorIds = colorIds;
             Vars.Provinces = provinces;
-
         }
         private static Dictionary<Color, List<Point>> GetAllPixels()
         {
 
-            Dictionary<Color, List<Point>> colors = new();
+            Dictionary<Color, List<Point>> colors = new(5000);
             if (Vars.Map == null)
                 return colors;
             var width = Vars.Map.Width;
@@ -499,6 +507,9 @@ namespace EU4_Parse_Lib
             return colors;
         }
 
+        public static void CreateGenericMapModes()
+        {
 
+        }
     }
 }

@@ -113,7 +113,7 @@ internal class TriggerListMapmode : IMapMode
         return dic;
     }
 
-    public void RenderMapmode()
+    public void RenderMapMode()
     {
         Gui.ColorMap(GetProvinceColor());
     }

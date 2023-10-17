@@ -1,7 +1,4 @@
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using YamlDotNet.Core.Tokens;
 using Timer = System.Windows.Forms.Timer;
 
 namespace EU4_Parse_Lib
@@ -26,27 +23,17 @@ namespace EU4_Parse_Lib
 
             var loadingScreen = Gui.ShowForm<LoadingScreen>();
             Vars.LoadingForm = loadingScreen;
-
-
         }
 
         public void INIT()
         {
-            try
-            {
-                var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
-                var map = new Bitmap(combinedPath);
-                Vars.Map = map;
-                Vars.OrgMap = map;
-            }
-            catch (Exception e)
-            {
-                Util.ErrorPopUp("Map Loading Error", $"No Valid [province.bmp] file found\n {e}");
-                throw;
-            }
+            //Center Map on Europe
             CalculateMaxOffsets();
             ResetDisplayRect();
             UpdateDisplayedImage();
+
+            //Generate the Generic MapModes form the game
+            Loading.CreateGenericMapModes();
 
             // Initialize the cooldown timer
             _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
@@ -263,7 +250,7 @@ namespace EU4_Parse_Lib
             if (!Vars.MapModes.TryGetValue(button.Text, out var mapMode))
                 return;
             Vars.MapMode = mapMode;
-            Gui.ChangeMapmode();
+            Gui.ChangeMapMode();
         }
 
         private void MainWindow_Load(object sender, EventArgs e)
@@ -278,17 +265,27 @@ namespace EU4_Parse_Lib
             {
                 OpenCountryFileContext.Enabled = false;
                 OpenProvinceFileContext.Enabled = false;
+                SelectAreaContext.Enabled = false;
+                SelectRegionContext.Enabled = false;
+                SelectTradenodeContext.Enabled = false;
+                SelectSuperRegionContext.Enabled = false;
+                SelectContinentContext.Enabled = false;
             }
             else
             {
                 OpenCountryFileContext.Enabled = true;
                 OpenProvinceFileContext.Enabled = true;
+                SelectAreaContext.Enabled = true;
+                SelectRegionContext.Enabled = true;
+                SelectTradenodeContext.Enabled = true;
+                SelectSuperRegionContext.Enabled = true;
+                SelectContinentContext.Enabled = true;
             }
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            Debug.WriteLine($"Pressed: {e.KeyCode}");
+            //Debug.WriteLine($"Pressed: {e.KeyCode}");
             switch (e.KeyCode)
             {
                 case Keys.W:
@@ -311,10 +308,9 @@ namespace EU4_Parse_Lib
 
         }
 
-        private void Map_Paint(object sender, PaintEventArgs e)
+        private void ReloadLocalizationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            e.Graphics.PixelOffsetMode = PixelOffsetMode.None;
+            Loading.LoadAllLocalization();
         }
     }
 

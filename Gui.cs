@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Imaging;
 using EU4_Parse_Lib.DataClasses;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static System.Windows.Forms.ListViewItem;
 
 namespace EU4_Parse_Lib
 {
@@ -13,33 +10,36 @@ namespace EU4_Parse_Lib
         {
             Vars.MainWindow!.MapModeButtons.Controls.Clear();
             var it = false;
-            var lBt = string.Empty;
+            var leftButtonText = string.Empty;
             foreach (var mapMode in Vars.MapModes.Values)
             {
                 if (!it)
                 {
-                    lBt = mapMode.Name;
+                    leftButtonText = mapMode.Name;
                     it = true;
                 }
                 else
                 {
-                    CreateMapModeButtons(lBt, mapMode.Name);
+                    CreateMapModeButtons(leftButtonText, mapMode.Name);
                     it = false;
-                    lBt = string.Empty;
+                    leftButtonText = string.Empty;
                 }
             }
 
-            if (lBt == string.Empty) 
+            if (leftButtonText == string.Empty) 
                 return;
-            TableLayoutPanel rowPanel = new();
-            rowPanel.ColumnCount = 2;
-            rowPanel.Height = 25; // TODO fix the height and the drop down of the already created mapmodes on load
+            TableLayoutPanel rowPanel = new()
+            {
+                ColumnCount = 2,
+                Height = 25 // TODO fix the height and the drop down of the already created mapmodes on load
+            };
 
-            Button button1 = new();
-            button1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            button1.Text = lBt;
-            button1.Click += Vars.MainWindow!.OnMapModeSelection!;
-
+            Button button1 = new()
+            {
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Text = leftButtonText,
+            };
+            button1.Click += Vars.MainWindow.OnMapModeSelection!;
             rowPanel.Controls.Add(button1);
             
             Vars.MainWindow!.MapModeButtons.Controls.Add(rowPanel);
@@ -47,33 +47,37 @@ namespace EU4_Parse_Lib
 
         private static void CreateMapModeButtons(string leftButtonText, string rightButtonText)
         {
-            //Debug.WriteLine($"Adding: {leftButtonText} and {rightButtonText}");
+            TableLayoutPanel rowPanel = new()
+            {
+                ColumnCount = 2,
+                Height = 25
+            };
 
-            TableLayoutPanel rowPanel = new ();
-            rowPanel.ColumnCount = 2;
-            rowPanel.Height = 25; 
-            
-            Button button1 = new ();
-            button1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            button1.Text = leftButtonText;
+            Button button1 = new()
+            {
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Text = leftButtonText
+            };
             button1.Click += Vars.MainWindow!.OnMapModeSelection!;
-            
-            Button button2 = new ();
-            button2.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            button2.Text = rightButtonText;
+
+            Button button2 = new()
+            {
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Text = rightButtonText
+            };
             button2.Click += Vars.MainWindow!.OnMapModeSelection!;
 
             rowPanel.Controls.Add(button1);
             rowPanel.Controls.Add(button2);
             
-            Vars.MainWindow!.MapModeButtons.Controls.Add(rowPanel);
+            Vars.MainWindow.MapModeButtons.Controls.Add(rowPanel);
         }
 
 
         /// <summary>
         /// Loads the currently selected MapMode. If an error occurs a pop up is issued with according information
         /// </summary>
-        public static void ChangeMapmode()
+        public static void ChangeMapMode()
         {
             if (Vars.MapMode == null || Vars.MainWindow!.Map == null)
             {
@@ -81,9 +85,10 @@ namespace EU4_Parse_Lib
                 return;
             }
             
-            Vars.SelecteMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
+            Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
 
-            Vars.MainWindow.Map.Image = Vars.SelecteMapMode;
+            Vars.MainWindow.Map.Image = Vars.SelectedMapMode;
+            Vars.Map = Vars.SelectedMapMode;
 
             var offsetX = Math.Max(0, Math.Min(Vars.Map!.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
             var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
@@ -192,7 +197,7 @@ namespace EU4_Parse_Lib
                         pixelData[pixelOffset + 0] = (byte)(colorValue);
                         pixelData[pixelOffset + 1] = (byte)(colorValue >> 8);
                         pixelData[pixelOffset + 2] = (byte)(colorValue >> 16);
-                        pixelData[pixelOffset + 3] = (byte)(colorValue >> 24);
+                        //pixelData[pixelOffset + 3] = (byte)(colorValue >> 24);
                     }
                 });
 
@@ -216,26 +221,20 @@ namespace EU4_Parse_Lib
             Vars.Stopwatch.Stop();
             Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
             Vars.TimeStamps.Add($"Time Elapsed Creating Map:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
-            //Debug.WriteLine($"Creating map: {Vars.Stopwatch.Elapsed}");
+            Debug.WriteLine($"Creating map: {Vars.Stopwatch.Elapsed}");
             Vars.Stopwatch.Reset();
             //mapBitmap.Save("C:\\Users\\david\\Downloads\\mapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
             using (var bmp = mapBitmap)
             {
-                Vars.SelecteMapMode = bmp;
-                // Image processing code here
+                Vars.SelectedMapMode = bmp;
                 try
                 {
                     bmp.Save("C:\\Users\\david\\Downloads\\BBmapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
-                    using (var temp = Loading.ProcessBitmap(bmp))
-                    {
-                        Assert.IsNotNull(temp);
-                        Assert.IsInstanceOfType(temp, typeof(Bitmap));
-                        using (var freshBitmap = new Bitmap(temp))
-                        {
-                            freshBitmap.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
-                        }
-
-                    }
+                    using var temp = Loading.ProcessBitmap(bmp);
+                    //Assert.IsNotNull(temp);
+                    //Assert.IsInstanceOfType(temp, typeof(Bitmap));
+                    using var freshBitmap = new Bitmap(temp);
+                    freshBitmap.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
                     // bmp.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp);
                 }
                 catch (Exception ex)
@@ -245,7 +244,7 @@ namespace EU4_Parse_Lib
             }
 
             
-            Vars.MainWindow!.Map.Image = Image.FromFile("C:\\Users\\david\\Downloads\\bmp.bmp");
+            //Vars.MainWindow!.Map.Image = Image.FromFile("C:\\Users\\david\\Downloads\\bmp.bmp");
 
             return mapBitmap;
         }
@@ -264,7 +263,6 @@ namespace EU4_Parse_Lib
 
             var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
             var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
-            Debug.WriteLine($"#############STRIDE:  {bmpData.Stride}");
             try
             {
                 var bytesPerPixel = Image.GetPixelFormatSize(Vars.Map.PixelFormat) / 8;
