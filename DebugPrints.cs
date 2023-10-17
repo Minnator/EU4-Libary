@@ -149,24 +149,14 @@ namespace EU4_Parse_Lib
         public static void PrintProvincesBorder(Dictionary<int, Province> dic)
         {
             StringBuilder sb = new();
-            StringBuilder ssb = new();
-            var cnt = 0;
+            var total = 0;
             foreach (var kvp in dic)
             {
-                foreach (var point in kvp.Value.Border)
-                {
-                    ssb.Append($"{point} {Vars.Map!.GetPixel(point.X, point.Y)} ");
-                }
-                cnt++;
                 sb.AppendLine(
-                    $"Province ID: {kvp.Key,4}, Number of Border Pixels: {kvp.Value.Border.Count, 5}: {ssb.ToString()}");
-                if (cnt > 20)
-                {
-                    break;
-                }
-
-                ssb.Clear();
+                    $"Province ID: {kvp.Key,4}, Number of Border Pixels: {kvp.Value.Border.Count, 5}:");
+                total += kvp.Value.Border.Count;
             }
+            sb.AppendLine($"Total BorderPixels: {total}");
             Saving.WriteLog(sb.ToString(), "ProvBorders");
         }
         public static void PrintColorsToIds(Dictionary<Color, int> dic)
