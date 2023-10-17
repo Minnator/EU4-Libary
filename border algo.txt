@@ -1,0 +1,5 @@
+﻿- fast
+- provinces need to know their entire border
+- 1 thic
+- can cope with seperated pieces of color
+- on codition only recalculate the land provinces when the mapmode excludes sea provinces

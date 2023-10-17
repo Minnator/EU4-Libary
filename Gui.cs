@@ -85,16 +85,16 @@ namespace EU4_Parse_Lib
                 return;
             }
             
+            Vars.MapMode.RenderMapMode();
+            
             Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
 
             Vars.MainWindow.Map.Image = Vars.SelectedMapMode;
-            Vars.Map = Vars.SelectedMapMode;
+            Vars.Map = new Bitmap(Vars.SelectedMapMode);
 
-            var offsetX = Math.Max(0, Math.Min(Vars.Map!.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
-            var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
-
-            Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
-            Vars.MainWindow.Map.Invalidate();
+            Vars.MainWindow.UpdateDisplayedImage();
+            
+            //Vars.MainWindow.Map.Invalidate();
         }
 
 
@@ -166,7 +166,7 @@ namespace EU4_Parse_Lib
         /// <param name="colors"></param>
         /// <param name="file"></param>
         /// <exception cref="ArgumentException"></exception>
-        public static Bitmap ColorMap(Dictionary<int, Color> colors)
+        public static void ColorMap(Dictionary<int, Color> colors)
         {
             Vars.Stopwatch.Start();
             if (colors == null || colors.Count == 0)
@@ -197,7 +197,6 @@ namespace EU4_Parse_Lib
                         pixelData[pixelOffset + 0] = (byte)(colorValue);
                         pixelData[pixelOffset + 1] = (byte)(colorValue >> 8);
                         pixelData[pixelOffset + 2] = (byte)(colorValue >> 16);
-                        //pixelData[pixelOffset + 3] = (byte)(colorValue >> 24);
                     }
                 });
 
@@ -218,35 +217,15 @@ namespace EU4_Parse_Lib
             {
                 mapBitmap.UnlockBits(bitmapData);
             }
+            Vars.SelectedMapMode = new Bitmap(Loading.ProcessBitmap(mapBitmap));
+            
+            Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
+            mapBitmap.Dispose();
             Vars.Stopwatch.Stop();
             Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
             Vars.TimeStamps.Add($"Time Elapsed Creating Map:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
             Debug.WriteLine($"Creating map: {Vars.Stopwatch.Elapsed}");
             Vars.Stopwatch.Reset();
-            //mapBitmap.Save("C:\\Users\\david\\Downloads\\mapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
-            using (var bmp = mapBitmap)
-            {
-                Vars.SelectedMapMode = bmp;
-                try
-                {
-                    bmp.Save("C:\\Users\\david\\Downloads\\BBmapmode.bmp", ImageFormat.Bmp); //TODO remove on final version
-                    using var temp = Loading.ProcessBitmap(bmp);
-                    //Assert.IsNotNull(temp);
-                    //Assert.IsInstanceOfType(temp, typeof(Bitmap));
-                    using var freshBitmap = new Bitmap(temp);
-                    freshBitmap.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
-                    // bmp.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp);
-                }
-                catch (Exception ex)
-                { 
-                    Util.ErrorPopUp(ex.Message, ex.StackTrace);
-                }
-            }
-
-            
-            //Vars.MainWindow!.Map.Image = Image.FromFile("C:\\Users\\david\\Downloads\\bmp.bmp");
-
-            return mapBitmap;
         }
 
         /// <summary>

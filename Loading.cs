@@ -3,6 +3,7 @@ using System.Drawing.Imaging;
 using System.Text;
 using System.Text.RegularExpressions;
 using EU4_Parse_Lib.DataClasses;
+using Microsoft.VisualBasic.Logging;
 using Newtonsoft.Json;
 
 namespace EU4_Parse_Lib
@@ -16,10 +17,9 @@ namespace EU4_Parse_Lib
             try
             {
                 var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
-                var map = new Bitmap(combinedPath);
-                Vars.Map = map;
-                Vars.OrgMap = map;
-                Vars.SelectedMapMode = map;
+                Vars.Map = new Bitmap(combinedPath);
+                Vars.OrgMap = new Bitmap(combinedPath);
+                Vars.SelectedMapMode = new Bitmap(combinedPath);
                 Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
                 Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
                 Vars.ScopeNames = Util.EnumToList<Scope>();
@@ -41,6 +41,7 @@ namespace EU4_Parse_Lib
             {
                 throw new Exception("Error During loading. Try restarting ur application or contact a programmer.\n" + ex);
             }
+            
         }
 
         /// <summary>
@@ -119,8 +120,11 @@ namespace EU4_Parse_Lib
         /// </summary>
         public static void LoadAllLocalization()
         {
+            //TODO Leaks memory
             var ymlFiles = new List<string>();
             Vars.Localization.Clear();
+            Vars.LocalizationFiles.Clear();
+            Vars.LocalizationHashCollisions.Clear();
 
             // Combine the paths for localization folders
             var modLocalizationPath = Path.Combine(Vars.ModFolder, "localisation");
@@ -413,7 +417,7 @@ namespace EU4_Parse_Lib
             {
                 bmp.UnlockBits(bmpData);
                 processedBitmap.UnlockBits(processedData);
-                processedBitmap.Save("C:\\Users\\david\\Downloads\\bmp.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
+                //processedBitmap.Save("C:\\Users\\david\\Downloads\\bmp.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
             }
             return processedBitmap;
         }

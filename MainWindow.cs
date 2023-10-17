@@ -63,12 +63,11 @@ namespace EU4_Parse_Lib
 
             DisplayRect = new Rectangle(centerX, centerY, Map.Width, Map.Height);
         }
-        private void UpdateDisplayedImage()
+        public void UpdateDisplayedImage()
         {
             if (Vars.Map == null)
                 return;
-            var displayedBitmap = Vars.Map.Clone(DisplayRect, Vars.Map.PixelFormat);
-            Map.Image = displayedBitmap;
+            Map.Image = Vars.Map.Clone(DisplayRect, Vars.Map.PixelFormat);
         }
         public void MoveBitmap(int dx, int dy)
         {
