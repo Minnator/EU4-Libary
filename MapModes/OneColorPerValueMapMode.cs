@@ -17,7 +17,7 @@ internal class OneColorPerValueMapMode : IMapMode
     public Color NullColor { get; set; }
     public bool OnlyLandProvinces { get; set; }
     public bool UseGradient { get; set; }
-    public bool UserDefinedMapmode { get; set; }
+    public bool UserDefinedMapMode { get; set; }
     public List<ITrigger> Triggers { get; set; } = new();
     public Dictionary<string, Color> ColorTable { get; set; } = new();
 
@@ -29,7 +29,7 @@ internal class OneColorPerValueMapMode : IMapMode
         Attribute = attribute;
         OnlyLandProvinces = onlyLandProvinces;
         UseGradient = useGradient;
-        UserDefinedMapmode = userDefinedMapmode;
+        UserDefinedMapMode = userDefinedMapmode;
     }
 
     private Color GenerateColor(string val, int cnt)

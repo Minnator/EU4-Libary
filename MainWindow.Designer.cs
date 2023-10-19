@@ -38,6 +38,9 @@
             menuStrip1 = new MenuStrip();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             clearAllUserDefinedFilesToolStripMenuItem = new ToolStripMenuItem();
+            ReloadLocalisationToolStripMenuItem = new ToolStripMenuItem();
+            clearCacheToolStripMenuItem = new ToolStripMenuItem();
+            keyMappingToolStripMenuItem = new ToolStripMenuItem();
             mapmodesToolStripMenuItem = new ToolStripMenuItem();
             mapmodeSelectorToolStripMenuItem = new ToolStripMenuItem();
             ManageMapModesMenu = new ToolStripMenuItem();
@@ -96,13 +99,15 @@
             toolStripMenuItem1 = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             ConfirmColorChangeContext = new ToolStripMenuItem();
-            ReloadLocalisationToolStripMenuItem = new ToolStripMenuItem();
+            groupBox1 = new GroupBox();
+            toolStripSeparator5 = new ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
             ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
             menuStrip1.SuspendLayout();
             panel1.SuspendLayout();
             MainRightClickMenu.SuspendLayout();
+            groupBox1.SuspendLayout();
             SuspendLayout();
             // 
             // Map
@@ -185,7 +190,7 @@
             // 
             // settingsToolStripMenuItem
             // 
-            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { clearAllUserDefinedFilesToolStripMenuItem, ReloadLocalisationToolStripMenuItem });
+            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ReloadLocalisationToolStripMenuItem, keyMappingToolStripMenuItem, toolStripSeparator5, clearCacheToolStripMenuItem, clearAllUserDefinedFilesToolStripMenuItem });
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             settingsToolStripMenuItem.Size = new Size(61, 20);
             settingsToolStripMenuItem.Text = "Settings";
@@ -195,6 +200,27 @@
             clearAllUserDefinedFilesToolStripMenuItem.Name = "clearAllUserDefinedFilesToolStripMenuItem";
             clearAllUserDefinedFilesToolStripMenuItem.Size = new Size(208, 22);
             clearAllUserDefinedFilesToolStripMenuItem.Text = "Clear all user defined files";
+            // 
+            // ReloadLocalisationToolStripMenuItem
+            // 
+            ReloadLocalisationToolStripMenuItem.Name = "ReloadLocalisationToolStripMenuItem";
+            ReloadLocalisationToolStripMenuItem.Size = new Size(208, 22);
+            ReloadLocalisationToolStripMenuItem.Text = "Reload Localisation";
+            ReloadLocalisationToolStripMenuItem.Click += ReloadLocalizationToolStripMenuItem_Click;
+            // 
+            // clearCacheToolStripMenuItem
+            // 
+            clearCacheToolStripMenuItem.Name = "clearCacheToolStripMenuItem";
+            clearCacheToolStripMenuItem.Size = new Size(208, 22);
+            clearCacheToolStripMenuItem.Text = "Clear Cache";
+            clearCacheToolStripMenuItem.Click += ClearCacheToolStripMenuItem_Click;
+            // 
+            // keyMappingToolStripMenuItem
+            // 
+            keyMappingToolStripMenuItem.Name = "keyMappingToolStripMenuItem";
+            keyMappingToolStripMenuItem.Size = new Size(208, 22);
+            keyMappingToolStripMenuItem.Text = "Key Mapping";
+            keyMappingToolStripMenuItem.Click += KeyMappingToolStripMenuItem_Click;
             // 
             // mapmodesToolStripMenuItem
             // 
@@ -227,6 +253,7 @@
             tooltipToolStripMenuItem.Name = "tooltipToolStripMenuItem";
             tooltipToolStripMenuItem.Size = new Size(55, 20);
             tooltipToolStripMenuItem.Text = "Tooltip";
+            tooltipToolStripMenuItem.Click += TooltipToolStripMenuItem_Click;
             // 
             // StatisticsTollStripMenuItem
             // 
@@ -274,11 +301,11 @@
             // 
             MapModeButtons.ColumnCount = 1;
             MapModeButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            MapModeButtons.Location = new Point(12, 231);
+            MapModeButtons.Location = new Point(6, 22);
             MapModeButtons.Name = "MapModeButtons";
             MapModeButtons.RowCount = 1;
             MapModeButtons.RowStyles.Add(new RowStyle());
-            MapModeButtons.Size = new Size(189, 261);
+            MapModeButtons.Size = new Size(186, 261);
             MapModeButtons.TabIndex = 13;
             // 
             // MainRightClickMenu
@@ -610,12 +637,20 @@
             ConfirmColorChangeContext.Size = new Size(217, 22);
             ConfirmColorChangeContext.Text = "Confirm";
             // 
-            // ReloadLocalisationToolStripMenuItem
+            // groupBox1
             // 
-            ReloadLocalisationToolStripMenuItem.Name = "ReloadLocalisationToolStripMenuItem";
-            ReloadLocalisationToolStripMenuItem.Size = new Size(208, 22);
-            ReloadLocalisationToolStripMenuItem.Text = "Reload Localisation";
-            ReloadLocalisationToolStripMenuItem.Click += ReloadLocalizationToolStripMenuItem_Click;
+            groupBox1.Controls.Add(MapModeButtons);
+            groupBox1.Location = new Point(5, 141);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(198, 291);
+            groupBox1.TabIndex = 16;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Map Modes";
+            // 
+            // toolStripSeparator5
+            // 
+            toolStripSeparator5.Name = "toolStripSeparator5";
+            toolStripSeparator5.Size = new Size(205, 6);
             // 
             // MainWindow
             // 
@@ -623,7 +658,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1163, 761);
             ContextMenuStrip = MainRightClickMenu;
-            Controls.Add(MapModeButtons);
+            Controls.Add(groupBox1);
             Controls.Add(panel1);
             Controls.Add(ZoomOutButton);
             Controls.Add(ZoomInButton);
@@ -648,6 +683,7 @@
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             MainRightClickMenu.ResumeLayout(false);
+            groupBox1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -726,5 +762,9 @@
         private ToolStripMenuItem RandomSelectionContext;
         private ToolStripMenuItem AddToProvinceGroupContext;
         private ToolStripMenuItem ReloadLocalisationToolStripMenuItem;
+        private GroupBox groupBox1;
+        private ToolStripMenuItem clearCacheToolStripMenuItem;
+        private ToolStripMenuItem keyMappingToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator5;
     }
 }

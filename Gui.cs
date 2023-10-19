@@ -6,9 +6,17 @@ namespace EU4_Parse_Lib
 {
     public static class Gui
     {
+        private static int _mapModeButtonsCount;
         public static void PopulateMainWindowMapModes()
         {
+            //Resetting the button bindings
+            foreach (var value in Vars.MapModeKeyMap)
+            {
+                Vars.MapModeKeyMap[value.Key] = null;
+            }
             Vars.MainWindow!.MapModeButtons.Controls.Clear();
+            _mapModeButtonsCount = 0;
+
             var it = false;
             var leftButtonText = string.Empty;
             foreach (var mapMode in Vars.MapModes.Values)
@@ -40,9 +48,10 @@ namespace EU4_Parse_Lib
                 Text = leftButtonText,
             };
             button1.Click += Vars.MainWindow.OnMapModeSelection!;
+            AddToMapModeKeyMap(button1);
             rowPanel.Controls.Add(button1);
             
-            Vars.MainWindow!.MapModeButtons.Controls.Add(rowPanel);
+            Vars.MainWindow.MapModeButtons.Controls.Add(rowPanel);
         }
 
         private static void CreateMapModeButtons(string leftButtonText, string rightButtonText)
@@ -59,6 +68,7 @@ namespace EU4_Parse_Lib
                 Text = leftButtonText
             };
             button1.Click += Vars.MainWindow!.OnMapModeSelection!;
+            AddToMapModeKeyMap(button1);
 
             Button button2 = new()
             {
@@ -66,13 +76,32 @@ namespace EU4_Parse_Lib
                 Text = rightButtonText
             };
             button2.Click += Vars.MainWindow!.OnMapModeSelection!;
+            AddToMapModeKeyMap(button2);
 
             rowPanel.Controls.Add(button1);
             rowPanel.Controls.Add(button2);
-            
+
             Vars.MainWindow.MapModeButtons.Controls.Add(rowPanel);
         }
 
+
+        private static void AddToMapModeKeyMap(Button mapButton)
+        {
+            var cnt = 0;
+            foreach (var kvp in Vars.MapModeKeyMap)
+            {
+                if (cnt == _mapModeButtonsCount)
+                {
+                    Vars.MapModeKeyMap[kvp.Key] = mapButton;
+                    mapButton.Tag = $"Map Mode {cnt}";
+                    Debug.WriteLine($"Mapped {mapButton} to {kvp.Key}");
+                    _mapModeButtonsCount++;
+                    return;
+                }
+                cnt++;
+            }
+
+        }
 
         /// <summary>
         /// Loads the currently selected MapMode. If an error occurs a pop up is issued with according information
@@ -81,7 +110,8 @@ namespace EU4_Parse_Lib
         {
             if (Vars.MapMode == null || Vars.MainWindow!.Map == null)
             {
-                Util.ErrorPopUp("Critical Error", $"Failed to load {Vars.MapMode} - mapmode. Consider resetting the map, check the mapmode for errors in {Vars.DataPath}\\userMapModes.json, or restarting the application!");
+                Util.ErrorPopUp("Critical Error",
+                    $"Failed to load {Vars.MapMode} - mapmode. Consider resetting the map, check the mapmode for errors in {Vars.DataPath}\\userMapModes.json, or restarting the application!");
                 return;
             }
             
@@ -93,8 +123,6 @@ namespace EU4_Parse_Lib
             Vars.Map = new Bitmap(Vars.SelectedMapMode);
 
             Vars.MainWindow.UpdateDisplayedImage();
-            
-            //Vars.MainWindow.Map.Invalidate();
         }
 
 
@@ -111,8 +139,7 @@ namespace EU4_Parse_Lib
             }
 
             RenderSelection(p, p.Color);
-
-            Vars.ProvincesBmp = Vars.Map;
+            Vars.DebugMapWithBorders = new Bitmap(Vars.Map!);
             //Vars.ProvincesBmp!.Save("C:\\Users\\david\\Downloads\\provinces.bmp", ImageFormat.Bmp);
 
             var offsetX = Math.Max(0, Math.Min(Vars.Map!.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));

@@ -58,7 +58,7 @@ public static class Saving
     public static void SaveListToJson<T>(List<T> list, string path, bool append = false)
     {
         var fullPath = Path.Combine(Vars.AppPath, path);
-        var json = JsonConvert.SerializeObject(list, Newtonsoft.Json.Formatting.Indented);
+        var json = JsonConvert.SerializeObject(list, Formatting.Indented);
 
         if (append)
         {
@@ -69,6 +69,22 @@ public static class Saving
             File.WriteAllText(fullPath, json);
         }
     }
+
+    public static void SaveObjectToJson(object obj, string path, bool append = false)
+    {
+        var fullPath = Path.Combine(Vars.AppPath, path);
+        var json = JsonConvert.SerializeObject(obj, Formatting.Indented);
+
+        if (append)
+            File.AppendAllText(fullPath, json);
+        else
+            File.WriteAllText(fullPath, json);
+    }
+
+
+
+    // EOF
+
     //--------Scraped
     ///// <summary>
     ///// Saves a .bmp image as an optimized .png image with meta specified meta data

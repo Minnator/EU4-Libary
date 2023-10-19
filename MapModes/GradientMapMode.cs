@@ -14,7 +14,7 @@ internal class GradientMapMode : IMapMode
     public Color NullColor { get; set; }
     public bool OnlyLandProvinces { get; set; }
     public bool UseGradient { get; set; }
-    public bool UserDefinedMapmode { get; set; }
+    public bool UserDefinedMapMode { get; set; }
     public List<ITrigger> Triggers { get; set; } = new();
     public Dictionary<string, Color> ColorTable { get; set; } = new();
 
@@ -29,7 +29,7 @@ internal class GradientMapMode : IMapMode
         Max = max;
         Null = nul;
         UseGradient = useGradient;
-        UserDefinedMapmode = userDefinedMapmode;
+        UserDefinedMapMode = userDefinedMapmode;
     }
 
     public Dictionary<int, Color> GetProvinceColor()

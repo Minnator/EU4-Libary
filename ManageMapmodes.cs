@@ -219,7 +219,7 @@ namespace EU4_Parse_Lib
                 ITrigger? first = null;
                 foreach (var trigger in _triggers)
                 {
-                    if (!Equals(trigger.ToString(), item.ToString())) 
+                    if (!Equals(trigger.ToString(), item.ToString()))
                         continue;
                     first = trigger;
                     break;
@@ -411,8 +411,8 @@ namespace EU4_Parse_Lib
                 return;
             }
 
-            var bName = VerifyMapmodeName();
-            if (!bName.Key)
+            var ValidName = VerifyMapmodeName();
+            if (!ValidName.Key)
                 return;
 
             Attribute attr;
@@ -443,7 +443,7 @@ namespace EU4_Parse_Lib
                         return;
                     }
 
-                    _currentMapMode = new GradientMapMode(bName.Value, scope, _type, attr, OnlyLandProvincesCheckBox.Checked, min, max, nul, true, true);
+                    _currentMapMode = new GradientMapMode(ValidName.Value, scope, _type, attr, OnlyLandProvincesCheckBox.Checked, min, max, nul, true, true);
 
                     break;
                 case MType.ColorTable:
@@ -461,7 +461,7 @@ namespace EU4_Parse_Lib
                         return;
                     }
 
-                    _currentMapMode = new ColorTableMapMode(bName.Value, scope, _type, attr,
+                    _currentMapMode = new ColorTableMapMode(ValidName.Value, scope, _type, attr,
                         OnlyLandProvincesCheckBox.Checked, false, _colorTable, true);
 
                     break;
@@ -472,7 +472,7 @@ namespace EU4_Parse_Lib
                         _overrideMapMode = false;
                         return;
                     }
-                    _currentMapMode = new OneColorPerValueMapMode(bName.Value, scope, _type, attr,
+                    _currentMapMode = new OneColorPerValueMapMode(ValidName.Value, scope, _type, attr,
                         OnlyLandProvincesCheckBox.Checked, false, true);
                     Debug.WriteLine(_currentMapMode);
                     break;
@@ -499,7 +499,7 @@ namespace EU4_Parse_Lib
                         triggers.Add(_triggers.Find(obj => obj.Name == match.Groups[1].Value));
                     }
 
-                    _currentMapMode = new TriggerListMapmode(bName.Value, scope, _type, attr,
+                    _currentMapMode = new TriggerListMapmode(ValidName.Value, scope, _type, attr,
                         OnlyLandProvincesCheckBox.Checked, triggers, true);
 
                     break;
@@ -517,14 +517,14 @@ namespace EU4_Parse_Lib
             if (Vars.MapModes.ContainsKey(_currentMapMode.Name) || !_overrideMapMode)
                 return;
             Vars.MapModes.Remove(_currentMapMode.Name);
-            Vars.MapModes.Add(bName.Value, _currentMapMode);
+            Vars.MapModes.Add(ValidName.Value, _currentMapMode);
 
             RefreshMapModeNameList();
 
-            if (Vars.RederCreatedMapmodes) //TODO make this a setting
-            {
-                _currentMapMode.RenderMapMode();
-            }
+            //if (Vars.RederCreatedMapmodes) //TODO make this a setting
+            //{
+            //    _currentMapMode.RenderMapMode();
+            //}
 
             //Vars.MapMode = _currentMapMode;
 
@@ -833,7 +833,7 @@ namespace EU4_Parse_Lib
 
             foreach (var mapMode in Vars.MapModes.Values)
             {
-                if (mapMode.UserDefinedMapmode)
+                if (mapMode.UserDefinedMapMode)
                     userMapModes.Add(mapMode);
                 else
                     genericMapModes.Add(mapMode);

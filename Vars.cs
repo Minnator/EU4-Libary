@@ -36,9 +36,8 @@ namespace EU4_Parse_Lib
         public static readonly Stopwatch Stopwatch = new();
 
         public static Bitmap? Map;
-        public static Bitmap? OrgMap;
-        public static Bitmap? ProvincesBmp;
-        public static Bitmap SelectedMapMode;
+        public static Bitmap? DebugMapWithBorders;
+        public static Bitmap? SelectedMapMode;
 
         public static IMapMode? MapMode;
 
@@ -55,6 +54,17 @@ namespace EU4_Parse_Lib
         public static string VanillaFolder = "";
         public static string Language = "english";
         public static string DataPath = "";
+
+        //Can be Changed in KeyBoardMapping Interface
+        public static Dictionary<Keys, Button?> MapModeKeyMap = new();
+        public static Dictionary<Keys, Button?> MapMovementKeyMap = new() 
+        {
+            { Keys.W, new Button(){ Text = "Map Up" } },
+            { Keys.A, new Button(){ Text = "Map Left" } },
+            { Keys.S, new Button(){ Text = "Map Down" } },
+            { Keys.D, new Button(){ Text = "Map Right" } },
+        };
+
 
         public static Dictionary<int, Province> Provinces = new ();
         public static Dictionary<int, Province> RnvProvinces = new ();
@@ -97,6 +107,7 @@ namespace EU4_Parse_Lib
         public static WebBrowserForm? WebBrowserForm;
         public static ManageMapmodes? ManageMapmodes;
         public static FileEditor? FileEditor;
+        public static SettingsForm? SettingsForm;
         
         public static object BitmapLock = new (); // Lock for bitmap access
     }

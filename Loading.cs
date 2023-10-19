@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Drawing.Imaging;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using EU4_Parse_Lib.DataClasses;
-using Microsoft.VisualBasic.Logging;
 using Newtonsoft.Json;
 
 namespace EU4_Parse_Lib
@@ -18,7 +18,7 @@ namespace EU4_Parse_Lib
             {
                 var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
                 Vars.Map = new Bitmap(combinedPath);
-                Vars.OrgMap = new Bitmap(combinedPath);
+                //Vars.DebugMapWithBorders = new Bitmap(combinedPath);
                 Vars.SelectedMapMode = new Bitmap(combinedPath);
                 Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
                 Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
@@ -40,8 +40,44 @@ namespace EU4_Parse_Lib
             catch (Exception ex)
             {
                 throw new Exception("Error During loading. Try restarting ur application or contact a programmer.\n" + ex);
+            }            
+        }
+
+        public static void LoadJSONData()
+        {
+            LoadKeyMappings();
+        }
+
+        public static void LoadUserData()
+        {
+
+        }
+
+        /// <summary>
+        /// Tries loading custom keymapping, if unsuccesfull reverts to default values
+        /// </summary>
+        public static void LoadKeyMappings()
+        {
+            Dictionary<Keys, Button?> keyMap = new();
+            try
+            {
+                string jsonContent = File.ReadAllText(Path.Combine(Vars.DataPath, "UserKeyMapping.json"));
+                if (jsonContent == null)
+                    return;
+                keyMap = JsonConvert.DeserializeObject<Dictionary<Keys, Button?>>(jsonContent)!;
+                if (keyMap != null)
+                {
+                    Vars.MapModeKeyMap = keyMap;
+                }
             }
-            
+            catch (Exception)
+            {
+                DefaultValues.DefaulMapModesKeys();
+            }
+            if (keyMap == null || keyMap.Count != 10)
+            {
+                DefaultValues.DefaulMapModesKeys();
+            }
         }
 
         /// <summary>
@@ -73,10 +109,12 @@ namespace EU4_Parse_Lib
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static List<object> DeserializeJson(string path)
+        public static object DeserializeJson(string path)
         {
             var json = File.ReadAllText(Path.Combine(Vars.AppPath, path));
-            return JsonConvert.DeserializeObject<List<object>>(json) ?? new List<object>();
+            if (json == null)
+                return new object();
+            return JsonConvert.DeserializeObject<object>(json)!;
         }
 
         /// <summary>
@@ -511,9 +549,5 @@ namespace EU4_Parse_Lib
             return colors;
         }
 
-        public static void CreateGenericMapModes()
-        {
-
-        }
     }
 }

@@ -15,7 +15,7 @@ internal class ColorTableMapMode : IMapMode
     public Color NullColor { get; set; }
     public bool OnlyLandProvinces { get; set; }
     public bool UseGradient { get; set; }
-    public bool UserDefinedMapmode { get; set; }
+    public bool UserDefinedMapMode { get; set; }
     public List<ITrigger> Triggers { get; set; } = new();
     public Dictionary<string, Color> ColorTable { get; set; }
 
@@ -28,7 +28,7 @@ internal class ColorTableMapMode : IMapMode
         OnlyLandProvinces = onlyLandProvinces;
         UseGradient = useGradient;
         ColorTable = colorTable;
-        UserDefinedMapmode = userDefinedMapmode;
+        UserDefinedMapMode = userDefinedMapmode;
     }
 
     public Dictionary<int, Color> GetProvinceColor()
@@ -103,7 +103,7 @@ internal class ColorTableMapMode : IMapMode
 
     public override string ToString()
     {
-        return $"Gradient Mapmode: [{Name}] \nScope: [{MScope}] - Only land provinces: [{OnlyLandProvinces}]\nValues: nul [{Null}] min [{Min}] max [{Max}]";
+        return $"Gradient Mapode: [{Name}] \nScope: [{MScope}] - Only land provinces: [{OnlyLandProvinces}]\nValues: nul [{Null}] min [{Min}] max [{Max}]";
     }
 
     public override int GetHashCode()
