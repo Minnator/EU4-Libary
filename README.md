@@ -9,7 +9,7 @@ The Current scope of this project is:
 * (Map Editing)
 * Fully automated province file creation [not done but another programm exists for that --> https://github.com/Minnator/Province-File-Creator-2.0]
 * Automatic mission generation [no progress yet]
-* Fully parsed EU4 Vanilla as well as Mods due to my own custom language [about 15% done]
+* Fully parsed EU4 Vanilla as well as Mods due to my own custom language [about 15% done --> https://github.com/Minnator/EU4-Grammar]
 * Interfaces to easily create often modified content [no progress yet]
 * _.gui_ and _.gfx_ modding with live preview without EU4 being launched [no progress yet]
 * A ton of other features and quality of live options
