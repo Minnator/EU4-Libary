@@ -1,11 +1,9 @@
-﻿using System.Text.RegularExpressions;
-using EU4_Parse_Lib.DataClasses;
-using ScottPlot.Drawing.Colormaps;
-using static System.Formats.Asn1.AsnWriter;
+﻿using EU4_Parse_Lib.DataClasses;
+using System.Text.RegularExpressions;
 
 namespace EU4_Parse_Lib;
 
-internal static class MapTooltip
+internal static class VariableInLocalisation
 {
    /// <summary>
    /// Converts [Scope.Scope...Scope.Value] to its string and replaces the content inside the []
@@ -42,7 +40,7 @@ internal static class MapTooltip
 
    private static string ResolveCustomString(KeyValuePair<string, Attribute> customString, Province province)
    {
-
+      
 
 
       return customString.Key;
