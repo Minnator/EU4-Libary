@@ -33,3 +33,20 @@ I am open for new ideas on how to enhance the usability and the range of this pr
 
 ### Joining my work:
 If you know ``C#`` or ``ANTLR`` and want to provide some help in development, feel free to message me and we can see if we can figure something out.
+
+### Images of how it looks right now:
+The default map:
+
+![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/37f391e6-d910-4de4-957a-dfab6d22c740)
+Custom map mode creation window
+
+![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/10664d7a-b112-4732-8abf-efe6abf8d873)
+The map mode from the custom creation window rendered in realtime
+
+![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/62624385-c41e-41b8-8663-1594596c6c0b)
+Example of settings
+
+![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/8451619e-f963-4c95-9bea-588c8acf8e80)
+
+
+
