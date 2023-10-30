@@ -11,7 +11,7 @@ The Current scope of this project is:
 * Automatic mission generation [no progress yet]
 * Fully parsed EU4 Vanilla as well as Mods due to my own custom language [about 15% done --> https://github.com/Minnator/EU4-Grammar]
 * Interfaces to easily create often modified content [no progress yet]
-* _.gui_ and _.gfx_ modding with live preview without EU4 being launched [no progress yet]
+* ``.gui`` and ``.gfx`` modding with live preview without EU4 being launched [no progress yet]
 * A ton of other features and quality of live options
 * Very extensive statistics, with options to calculate custom scores and map them on the interactive map [in planning]
 * Economic simulation as far as possible [no progress yet, least priority]
@@ -21,8 +21,8 @@ The Current scope of this project is:
 - map must be smaller than 50mb (program will work with bigger but EU4 won't)
 - map must have at least 7 provinces equally spaced, otherwise the provinces are to big and EU4 wont launch
 - there must not be Black in the map (255, 0, 0, 0)
-- Colors not mentioned in _definition.csv_ can cause exceptions and programm crashes [will be fixed]
-- exported maps can be found in _<programmLocation>//ExportedData//Maps//<name>_ [not fully done yet]
+- Colors not mentioned in ``definition.csv`` can cause exceptions and programm crashes [will be fixed]
+- exported maps can be found in ``<programmLocation>//ExportedData//Maps//<name>`` [not fully done yet]
 
 ### Testing and Early Builds
 Currently there are no released versions or early builds of this program.
@@ -32,4 +32,4 @@ If there is intrest in early (most likely very unstable builds) message me and w
 I am open for new ideas on how to enhance the usability and the range of this project, so feel free so suggest and request features, but don't expect to much as the scope is already huge.
 
 ### Joining my work:
-If you know C# or ANTLR and want to provide some help in development, feel free to message me and we can see if we can figure something out.
+If you know ``C#`` or ``ANTLR`` and want to provide some help in development, feel free to message me and we can see if we can figure something out.
