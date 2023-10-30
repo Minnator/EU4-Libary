@@ -48,5 +48,11 @@ Example of settings
 
 ![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/8451619e-f963-4c95-9bea-588c8acf8e80)
 
+Example of the context menu for quick actions (Also supports any kind of custom trigger)
+
+![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/5bb42ad5-dad9-4c9b-909a-a9c891a80627)
+![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/6dd9e317-1296-43bb-a506-bfc8e667de75)
+![grafik](https://github.com/Minnator/EU4-Libary/assets/50293050/40009d92-d014-4ca5-b7e8-bd1f94002e71)
+
 
 
