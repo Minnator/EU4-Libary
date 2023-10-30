@@ -765,6 +765,7 @@
          TriggerValueBox.Name = "TriggerValueBox";
          TriggerValueBox.Size = new Size(189, 23);
          TriggerValueBox.TabIndex = 6;
+         TriggerValueBox.TextChanged += TriggerValueBox_TextChanged;
          // 
          // label5
          // 
@@ -849,8 +850,8 @@
          Controls.Add(ManageMapmodesTab);
          Name = "ManageMapmodes";
          Text = "Mapmode Manager";
-         FormClosing += ManageMapmodes_FormClosing;
-         Load += ManageMapmodes_Load;
+         FormClosing += ManageMapModes_FormClosing;
+         Load += ManageMapModes_Load;
          ManageMapmodesTab.ResumeLayout(false);
          CreateMapmodesTab.ResumeLayout(false);
          CreateMapmodesTab.PerformLayout();

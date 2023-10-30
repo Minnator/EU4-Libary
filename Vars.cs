@@ -29,7 +29,7 @@ namespace EU4_Parse_Lib
     {
         public static ContextMenuStrip MapRightClickMenu = new ();
 
-        public static bool RederCreatedMapmodes = true; // TODO make settable in an interface aka settings
+        public static bool RenderCreatedMapModes = true; // TODO make settable in an interface aka settings
 
         public static float ZoomFactor = 1f;
 

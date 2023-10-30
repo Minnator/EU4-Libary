@@ -7,6 +7,8 @@ namespace EU4_Parse_Lib
    public static class Gui
    {
       private static int _mapModeButtonsCount;
+      private static ToolTip _mapModeHoverToolTip = new ();
+
       public static void PopulateMainWindowMapModes()
       {
          //Resetting the button bindings
@@ -47,6 +49,7 @@ namespace EU4_Parse_Lib
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             Text = leftButtonText,
          };
+         _mapModeHoverToolTip.SetToolTip(button1, leftButtonText);
          button1.Click += Vars.MainWindow.OnMapModeSelection!;
          AddToMapModeKeyMap(button1);
          rowPanel.Controls.Add(button1);
@@ -67,6 +70,7 @@ namespace EU4_Parse_Lib
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             Text = leftButtonText
          };
+         _mapModeHoverToolTip.SetToolTip(button1, leftButtonText);
          button1.Click += Vars.MainWindow!.OnMapModeSelection!;
          AddToMapModeKeyMap(button1);
 
@@ -75,7 +79,8 @@ namespace EU4_Parse_Lib
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             Text = rightButtonText
          };
-         button2.Click += Vars.MainWindow!.OnMapModeSelection!;
+         _mapModeHoverToolTip.SetToolTip(button2, rightButtonText);
+         button2.Click += Vars.MainWindow.OnMapModeSelection!;
          AddToMapModeKeyMap(button2);
 
          rowPanel.Controls.Add(button1);

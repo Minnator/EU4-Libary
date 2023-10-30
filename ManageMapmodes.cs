@@ -174,7 +174,12 @@ namespace EU4_Parse_Lib
                MErrorBox.Text += "Select a valid trigger type!\n";
                return;
             case "MinTrigger":
-               _triggers.Add(new MinTrigger(attr, int.Parse(TriggerValueBox.Text), scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
+               if (!int.TryParse(TriggerValueBox.Text, out var value))
+               {
+                  MErrorBox.Text += $"[{TriggerValueBox.Text}] is not of type [int]!";
+                  return;
+               }
+               _triggers.Add(new MinTrigger(attr, value, scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
                break;
             //case "MaxTrigger":
             //    _triggers.Add(new MaxTrigger(attr, int.Parse(TriggerValueBox.Text), scope, IsNegatedCheckBox.Checked, TriggerNameBox.Text));
@@ -419,8 +424,8 @@ namespace EU4_Parse_Lib
             return;
          }
 
-         var ValidName = VerifyMapmodeName();
-         if (!ValidName.Key)
+         var validName = VerifyMapmodeName();
+         if (!validName.Key)
             return;
 
          Attribute attr;
@@ -451,7 +456,7 @@ namespace EU4_Parse_Lib
                   return;
                }
 
-               _currentMapMode = new GradientMapMode(ValidName.Value, scope, _type, attr, OnlyLandProvincesCheckBox.Checked, min, max, nul, true, true);
+               _currentMapMode = new GradientMapMode(validName.Value, scope, _type, attr, OnlyLandProvincesCheckBox.Checked, min, max, nul, true, true);
 
                break;
             case MType.ColorTable:
@@ -469,7 +474,7 @@ namespace EU4_Parse_Lib
                   return;
                }
 
-               _currentMapMode = new ColorTableMapMode(ValidName.Value, scope, _type, attr,
+               _currentMapMode = new ColorTableMapMode(validName.Value, scope, _type, attr,
                    OnlyLandProvincesCheckBox.Checked, false, _colorTable, true);
 
                break;
@@ -480,7 +485,7 @@ namespace EU4_Parse_Lib
                   _overrideMapMode = false;
                   return;
                }
-               _currentMapMode = new OneColorPerValueMapMode(ValidName.Value, scope, _type, attr,
+               _currentMapMode = new OneColorPerValueMapMode(validName.Value, scope, _type, attr,
                    OnlyLandProvincesCheckBox.Checked, false, true);
                Debug.WriteLine(_currentMapMode);
                break;
@@ -507,7 +512,7 @@ namespace EU4_Parse_Lib
                   triggers.Add(_triggers.Find(obj => obj.Name == match.Groups[1].Value));
                }
 
-               _currentMapMode = new TriggerListMapmode(ValidName.Value, scope, _type, attr,
+               _currentMapMode = new TriggerListMapmode(validName.Value, scope, _type, attr,
                    OnlyLandProvincesCheckBox.Checked, triggers, true);
 
                break;
@@ -518,18 +523,18 @@ namespace EU4_Parse_Lib
 
          if (_currentMapMode == null)
          {
-            MErrorBox.Text = "CRITICAL ERROR OCCURED! Mapmode could not be created. Please verify all input values once more and try again!";
+            MErrorBox.Text = "CRITICAL ERROR OCCURRED! Mapmode could not be created. Please verify all input values once more and try again!";
             return;
          }
 
          if (Vars.MapModes.ContainsKey(_currentMapMode.Name) || !_overrideMapMode)
             return;
          Vars.MapModes.Remove(_currentMapMode.Name);
-         Vars.MapModes.Add(ValidName.Value, _currentMapMode);
+         Vars.MapModes.Add(validName.Value, _currentMapMode);
 
          RefreshMapModeNameList();
 
-         //if (Vars.RederCreatedMapmodes) //TODO make this a setting
+         //if (Vars.RenderCreatedMapModes) //TODO make this a setting
          //{
          //    _currentMapMode.RenderMapMode();
          //}
@@ -836,7 +841,7 @@ namespace EU4_Parse_Lib
          _type = MType.TriggerList;
       }
 
-      private void SaveMapModesToJson()
+      private static void SaveMapModesToJson()
       {
          List<IMapMode> userMapModes = new();
          List<IMapMode> genericMapModes = new();
@@ -877,14 +882,24 @@ namespace EU4_Parse_Lib
          GradColorPreview.BackColor = kvp.Value;
       }
 
-      private void ManageMapmodes_FormClosing(object sender, FormClosingEventArgs e)
+      private void ManageMapModes_FormClosing(object sender, FormClosingEventArgs e)
       {
          Gui.PopulateMainWindowMapModes();
       }
 
-      private void ManageMapmodes_Load(object sender, EventArgs e)
+      private void ManageMapModes_Load(object sender, EventArgs e)
       {
          RefreshMapModeNameList();
+      }
+
+      private void TriggerValueBox_TextChanged(object sender, EventArgs e)
+      {
+         if (TriggerTypeBox == null || !TriggerTypeBox.SelectedItem.Equals("MinTrigger"))
+            return;
+         if (!int.TryParse(TriggerValueBox.Text, out _))
+         {
+            TriggerValueBox.Text = string.Empty;
+         }
       }
    }
 }

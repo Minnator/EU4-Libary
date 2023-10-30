@@ -218,9 +218,9 @@ namespace EU4_Parse_Lib
       /// <param name="p"></param>
       private void GenerateMouseTooltip(Point p)
       {
-         if (Vars.Map == null)
+         if (Vars.DebugMapWithBorders == null)
             return;
-         var pixelColor = Vars.Map.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
+         var pixelColor = Vars.DebugMapWithBorders.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
 
          if (!Vars.ColorIds.TryGetValue(pixelColor, out var id))
             return;
