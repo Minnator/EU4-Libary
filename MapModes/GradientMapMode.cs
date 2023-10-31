@@ -32,7 +32,7 @@ internal class GradientMapMode : IMapMode
       UserDefinedMapMode = userDefinedMapmode;
    }
 
-   public Dictionary<int, Color> GetProvinceColor()
+   public void GetProvinceColor()
    {
       Dictionary<int, Color> dic = new();
 
@@ -88,12 +88,12 @@ internal class GradientMapMode : IMapMode
 
       Vars.SelectedMapModeColorMap = dic;
 
-      return dic;
    }
 
    public void RenderMapMode()
    {
-      Gui.ColorMap(GetProvinceColor());
+      GetProvinceColor();
+      Gui.ColorMap();
    }
 
    public override string ToString()

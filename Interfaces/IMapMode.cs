@@ -17,7 +17,7 @@ public interface IMapMode
     bool UserDefinedMapMode { get; set; }
     List<ITrigger> Triggers { get; set; }
     Dictionary<string, Color> ColorTable { get; set; }
-    public Dictionary<int, Color> GetProvinceColor();
+    public void GetProvinceColor();
 
     public void RenderMapMode();
 

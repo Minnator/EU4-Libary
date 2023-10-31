@@ -121,7 +121,7 @@ namespace EU4_Parse_Lib
                 $"Failed to load {Vars.MapMode} - mapmode. Consider resetting the map, check the mapmode for errors in {Vars.DataPath}\\userMapModes.json, or restarting the application!");
             return;
          }
-
+         
          Vars.MapMode.RenderMapMode();
 
          Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
@@ -154,7 +154,7 @@ namespace EU4_Parse_Lib
 
          Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
          Vars.MainWindow.Map.Invalidate();
-
+         
          Vars.Stopwatch.Stop();
          Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
          Vars.Stopwatch.Reset();
@@ -196,13 +196,11 @@ namespace EU4_Parse_Lib
       /// <summary>
       /// Renders the given mapmode in a very optimized way. Make sure ALL entries in the dictionary are valid. otherwise it will crash. 
       /// </summary>
-      /// <param name="colors"></param>
-      /// <param name="file"></param>
       /// <exception cref="ArgumentException"></exception>
-      public static void ColorMap(Dictionary<int, Color> colors) //TODO make global
+      public static void ColorMap() 
       {
          Vars.Stopwatch.Start();
-         if (colors == null || colors.Count == 0)
+         if (Vars.SelectedMapModeColorMap == null || Vars.SelectedMapModeColorMap.Count == 0)
          {
             throw new ArgumentException("The colors dictionary cannot be empty or null.");
          }
@@ -217,7 +215,7 @@ namespace EU4_Parse_Lib
             var pixelData = new byte[Vars.SelectedMapMode.Height * stride];
             var scan0 = bitmapData.Scan0;
 
-            Parallel.ForEach(colors, entry =>
+            Parallel.ForEach(Vars.SelectedMapModeColorMap, entry =>
             {
                var regionPoints = Vars.Provinces[entry.Key].Pixels;
 
