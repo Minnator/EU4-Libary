@@ -88,6 +88,8 @@ namespace EU4_Parse_Lib
       public static Dictionary<int, Province> SeaProvinces = new();
       public static Dictionary<int, Province> CoastalProvinces = new();
 
+      public static Dictionary<int, Color> SelectedMapModeColorMap = new();
+
       public static Dictionary<string, Country> Countries = new();
       public static Dictionary<string, Country> OnMapCountries = new();
 

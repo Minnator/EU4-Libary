@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.MapModes;
 using Timer = System.Windows.Forms.Timer;
@@ -41,11 +42,12 @@ namespace EU4_Parse_Lib
          // Initialize the cooldown timer
          _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
          _cooldownTimer.Tick += CooldownTimer_Tick!;
-
-         Gui.DrawBorderAroundRegions();
+         Gui.RenderBorders(Color.FromArgb(0,0,0,0));
+         //Gui.DrawBorderAroundRegions();
          Loading.LoadWithStopWatch("Random Colors", Loading.FillRandomColorsList);
          Loading.WriteDebugFiles();
 
+         //Gui.UpdateBorder();
 
          Vars.MapModes.Add("Default Map Mode", new DefaultMapMode("Default Map Mode"));
 

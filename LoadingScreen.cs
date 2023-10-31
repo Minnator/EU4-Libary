@@ -63,7 +63,8 @@
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Vars.ManageMapmodes = Gui.ShowForm<ManageMapmodes>();
+           Gui.UpdateBorder();
+           //Vars.ManageMapmodes = Gui.ShowForm<ManageMapmodes>();
         }
     }
 }

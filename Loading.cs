@@ -409,7 +409,7 @@ namespace EU4_Parse_Lib
             }
             province.BorderPixel = new(pointer, pointer + province.Border.Count);
             pointer += province.Border.Count;
-            province.Border.Clear();
+            province.Border.Clear(); 
          }
 
          DebugPrints.PrintBorderPixels();
@@ -418,13 +418,18 @@ namespace EU4_Parse_Lib
          
       }
 
-      public static unsafe Bitmap ProcessBitmap(Bitmap bmp)
+      //public static unsafe void 
+
+
+
+      //changed to Vars.SelectedMapMode from a given bitamp
+      public static unsafe Bitmap ProcessBitmap(Bitmap bitmap)
       {
-         var width = bmp.Width;
-         var height = bmp.Height;
+         var width = bitmap.Width;
+         var height = bitmap.Height;
          var processedBitmap = new Bitmap(width, height);
 
-         var bmpData = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+         var bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
          var processedData = processedBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
          try
          {
@@ -489,7 +494,7 @@ namespace EU4_Parse_Lib
          }
          finally
          {
-            bmp.UnlockBits(bmpData);
+            bitmap.UnlockBits(bmpData);
             processedBitmap.UnlockBits(processedData);
             processedBitmap.Save("C:\\Users\\david\\Downloads\\bmp.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
          }
@@ -538,7 +543,8 @@ namespace EU4_Parse_Lib
       }
       private static Dictionary<Color, List<Point>> GetAllPixels()
       {
-
+         Stopwatch sw = new();
+         sw.Start();
          Dictionary<Color, List<Point>> colors = new(5000);
          if (Vars.Map == null)
             return colors;
@@ -579,6 +585,10 @@ namespace EU4_Parse_Lib
          }
 
          Vars.Map.UnlockBits(bmpData);
+
+         sw.Stop();
+         Debug.WriteLine($"Reading in Pixels: {sw.Elapsed}");
+
          Vars.Stopwatch.Stop();
          Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
          Vars.Stopwatch.Reset();
