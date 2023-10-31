@@ -6,6 +6,25 @@ namespace EU4_Parse_Lib.DataClasses
    {
 
       public int Id { get; set; }
+      public string Owner { get; set; }
+      public string Controller { get; set; }
+      public string Capital { get; set; }
+      public string Culture { get; set; }
+      public string Religion { get; set; }
+      public List<string> Cores { get; set; }
+      public List<string> Discoveries { get; set; }
+      public short BaseTax { get; set; }
+      public short BaseProduction { get; set; }
+      public short BaseManpower { get; set; }
+      public short ExtraCost { get; set; }
+      public bool HRE { get; set; } = false;
+      public bool IsCity { get; set; } = false;
+
+      public TradeGood TradeGood { get; set; }
+      public byte CenterOfTrade { get; set; }
+      //public List<ProvinceHistoryEntry> History { get; set; }
+      //Fort is missing
+
 
       public Color Color;
       public Color CurrentColor;
@@ -25,7 +44,7 @@ namespace EU4_Parse_Lib.DataClasses
 
       public static object GetScopeAttribute(Scope scope, Attribute attribute)
       {
-
+         return new object();
       }
 
       public object GetAttribute(Attribute att)

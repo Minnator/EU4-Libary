@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.MapModes;
 using Timer = System.Windows.Forms.Timer;
 
@@ -139,32 +140,32 @@ namespace EU4_Parse_Lib
          switch (e.Button)
          {
             case MouseButtons.Left when ModifierKeys == Keys.Control:
-            {
-               var p = Vars.Provinces[Vars.ColorIds[color]];
-               Vars.SelectedProvinces.Add(p);
-               Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
-               break;
-            }
+               {
+                  var p = Vars.Provinces[Vars.ColorIds[color]];
+                  Vars.SelectedProvinces.Add(p);
+                  Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
+                  break;
+               }
             case MouseButtons.Left:
-            {
-               var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
-               if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
                {
-                  Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
+                  var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
+                  if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
+                  {
+                     Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
+                     Vars.SelectedProvinces.Clear();
+                     return;
+                  }
+
+                  foreach (var pro in Vars.SelectedProvinces)
+                  {
+                     Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
+                  }
+
                   Vars.SelectedProvinces.Clear();
-                  return;
+                  Util.NextProvince(currentProvince);
+                  Vars.SelectedProvinces.Add(currentProvince);
+                  break;
                }
-
-               foreach (var pro in Vars.SelectedProvinces)
-               {
-                  Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
-               }
-
-               Vars.SelectedProvinces.Clear();
-               Util.NextProvince(currentProvince);
-               Vars.SelectedProvinces.Add(currentProvince);
-               break;
-            }
          }
 
          //I can't find the memory leak here
@@ -345,6 +346,25 @@ namespace EU4_Parse_Lib
 
       private void TooltipToolStripMenuItem_Click(object sender, EventArgs e)
       {
+      }
+
+      private void SelectAreaContext_Click(object sender, EventArgs e)
+      {
+         if (Vars.SelectedProvinces.Count > 1)
+            return;
+         var areaName = Vars.SelectedProvinces[0].Area;
+         if (!Vars.Areas.TryGetValue(areaName, out var area))
+            return;
+         Debug.WriteLine($"Area to Select: {area.Name} - {area.ToProvString()}");
+         Vars.SelectedProvinces.Clear();
+         Province temp = new (Color.FromArgb(255, 255, 255, 255));
+         foreach (var province in area.Provinces)
+         {
+            temp.Border.AddRange(Vars.Provinces[province].Border);
+            Vars.SelectedProvinces.Add(Vars.Provinces[province]);
+         }
+         Debug.WriteLine($"Pixels: ");
+         Gui.RenderSelection(temp, Color.FromArgb(255,255,255,255));
       }
    }
 }

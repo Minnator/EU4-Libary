@@ -7,7 +7,7 @@ namespace EU4_Parse_Lib
    public static class Gui
    {
       private static int _mapModeButtonsCount;
-      private static ToolTip _mapModeHoverToolTip = new ();
+      private static ToolTip _mapModeHoverToolTip = new();
 
       public static void PopulateMainWindowMapModes()
       {
@@ -297,8 +297,7 @@ namespace EU4_Parse_Lib
             Vars.Map.UnlockBits(bmpData);
          }
 
-
-         Vars.Map.Save("C:\\Users\\david\\Downloads\\test.bmp", ImageFormat.Bmp);
+         //Vars.Map.Save("C:\\Users\\david\\Downloads\\test.bmp", ImageFormat.Bmp);
          var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
          var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
