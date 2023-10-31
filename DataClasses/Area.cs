@@ -1,8 +1,9 @@
 ﻿using System.Text;
+using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.DataClasses;
 
-public class Area
+public class Area : IScope
 {
    public string Name = "undefined";
    public List<int> Provinces = new();
@@ -10,10 +11,29 @@ public class Area
    public string Edict = string.Empty;
    public bool IsStated = false;
 
-   public void GetOwnerPercentage()
+   public List<KeyValuePair<string, float>> GetOwnerPercentage()
    {
-      List<KeyValuePair<string, float>> percentages;
+      Dictionary<string, int> counts = new ();
+
+      foreach (var province in Provinces)
+      {
+         var temp = Vars.Provinces[province];
+         if (counts.ContainsKey(temp.Owner))
+            counts[temp.Owner]++;
+         else
+            counts[temp.Owner] = 1;
+      }
+
+      List<KeyValuePair<string, float>> percentages = new ();
+
+      foreach (var count in counts)
+      {
+         percentages.Add(new KeyValuePair<string, float>(count.Key, (float)count.Value / Provinces.Count));
+      }
+
+      return percentages;
    }
+
 
    public override int GetHashCode()
    {
@@ -34,5 +54,16 @@ public class Area
          sb.Append($@"{province,4} ");
       }
       return sb.ToString();
+   }
+
+
+   public IScope GetNextScope(Scope scope)
+   {
+      throw new NotImplementedException();
+   }
+
+   public object GetAttribute(Attribute attr)
+   {
+      throw new NotImplementedException();
    }
 }

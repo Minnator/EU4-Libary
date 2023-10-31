@@ -2,7 +2,7 @@
 
 namespace EU4_Parse_Lib.DataClasses
 {
-   public class Province : IScopeSupport
+   public class Province : IScope
    {
 
       public int Id { get; set; }
@@ -25,9 +25,7 @@ namespace EU4_Parse_Lib.DataClasses
       //public List<ProvinceHistoryEntry> History { get; set; }
       //Fort is missing
 
-
       public Color Color;
-      public Color CurrentColor;
 
       public List<Point> Pixels = new();
       public List<Point> Border = new();
@@ -35,16 +33,21 @@ namespace EU4_Parse_Lib.DataClasses
       public string Area { get; set; } = "-1";
       public string Name { get; set; } = "-1";
 
-      private readonly Dictionary<Attribute, Func<Province, object>> Attributes = new()
+      private static readonly Dictionary<Attribute, Func<Province, object>> Attributes = new()
         {
             { Attribute.Id, province => province.Id },
             { Attribute.Area, province => province.Area },
             { Attribute.Name, province => province.Name },
         };
 
-      public static object GetScopeAttribute(Scope scope, Attribute attribute)
+      private static readonly Dictionary<Scope, Func<Province, IScope>> Scopes = new()
       {
-         return new object();
+         {Scope.Owner, province => Vars.Countries[province.Owner]},
+      };
+
+      public IScope GetNextScope(Scope scope)
+      {
+         return Scopes[scope](this);
       }
 
       public object GetAttribute(Attribute att)
@@ -55,7 +58,6 @@ namespace EU4_Parse_Lib.DataClasses
       public Province(Color col)
       {
          Color = col;
-         CurrentColor = Color;
       }
 
       public override string ToString()
@@ -73,5 +75,7 @@ namespace EU4_Parse_Lib.DataClasses
       {
          return HashCode.Combine(Id);
       }
+
+
    }
 }

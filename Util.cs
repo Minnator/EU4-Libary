@@ -385,7 +385,7 @@ namespace EU4_Parse_Lib
             // Move the bitmap to the same position as when the method was called
             //Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
 
-            p.CurrentColor = color;
+            //p.CurrentColor = color; //TODO
         }
 
         /*

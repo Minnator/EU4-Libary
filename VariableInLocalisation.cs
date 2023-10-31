@@ -1,5 +1,6 @@
 ﻿using EU4_Parse_Lib.DataClasses;
 using System.Text.RegularExpressions;
+using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib;
 
@@ -23,27 +24,33 @@ internal static class VariableInLocalisation
       });
    }
 
-   private static string GetCustomStringPairs(string command, Province province)
+   private static string GetCustomStringPairs(string command, IScope rootScope)
    {
       var parts = command.ToString().Split('.');
-      if (parts.Length != 2)
+      if (parts.Length == 1)
          return string.Empty;
 
-      if (!Enum.TryParse<Attribute>(parts[Index.End], out var attr))
+      var cnt = 0;
+      IScope curScope = rootScope;
+      while (cnt < parts.Length)
       {
-         //ErrorBox.Text += $"Invalid Attribute [{parts[1]}], please enter a valid!"; 
+         if (cnt < parts.Length - 1)
+         {
+            if (!Enum.TryParse<Scope>(parts[cnt], out var scope))
+               return $"False Scope: {parts[cnt]}";
+
+            curScope = curScope.GetNextScope(scope);
+         }
+         else
+         {
+            if (!Enum.TryParse<Attribute>(parts[Index.End], out var attribute))
+               return $"False Attribute: {parts[cnt]}";
+
+            return curScope.GetAttribute(attribute).ToString()!;
+         }
+         cnt++;
       }
-
-      var kvp = new KeyValuePair<string, Attribute>(parts[1], attr);
-      return ResolveCustomString(kvp, province);
-   }
-
-   private static string ResolveCustomString(KeyValuePair<string, Attribute> customString, Province province)
-   {
-      
-
-
-      return customString.Key;
+      return $"Could not resolve custom loc: {command}";
    }
 
 }

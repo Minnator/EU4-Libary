@@ -362,11 +362,10 @@ namespace EU4_Parse_Lib
 
                      var adjacentColor = Color.FromArgb(255, r, g, b);
 
-                     if (adjacentColor != province.Color)
-                     {
-                        hasAdjacentColor = true;
-                        break; // Exit early if adjacent color is different from specified color
-                     }
+                     if (adjacentColor == province.Color) 
+                        continue;
+                     hasAdjacentColor = true;
+                     break; // Exit early if adjacent color is different from specified color
                   }
                   if (hasAdjacentColor)
                      break; // Exit the inner loop if adjacent color is found

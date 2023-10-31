@@ -25,6 +25,7 @@ namespace EU4_Parse_Lib
         Id, Area, Name, Owner, Controller, BaseTax, BaseManpower, BaseProduction, Tag, Cash, Prestige, 
         Legitimacy, PowerProjection, Adm, Dip, Mil,
     }
+
     public static class Vars
     {
         public static ContextMenuStrip MapRightClickMenu = new ();
@@ -77,8 +78,6 @@ namespace EU4_Parse_Lib
         public static Dictionary<string, Country> OnMapCountries = new();
 
         public static Dictionary<string, Color> NotOnMapProvinces = new ();
-
-        public static Dictionary<Attribute, Func<bool>> AttrToValue = new();
 
         public static Dictionary<Scope, Type> ScopeToType = new();
 
