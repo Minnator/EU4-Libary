@@ -10,6 +10,17 @@ namespace EU4_Parse_Lib
 {
    public static class DebugPrints
    {
+      public static void PrintBorderPixels()
+      {
+         StringBuilder sb = new();
+         foreach (var prov in Vars.Provinces.Values)
+         {
+            sb.Append($"ID: {prov.Id,4}: Start: {prov.BorderPixel.start,6} End: {prov.BorderPixel.end,6} Length: {prov.BorderPixel.length,6}\n");
+         }
+         Saving.WriteLog(sb.ToString(), "ProvinceBordersDebug");
+      }
+
+
       public static void PrintRandomColors()
       {
          StringBuilder sb = new();

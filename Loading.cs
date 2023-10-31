@@ -11,6 +11,7 @@ namespace EU4_Parse_Lib
    public static class Loading
    {
       private static Dictionary<Color, List<Point>> _pixDic = new();
+      private static Mutex _mutex = new();
 
       public static void LoadAll()
       {
@@ -331,6 +332,7 @@ namespace EU4_Parse_Lib
          var height = Vars.Map.Height;
 
          var bmpData = Vars.Map.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, Vars.Map.PixelFormat);
+         
 
          Parallel.ForEach(Vars.Provinces.Values, province =>
          {
@@ -345,6 +347,7 @@ namespace EU4_Parse_Lib
 
                var hasAdjacentColor = false;
 
+               // Check N, S, W, E pixels only
                for (var dx = startX; dx <= endX; dx++)
                {
                   for (var dy = startY; dy <= endY; dy++)
@@ -352,6 +355,12 @@ namespace EU4_Parse_Lib
                      if (dx == pixel.X && dy == pixel.Y)
                      {
                         continue; // Skip the current pixel
+                     }
+
+                     // Check only N, S, W, E neighbors
+                     if (dx != pixel.X && dy != pixel.Y)
+                     {
+                        continue;
                      }
 
                      var pixelPtr = (byte*)bmpData.Scan0 + dy * bmpData.Stride + dx * 3; // Assuming 24bpp
@@ -362,23 +371,51 @@ namespace EU4_Parse_Lib
 
                      var adjacentColor = Color.FromArgb(255, r, g, b);
 
-                     if (adjacentColor == province.Color) 
+                     if (adjacentColor == province.Color)
+                     {
                         continue;
+                     }
+
                      hasAdjacentColor = true;
                      break; // Exit early if adjacent color is different from specified color
                   }
                   if (hasAdjacentColor)
+                  {
                      break; // Exit the inner loop if adjacent color is found
+                  }
                }
 
                if (hasAdjacentColor)
+               {
                   borderPixels.Add(pixel);
+               }
             }
+
+            _mutex.WaitOne();
+            Vars.BorderPixelCount += borderPixels.Count;
+            _mutex.ReleaseMutex();
 
             province.Border = borderPixels;
          });
 
+         Vars.BorderArray = new Point[Vars.BorderPixelCount];
+         var pointer = 0;
+         var cnt = 0;
+         foreach (var province in Vars.Provinces.Values)
+         {
+            foreach (var point in province.Border)
+            {
+               Vars.BorderArray[cnt++] = point;
+            }
+            province.BorderPixel = new(pointer, pointer + province.Border.Count);
+            pointer += province.Border.Count;
+            province.Border.Clear();
+         }
+
+         DebugPrints.PrintBorderPixels();
+
          Vars.Map.UnlockBits(bmpData);
+         
       }
 
       public static unsafe Bitmap ProcessBitmap(Bitmap bmp)
@@ -454,7 +491,7 @@ namespace EU4_Parse_Lib
          {
             bmp.UnlockBits(bmpData);
             processedBitmap.UnlockBits(processedData);
-            //processedBitmap.Save("C:\\Users\\david\\Downloads\\bmp.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
+            processedBitmap.Save("C:\\Users\\david\\Downloads\\bmp.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
          }
          return processedBitmap;
       }

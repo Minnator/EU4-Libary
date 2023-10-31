@@ -160,7 +160,7 @@ namespace EU4_Parse_Lib
 
 
       /// <summary>
-      /// Creates an abstract mapmode
+      /// Creates an abstract mapmode Deprecated and Appreciated
       /// </summary>
       /// <param name="colors"></param>
       /// <param name="outputPath"></param>

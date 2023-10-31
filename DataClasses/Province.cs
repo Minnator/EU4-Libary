@@ -4,7 +4,7 @@ namespace EU4_Parse_Lib.DataClasses
 {
    public class Province : IScope
    {
-
+      public BorderPixel BorderPixel { get; set; }
       public int Id { get; set; }
       public string Owner { get; set; }
       public string Controller { get; set; }
@@ -28,7 +28,7 @@ namespace EU4_Parse_Lib.DataClasses
       public Color Color;
 
       public List<Point> Pixels = new();
-      public List<Point> Border = new();
+      public List<Point> Border = new(); //TODO mach Array verweis auf ein Globales Array mit start und end index (length)
 
       public string Area { get; set; } = "-1";
       public string Name { get; set; } = "-1";
