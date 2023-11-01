@@ -63,7 +63,7 @@ namespace EU4_Parse_Lib
       public static string User = "";
       public static string AppPath = "";
       public static string ModFolder = "";
-      public static string VanillaFolder = "";
+      public static string VanillaFolder = "S:\\SteamLibrary\\steamapps\\common\\Europa Universalis IV";
       public static string Language = "english";
       public static string DataPath = "";
 

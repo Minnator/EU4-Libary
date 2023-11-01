@@ -131,15 +131,15 @@ namespace EU4_Parse_Lib
 
       private void Map_MouseClick(object sender, MouseEventArgs e)
       {
-         if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right || Vars.Map == null)
+         if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right || Vars.DebugMapWithBorders == null)
             return;
          var x = e.X + DisplayRect.X;
          var y = e.Y + DisplayRect.Y;
          //Verify that it is in bounds
-         if (x < 0 || x >= Vars.Map.Width || y < 0 || y >= Vars.Map.Height)
+         if (x < 0 || x >= Vars.DebugMapWithBorders.Width || y < 0 || y >= Vars.DebugMapWithBorders.Height)
             return;
          //Get Color an verify there is an entry for it
-         var color = Vars.Map.GetPixel(x, y);
+         var color = Vars.DebugMapWithBorders.GetPixel(x, y);
          if (!Vars.ColorIds.ContainsKey(color))
             return;
 
@@ -154,18 +154,19 @@ namespace EU4_Parse_Lib
                }
             case MouseButtons.Left:
                {
+                  Gui.UpdateProvinceBorder(ref Vars.SelectedProvinces); //Unselect all provinces
                   var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
                   if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
                   {
-                     Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
+                     //Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
                      Vars.SelectedProvinces.Clear();
                      return;
                   }
 
-                  foreach (var pro in Vars.SelectedProvinces)
-                  {
-                     Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
-                  }
+                  //foreach (var pro in Vars.SelectedProvinces)
+                  //{
+                  //   Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
+                  //}
 
                   Vars.SelectedProvinces.Clear();
                   Util.NextProvince(currentProvince);
@@ -231,8 +232,6 @@ namespace EU4_Parse_Lib
 
          if (!Vars.ColorIds.TryGetValue(pixelColor, out var id))
             return;
-
-         //TODO Replace by fully customizable tooltip and its own class
          var area = Vars.Provinces[id].Area;
          _tt.SetToolTip(Vars.MainWindow!.Map, $"{Loading.GetLoc($"PROV{id}")} [{id}]\nArea: {area}");
       }
@@ -359,7 +358,7 @@ namespace EU4_Parse_Lib
          if (Vars.SelectedProvinces.Count > 1)
             return;
          var areaName = Vars.SelectedProvinces[0].Area;
-         if (Vars.Areas.TryGetValue(areaName, out var obj))
+         if (!Vars.Areas.TryGetValue(areaName, out var obj))
             return;
          Gui.SelectProvinceCollection(obj!.GetProvinces());
       }

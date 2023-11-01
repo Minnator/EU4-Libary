@@ -284,7 +284,7 @@ namespace EU4_Parse_Lib
             Vars.LastProvince = Vars.CurProvince;
             //var oldColor = Vars.LastProvince.Color;
 
-            Gui.RenderSelection(Vars.LastProvince, Color.FromArgb(255, 0, 0, 0));
+            //Gui.RenderSelection(Vars.LastProvince, Color.FromArgb(255, 0, 0, 0));
             Vars.CurProvince = province;
             Gui.RenderSelection(province, Color.FromArgb(255, 255, 255, 255));
         }

@@ -1,4 +1,5 @@
-﻿using EU4_Parse_Lib.DataClasses;
+﻿using System.Diagnostics;
+using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.MapModes;
@@ -34,6 +35,7 @@ internal class GradientMapMode : IMapMode
 
    public void GetProvinceColor()
    {
+      Stopwatch sw = Stopwatch.StartNew();
       Dictionary<int, Color> dic = new();
 
       switch (MScope)
@@ -88,6 +90,7 @@ internal class GradientMapMode : IMapMode
 
       Vars.SelectedMapModeColorMap = dic;
 
+      Debug.WriteLine($"Creating Color map: {sw.Elapsed}");
    }
 
    public void RenderMapMode()

@@ -130,7 +130,7 @@ namespace EU4_Parse_Lib
 
          Vars.MapMode.RenderMapMode();
 
-         Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
+         //Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
 
          Vars.MainWindow.Map.Image = Vars.SelectedMapMode;
          Vars.Map = new Bitmap(Vars.SelectedMapMode);
@@ -210,11 +210,9 @@ namespace EU4_Parse_Lib
          {
             throw new ArgumentException("The colors dictionary cannot be empty or null.");
          }
-
-
          var rect = new Rectangle(0, 0, Vars.SelectedMapMode!.Width, Vars.SelectedMapMode.Height);
          var bmpData = Vars.SelectedMapMode.LockBits(rect, ImageLockMode.ReadWrite, Vars.SelectedMapMode.PixelFormat);
-
+         Stopwatch sw = Stopwatch.StartNew();
          try
          {
             var bytesPerPixel = Image.GetPixelFormatSize(Vars.SelectedMapMode.PixelFormat) / 8;
@@ -241,12 +239,13 @@ namespace EU4_Parse_Lib
 
             Vars.SelectedMapMode.UnlockBits(bmpData);
          }
+         sw.Stop();
+         Debug.WriteLine($"Rendering ColorMap: {sw.Elapsed}");
          //Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
-         UpdateBorder();
          Vars.Stopwatch.Stop();
+         UpdateBorder();
          Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
          Vars.TimeStamps.Add($"Time Elapsed Creating Map NEW:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
-         Debug.WriteLine($"Creating map: {Vars.Stopwatch.Elapsed}");
          Vars.Stopwatch.Reset();
       }
 
@@ -337,9 +336,9 @@ namespace EU4_Parse_Lib
             return; // Check for null Map
          }
 
-            var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
-            var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
-            var stride = bmpData.Stride;
+         var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
+         var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
+         var stride = bmpData.Stride;
          try
          {
             var bytesPerPixel = Image.GetPixelFormatSize(Vars.Map.PixelFormat) / 8;
@@ -376,7 +375,7 @@ namespace EU4_Parse_Lib
          Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
          //Debug.WriteLine($"Creating map NEW: {Vars.Stopwatch.Elapsed}");
 
-         Vars.Map.Save("C:\\Users\\david\\Downloads\\DrawnBorders.bmp", ImageFormat.Bmp);
+         //Vars.Map.Save("C:\\Users\\david\\Downloads\\DrawnBorders.bmp", ImageFormat.Bmp);
          var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
          var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
@@ -491,6 +490,88 @@ namespace EU4_Parse_Lib
          Vars.MainWindow.Map.Invalidate();
       }
 
+      public static void UpdateProvinceBorder(ref List<Province> provinces)
+      {
+         Vars.Stopwatch.Start();
+         Stopwatch sw = new();
+         sw.Start();
+         if (Vars.SelectedMapMode == null || Vars.BorderArray!.Length < 1)
+         {
+            return; // Check for null Map
+         }
+
+         var rect = new Rectangle(0, 0, Vars.SelectedMapMode.Width, Vars.SelectedMapMode.Height);
+         var bmpData = Vars.SelectedMapMode.LockBits(rect, ImageLockMode.ReadWrite, Vars.SelectedMapMode.PixelFormat);
+         var stride = bmpData.Stride;
+         var bytesPerPixel = Image.GetPixelFormatSize(Vars.SelectedMapMode.PixelFormat) / 8;
+
+         unsafe
+         {
+            var ptr = (byte*)bmpData.Scan0.ToPointer();
+            try
+            {
+               Parallel.ForEach(provinces, province =>
+               {
+                  if (!Vars.SelectedMapModeColorMap.TryGetValue(province.Id, out var currentColor))
+                  {
+                     return;
+                  }
+
+                  foreach (var kvp in province.BorderProvinces)
+                  {
+                     if (!Vars.SelectedMapModeColorMap.TryGetValue(Vars.ColorIds[kvp.Key], out var color) || !color.Equals(currentColor))
+                     {
+                        var points = new Point[kvp.Value.length];
+                        Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+
+                        foreach (var point in points)
+                        {
+                           var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+                           var pixelPtr = ptr + pixelOffset;
+
+                           pixelPtr[0] = 0; // Blue component
+                           pixelPtr[1] = 0; // Green component
+                           pixelPtr[2] = 0; // Red component
+                        }
+                     }
+                     else //Draw the color of Province back to the map
+                     {
+                        var points = new Point[kvp.Value.length];
+                        Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+                        foreach (var point in points)
+                        {
+                           var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+                           var pixelPtr = ptr + pixelOffset;
+
+                           pixelPtr[0] = 255; // Blue component
+                           pixelPtr[1] = 0; // Green component
+                           pixelPtr[2] = 0; // Red component
+                        }
+                     }
+                  }
+               });
+            }
+            finally
+            {
+               Vars.SelectedMapMode.UnlockBits(bmpData);
+            }
+         }
+
+         sw.Stop();
+         Debug.WriteLine($"Deleting Previous Selection: {sw.Elapsed}");
+         Vars.Stopwatch.Stop();
+         Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
+
+         Vars.Map.Save("C:\\Users\\david\\Downloads\\BorderUpdate.bmp", ImageFormat.Bmp);
+         var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
+         var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
+
+         Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
+
+         Vars.MainWindow.Map.Invalidate();
+      }
+
+
       /// <summary>
       /// Sets the border of the given province to a given color
       /// </summary>
@@ -531,7 +612,7 @@ namespace EU4_Parse_Lib
             Vars.Map.UnlockBits(bmpData);
          }
          Vars.Stopwatch.Stop();
-         Debug.WriteLine($"Time Selecting province: {Vars.Stopwatch.Elapsed}");
+         //Debug.WriteLine($"Time Selecting province: {Vars.Stopwatch.Elapsed}");
          Vars.Stopwatch.Reset();
          Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
 
