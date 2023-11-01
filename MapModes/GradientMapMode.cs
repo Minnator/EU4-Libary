@@ -35,7 +35,7 @@ internal class GradientMapMode : IMapMode
 
    public void GetProvinceColor()
    {
-      Stopwatch sw = Stopwatch.StartNew();
+      //Stopwatch sw = Stopwatch.StartNew();
       Dictionary<int, Color> dic = new();
 
       switch (MScope)
@@ -90,7 +90,7 @@ internal class GradientMapMode : IMapMode
 
       Vars.SelectedMapModeColorMap = dic;
 
-      Debug.WriteLine($"Creating Color map: {sw.Elapsed}");
+      //Debug.WriteLine($"Creating Color map: {sw.Elapsed}");
    }
 
    public void RenderMapMode()

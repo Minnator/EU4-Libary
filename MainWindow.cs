@@ -44,7 +44,7 @@ namespace EU4_Parse_Lib
          // Initialize the cooldown timer
          _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
          _cooldownTimer.Tick += CooldownTimer_Tick!;
-         Gui.RenderBorders(Color.FromArgb(255,0,0,0));
+         Gui.RenderBorders(Color.FromArgb(255, 0, 0, 0));
          //Gui.DrawBorderAroundRegions();
          Loading.LoadWithStopWatch("Random Colors", Loading.FillRandomColorsList);
          Loading.WriteDebugFiles();
@@ -172,7 +172,7 @@ namespace EU4_Parse_Lib
                   {
                      Gui.UpdateProvinceBorder(ref Vars.SelectedProvinces); //Unselect all provinces
                   }
-                  
+
                   var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
                   if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
                   {
@@ -197,6 +197,15 @@ namespace EU4_Parse_Lib
          var clientMouseLocation = pictureBox.PointToClient(Cursor.Position);
 
          GenerateMouseTooltip(new Point(clientMouseLocation.X, clientMouseLocation.Y));
+         if (Vars.MapMode!.Name.Equals("Default Map Mode"))
+         {
+            foreach (var pro in Vars.SelectedProvinces)
+               Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
+         }
+         else
+         {
+            Gui.UpdateProvinceBorder(ref Vars.SelectedProvinces); //Unselect all provinces
+         }
       }
 
 
@@ -288,7 +297,7 @@ namespace EU4_Parse_Lib
 
       private void ZoomOutButton_Click(object sender, EventArgs e)
       {
-         
+
       }
 
       public void OnMapModeSelection(object sender, EventArgs e)
@@ -391,6 +400,21 @@ namespace EU4_Parse_Lib
          if (!Vars.Areas.TryGetValue(areaName, out var obj))
             return;
          Gui.SelectProvinceCollection(obj!.GetProvinces());
+      }
+
+      private void AlwaysRenderProvinceOutline_Click(object sender, EventArgs e)
+      {
+         if (AlwayRenderProvinceOutlineSetting.Checked)
+         {
+            AlwayRenderProvinceOutlineSetting.Checked = false;
+            Vars.DrawOutlineInMapModes = false;
+         }
+         else
+         {
+            AlwayRenderProvinceOutlineSetting.Checked = true;
+            Vars.DrawOutlineInMapModes = true;
+         }
+         Gui.ChangeMapMode();
       }
    }
 }

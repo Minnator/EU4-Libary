@@ -42,7 +42,8 @@ namespace EU4_Parse_Lib
       public static ContextMenuStrip MapRightClickMenu = new();
 
       public static bool RenderCreatedMapModes = true; // TODO make settable in an interface aka settings
-
+      public static bool DrawOutlineInMapModes = true; //TODO make this a setting
+      
       public static float ZoomFactor = 1f;
       public static float ZoomIncrements = 0.25f;
 
@@ -119,6 +120,8 @@ namespace EU4_Parse_Lib
       public static Dictionary<string, Area> Areas = new();
 
       public static Dictionary<int, Color> RandomColors = new();
+
+      public static Province HoverCursorProvince = new Province(Color.FromArgb(255, 0, 0, 0));
 
 
       // FORMS

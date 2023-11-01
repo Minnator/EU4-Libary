@@ -349,8 +349,8 @@ public static class Gui
    public static void UpdateBorder()
    {
       Vars.Stopwatch.Start();
-      Stopwatch sw = new();
-      sw.Start();
+      //Stopwatch sw = new();
+      //sw.Start();
       if (Vars.Map == null || Vars.BorderArray!.Length < 1)
       {
          return; // Check for null Map
@@ -390,7 +390,20 @@ public static class Gui
                         pixelPtr[1] = 0; // Green component
                         pixelPtr[2] = 0; // Red component
                      }
+                  }
+                  else if (Vars.DrawOutlineInMapModes)
+                  {
+                     var points = new Point[kvp.Value.length];
+                     Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+                     foreach (var point in points)
+                     {
+                        var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+                        var pixelPtr = ptr + pixelOffset;
 
+                        pixelPtr[0] = 130; // Blue component
+                        pixelPtr[1] = 130; // Green component
+                        pixelPtr[2] = 130; // Red component
+                     }
                   }
                }
             });
@@ -400,16 +413,11 @@ public static class Gui
             Vars.Map.UnlockBits(bmpData);
          }
       }
-
-         
-         
-      sw.Stop();
-      Debug.WriteLine($"Cast and Shift: {sw.Elapsed}");
+      //sw.Stop();
+      //Debug.WriteLine($"Cast and Shift: {sw.Elapsed}");
       Vars.Stopwatch.Stop();
       Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
 
-
-      //Vars.Map.Save("C:\\Users\\david\\Downloads\\BorderUpdate.bmp", ImageFormat.Bmp);
       var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
       var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
@@ -460,6 +468,20 @@ public static class Gui
                         pixelPtr[0] = 0; // Blue component
                         pixelPtr[1] = 0; // Green component
                         pixelPtr[2] = 0; // Red component
+                     }
+                  }
+                  else if (Vars.DrawOutlineInMapModes)
+                  {
+                     var points = new Point[kvp.Value.length];
+                     Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+                     foreach (var point in points)
+                     {
+                        var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+                        var pixelPtr = ptr + pixelOffset;
+
+                        pixelPtr[0] = 130; // Blue component
+                        pixelPtr[1] = 130; // Green component
+                        pixelPtr[2] = 130; // Red component
                      }
                   }
                   else //Draw the color of Province back to the map

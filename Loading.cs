@@ -28,11 +28,11 @@ namespace EU4_Parse_Lib
             Vars.ScopeNames = Util.EnumToList<Scope>();
             Vars.Stopwatch.Start();
             Stopwatch watcher = new();
-            watcher.Start();
+            //watcher.Start();
             GetAllPixels();
             InitProvinces();
-            watcher.Stop();
-            Debug.WriteLine($"Init Province Time: {watcher.Elapsed}");
+            //watcher.Stop();
+            //Debug.WriteLine($"Init Province Time: {watcher.Elapsed}");
             Vars.Stopwatch.Stop();
             Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
             Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
@@ -42,7 +42,7 @@ namespace EU4_Parse_Lib
             LoadWithStopWatch("default.map", LoadDefaultMap);
             LoadWithStopWatch("Areas", LoadAreas);
             LoadWithStopWatch("Localization", LoadAllLocalization);
-            Debug.WriteLine("Finished Loading");
+            //Debug.WriteLine("Finished Loading");
          }
          catch (Exception ex)
          {
@@ -467,21 +467,12 @@ namespace EU4_Parse_Lib
                   province.BorderPixels[pointer++] = point;
                }
             }
-
-
-
             _mutex.WaitOne();
             Vars.BorderPixelCount += borderPixels.Count;
             _mutex.ReleaseMutex();
-
-            
-
             province.Border = borderPixels;
          });
-
-
-
-         Debug.WriteLine($"Time Passed for map evaluation: {sw.Elapsed}");
+         //Debug.WriteLine($"Time Passed for map evaluation: {sw.Elapsed}");
 
          Vars.BorderArray = new Point[Vars.BorderPixelCount];
          var pointer = 0;
@@ -548,8 +539,8 @@ namespace EU4_Parse_Lib
       }
       private static void GetAllPixels()
       {
-         Stopwatch sw = new();
-         sw.Start();
+         //Stopwatch sw = new();
+         //sw.Start();
          if (Vars.Map == null)
             return;
          var width = Vars.Map.Width;
@@ -587,12 +578,9 @@ namespace EU4_Parse_Lib
                }
             }
          }
-
          Vars.Map.UnlockBits(bmpData);
-
-         sw.Stop();
-         Debug.WriteLine($"Reading in Pixels: {sw.Elapsed}");
-
+         //sw.Stop();
+         //Debug.WriteLine($"Reading in Pixels: {sw.Elapsed}");
          Vars.Stopwatch.Stop();
          Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
          Vars.Stopwatch.Reset();

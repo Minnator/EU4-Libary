@@ -42,6 +42,7 @@
          toolStripSeparator5 = new ToolStripSeparator();
          clearCacheToolStripMenuItem = new ToolStripMenuItem();
          clearAllUserDefinedFilesToolStripMenuItem = new ToolStripMenuItem();
+         AlwayRenderProvinceOutlineSetting = new ToolStripMenuItem();
          mapmodesToolStripMenuItem = new ToolStripMenuItem();
          mapmodeSelectorToolStripMenuItem = new ToolStripMenuItem();
          ManageMapModesMenu = new ToolStripMenuItem();
@@ -190,7 +191,7 @@
          // 
          // settingsToolStripMenuItem
          // 
-         settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ReloadLocalisationToolStripMenuItem, keyMappingToolStripMenuItem, toolStripSeparator5, clearCacheToolStripMenuItem, clearAllUserDefinedFilesToolStripMenuItem });
+         settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ReloadLocalisationToolStripMenuItem, keyMappingToolStripMenuItem, toolStripSeparator5, clearCacheToolStripMenuItem, clearAllUserDefinedFilesToolStripMenuItem, AlwayRenderProvinceOutlineSetting });
          settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
          settingsToolStripMenuItem.Size = new Size(61, 20);
          settingsToolStripMenuItem.Text = "Settings";
@@ -198,34 +199,43 @@
          // ReloadLocalisationToolStripMenuItem
          // 
          ReloadLocalisationToolStripMenuItem.Name = "ReloadLocalisationToolStripMenuItem";
-         ReloadLocalisationToolStripMenuItem.Size = new Size(208, 22);
+         ReloadLocalisationToolStripMenuItem.Size = new Size(237, 22);
          ReloadLocalisationToolStripMenuItem.Text = "Reload Localisation";
          ReloadLocalisationToolStripMenuItem.Click += ReloadLocalizationToolStripMenuItem_Click;
          // 
          // keyMappingToolStripMenuItem
          // 
          keyMappingToolStripMenuItem.Name = "keyMappingToolStripMenuItem";
-         keyMappingToolStripMenuItem.Size = new Size(208, 22);
+         keyMappingToolStripMenuItem.Size = new Size(237, 22);
          keyMappingToolStripMenuItem.Text = "Key Mapping";
          keyMappingToolStripMenuItem.Click += KeyMappingToolStripMenuItem_Click;
          // 
          // toolStripSeparator5
          // 
          toolStripSeparator5.Name = "toolStripSeparator5";
-         toolStripSeparator5.Size = new Size(205, 6);
+         toolStripSeparator5.Size = new Size(234, 6);
          // 
          // clearCacheToolStripMenuItem
          // 
          clearCacheToolStripMenuItem.Name = "clearCacheToolStripMenuItem";
-         clearCacheToolStripMenuItem.Size = new Size(208, 22);
+         clearCacheToolStripMenuItem.Size = new Size(237, 22);
          clearCacheToolStripMenuItem.Text = "Clear Cache";
          clearCacheToolStripMenuItem.Click += ClearCacheToolStripMenuItem_Click;
          // 
          // clearAllUserDefinedFilesToolStripMenuItem
          // 
          clearAllUserDefinedFilesToolStripMenuItem.Name = "clearAllUserDefinedFilesToolStripMenuItem";
-         clearAllUserDefinedFilesToolStripMenuItem.Size = new Size(208, 22);
+         clearAllUserDefinedFilesToolStripMenuItem.Size = new Size(237, 22);
          clearAllUserDefinedFilesToolStripMenuItem.Text = "Clear all user defined files";
+         // 
+         // AlwayRenderProvinceOutlineSetting
+         // 
+         AlwayRenderProvinceOutlineSetting.Checked = true;
+         AlwayRenderProvinceOutlineSetting.CheckState = CheckState.Checked;
+         AlwayRenderProvinceOutlineSetting.Name = "AlwayRenderProvinceOutlineSetting";
+         AlwayRenderProvinceOutlineSetting.Size = new Size(237, 22);
+         AlwayRenderProvinceOutlineSetting.Text = "Always render province outline";
+         AlwayRenderProvinceOutlineSetting.Click += AlwaysRenderProvinceOutline_Click;
          // 
          // mapmodesToolStripMenuItem
          // 
@@ -317,7 +327,7 @@
          // 
          MainRightClickMenu.Items.AddRange(new ToolStripItem[] { OpenProvinceFileContext, OpenCountryFileContext, toolStripSeparator1, QuickSelectionContext, AdvancedSelectionMenuContext, toolStripSeparator3, AddToContextCollection, AddClaimsCoresContext, AddModifierMenuContext, toolStripSeparator4, RemoveCoresClaimsContext, RemoveModifierMenuContext });
          MainRightClickMenu.Name = "contextMenuStrip1";
-         MainRightClickMenu.Size = new Size(216, 242);
+         MainRightClickMenu.Size = new Size(216, 220);
          MainRightClickMenu.Opening += MainRightClickMenu_Opening;
          // 
          // OpenProvinceFileContext
@@ -347,14 +357,14 @@
          // SelectOwnerContext
          // 
          SelectOwnerContext.Name = "SelectOwnerContext";
-         SelectOwnerContext.Size = new Size(180, 22);
+         SelectOwnerContext.Size = new Size(172, 22);
          SelectOwnerContext.Text = "Select Owner";
          // 
          // SelectAllCoresContext
          // 
          SelectAllCoresContext.DropDownItems.AddRange(new ToolStripItem[] { ProvinceCoresContext });
          SelectAllCoresContext.Name = "SelectAllCoresContext";
-         SelectAllCoresContext.Size = new Size(180, 22);
+         SelectAllCoresContext.Size = new Size(172, 22);
          SelectAllCoresContext.Text = "Select all cores";
          // 
          // ProvinceCoresContext
@@ -366,39 +376,39 @@
          // SelectAreaContext
          // 
          SelectAreaContext.Name = "SelectAreaContext";
-         SelectAreaContext.Size = new Size(180, 22);
+         SelectAreaContext.Size = new Size(172, 22);
          SelectAreaContext.Text = "Select Area";
          SelectAreaContext.Click += SelectAreaContext_Click;
          // 
          // SelectRegionContext
          // 
          SelectRegionContext.Name = "SelectRegionContext";
-         SelectRegionContext.Size = new Size(180, 22);
+         SelectRegionContext.Size = new Size(172, 22);
          SelectRegionContext.Text = "Select Region";
          // 
          // SelectTradenodeContext
          // 
          SelectTradenodeContext.Name = "SelectTradenodeContext";
-         SelectTradenodeContext.Size = new Size(180, 22);
+         SelectTradenodeContext.Size = new Size(172, 22);
          SelectTradenodeContext.Text = "Select Tradenode";
          // 
          // SelectSuperRegionContext
          // 
          SelectSuperRegionContext.Name = "SelectSuperRegionContext";
-         SelectSuperRegionContext.Size = new Size(180, 22);
+         SelectSuperRegionContext.Size = new Size(172, 22);
          SelectSuperRegionContext.Text = "Select Superregion";
          // 
          // SelectContinentContext
          // 
          SelectContinentContext.Name = "SelectContinentContext";
-         SelectContinentContext.Size = new Size(180, 22);
+         SelectContinentContext.Size = new Size(172, 22);
          SelectContinentContext.Text = "Select Continent";
          // 
          // SelectReligionContext
          // 
          SelectReligionContext.DropDownItems.AddRange(new ToolStripItem[] { ReligionSelectionContext });
          SelectReligionContext.Name = "SelectReligionContext";
-         SelectReligionContext.Size = new Size(180, 22);
+         SelectReligionContext.Size = new Size(172, 22);
          SelectReligionContext.Text = "Select Religion";
          // 
          // ReligionSelectionContext
@@ -414,7 +424,7 @@
          // 
          CultureSelectionMenuContext.DropDownItems.AddRange(new ToolStripItem[] { SelectCultureContext });
          CultureSelectionMenuContext.Name = "CultureSelectionMenuContext";
-         CultureSelectionMenuContext.Size = new Size(180, 22);
+         CultureSelectionMenuContext.Size = new Size(172, 22);
          CultureSelectionMenuContext.Text = "Select Culture";
          // 
          // SelectCultureContext
@@ -767,5 +777,6 @@
       private ToolStripMenuItem clearCacheToolStripMenuItem;
       private ToolStripMenuItem keyMappingToolStripMenuItem;
       private ToolStripSeparator toolStripSeparator5;
+      private ToolStripMenuItem AlwayRenderProvinceOutlineSetting;
    }
 }
