@@ -139,7 +139,7 @@ namespace EU4_Parse_Lib
          foreach (var kvp in dic)
          {
             sb.AppendLine(
-                $"Province ID: {kvp.Key,4}, {kvp.Value.Color,35}, Pixels: {kvp.Value.Pixels.Count,6}");
+                $"Province ID: {kvp.Key,4}, {kvp.Value.Color,35}, Pixels: {kvp.Value.Pixels.Length,6}");
          }
          sb.Append(Environment.NewLine);
          sb.Append($"Total Provinces: {dic.Count.ToString("#,###.###")}");

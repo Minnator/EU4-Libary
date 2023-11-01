@@ -90,6 +90,8 @@ namespace EU4_Parse_Lib
 
       public static Dictionary<int, Color> SelectedMapModeColorMap = new();
 
+      public static Dictionary<Color, List<Point>> ColorsToPixelDictionary = new();
+
       public static Dictionary<string, Country> Countries = new();
       public static Dictionary<string, Country> OnMapCountries = new();
 

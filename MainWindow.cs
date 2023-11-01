@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using EU4_Parse_Lib.DataClasses;
+using EU4_Parse_Lib.Interfaces;
 using EU4_Parse_Lib.MapModes;
 using Timer = System.Windows.Forms.Timer;
 
@@ -356,18 +357,9 @@ namespace EU4_Parse_Lib
          if (Vars.SelectedProvinces.Count > 1)
             return;
          var areaName = Vars.SelectedProvinces[0].Area;
-         if (!Vars.Areas.TryGetValue(areaName, out var area))
+         if (Vars.Areas.TryGetValue(areaName, out var obj))
             return;
-         Debug.WriteLine($"Area to Select: {area.Name} - {area.ToProvString()}");
-         Vars.SelectedProvinces.Clear();
-         Province temp = new (Color.FromArgb(255, 255, 255, 255));
-         foreach (var province in area.Provinces)
-         {
-            temp.Border.AddRange(Vars.Provinces[province].Border);
-            Vars.SelectedProvinces.Add(Vars.Provinces[province]);
-         }
-         Debug.WriteLine($"Pixels: ");
-         Gui.RenderSelection(temp, Color.FromArgb(255,255,255,255));
+         Gui.SelectProvinceCollection(obj!.GetProvinces());
       }
    }
 }

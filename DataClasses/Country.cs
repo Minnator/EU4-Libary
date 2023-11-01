@@ -2,7 +2,7 @@
 
 namespace EU4_Parse_Lib.DataClasses;
 
-public class Country :IScope
+public class Country : IScope
 {
     string Tag { get; set; }
     public Dictionary<int, Province> provinces;

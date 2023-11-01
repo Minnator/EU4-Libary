@@ -25,8 +25,12 @@ namespace EU4_Parse_Lib
             Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
             Vars.ScopeNames = Util.EnumToList<Scope>();
             Vars.Stopwatch.Start();
-            _pixDic = GetAllPixels();
-            InitProvinces(_pixDic);
+            Stopwatch watcher = new();
+            watcher.Start();
+            GetAllPixels();
+            InitProvinces();
+            watcher.Stop();
+            Debug.WriteLine($"Init Province Time: {watcher.Elapsed}");
             Vars.Stopwatch.Stop();
             Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
             Vars.TimeStamps.Add($"Time Elapsed Provinces:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
@@ -500,7 +504,7 @@ namespace EU4_Parse_Lib
          }
          return processedBitmap;
       }
-      private static void InitProvinces(IReadOnlyDictionary<Color, List<Point>> dic)
+      private static void InitProvinces()
       {
          var provinces = new Dictionary<int, Province>(5000);
          var colorIds = new Dictionary<Color, int>(5000);
@@ -526,8 +530,8 @@ namespace EU4_Parse_Lib
             var color = Color.FromArgb(255, r, g, b);
             var p = new Province(color);
 
-            if (dic.TryGetValue(color, out var entry))
-               p.Pixels = entry;
+            if (Vars.ColorsToPixelDictionary.TryGetValue(color, out var entry))
+               p.Pixels = entry.ToArray();
             else
             {
                Vars.NotOnMapProvinces.Add(id.ToString(), color);
@@ -540,14 +544,14 @@ namespace EU4_Parse_Lib
          }
          Vars.ColorIds = colorIds;
          Vars.Provinces = provinces;
+         Vars.ColorsToPixelDictionary.Clear();
       }
-      private static Dictionary<Color, List<Point>> GetAllPixels()
+      private static void GetAllPixels()
       {
          Stopwatch sw = new();
          sw.Start();
-         Dictionary<Color, List<Point>> colors = new(5000);
          if (Vars.Map == null)
-            return colors;
+            return;
          var width = Vars.Map.Width;
          var height = Vars.Map.Height;
 
@@ -572,13 +576,13 @@ namespace EU4_Parse_Lib
 
                   var col = Color.FromArgb(255, r, g, b);
 
-                  if (colors.TryGetValue(col, out var color))
+                  if (Vars.ColorsToPixelDictionary.TryGetValue(col, out var color))
                   {
                      color.Add(new Point(x, y));
                   }
                   else
                   {
-                     colors.Add(col, new List<Point> { new(x, y) });
+                     Vars.ColorsToPixelDictionary.Add(col, new List<Point> { new(x, y) });
                   }
                }
             }
@@ -592,7 +596,6 @@ namespace EU4_Parse_Lib
          Vars.Stopwatch.Stop();
          Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
          Vars.Stopwatch.Reset();
-         return colors;
       }
 
    }

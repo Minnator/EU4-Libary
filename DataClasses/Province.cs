@@ -27,7 +27,7 @@ namespace EU4_Parse_Lib.DataClasses
 
       public Color Color;
 
-      public List<Point> Pixels = new();
+      public Point[] Pixels ;
       public List<Point> Border = new(); //TODO mach Array verweis auf ein Globales Array mit start und end index (length)
 
       public string Area { get; set; } = "-1";

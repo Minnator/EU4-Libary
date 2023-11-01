@@ -3,7 +3,7 @@ using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.DataClasses;
 
-public class Area : IScope
+public class Area : IScope, IProvCollection
 {
    public string Name = "undefined";
    public List<int> Provinces = new();
@@ -38,6 +38,11 @@ public class Area : IScope
    public override int GetHashCode()
    {
       return Name.GetHashCode();
+   }
+
+   public List<int> GetProvinces()
+   {
+      return Provinces;
    }
 
    public override bool Equals(object? obj)
