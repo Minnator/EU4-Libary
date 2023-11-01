@@ -43,7 +43,7 @@ namespace EU4_Parse_Lib
          // Initialize the cooldown timer
          _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
          _cooldownTimer.Tick += CooldownTimer_Tick!;
-         Gui.RenderBorders(Color.FromArgb(0,0,0,0));
+         Gui.RenderBorders(Color.FromArgb(255,0,0,0));
          //Gui.DrawBorderAroundRegions();
          Loading.LoadWithStopWatch("Random Colors", Loading.FillRandomColorsList);
          Loading.WriteDebugFiles();
@@ -51,6 +51,7 @@ namespace EU4_Parse_Lib
          //Gui.UpdateBorder();
 
          Vars.MapModes.Add("Default Map Mode", new DefaultMapMode("Default Map Mode"));
+         Vars.MapModes.Add("Test", new GradientMapMode("Test", Scope.Province, MType.Gradient, Attribute.Id, true, 1, 1234, 1, true, false));
 
          Gui.PopulateMainWindowMapModes();
 

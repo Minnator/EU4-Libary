@@ -461,7 +461,8 @@ namespace EU4_Parse_Lib
 
             foreach (var kvp in borderSections)
             {
-               province.BorderProvinces.Add(Color.FromArgb(kvp.Key >> 8), new BorderPixel(pointer, pointer + kvp.Value.Count));
+               Color col1 = Color.FromArgb((kvp.Key >> 8));
+               province.BorderProvinces.Add(Color.FromArgb(255, col1), new BorderPixel(pointer, pointer + kvp.Value.Count));
                foreach (var point in kvp.Value)
                {
                   province.BorderPixels[pointer++] = point;

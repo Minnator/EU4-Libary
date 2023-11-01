@@ -3,9 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Reflection;
+using System.Security.Permissions;
 using System.Text;
 using Emgu.CV.Saliency;
 using EU4_Parse_Lib.DataClasses;
+using ScottPlot.Plottable.AxisManagers;
 
 namespace EU4_Parse_Lib
 {
@@ -334,9 +337,9 @@ namespace EU4_Parse_Lib
             return; // Check for null Map
          }
 
-         var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
-         var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
-         var stride = bmpData.Stride;
+            var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
+            var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
+            var stride = bmpData.Stride;
          try
          {
             var bytesPerPixel = Image.GetPixelFormatSize(Vars.Map.PixelFormat) / 8;
@@ -382,6 +385,40 @@ namespace EU4_Parse_Lib
          Vars.MainWindow.Map.Invalidate();
       }
 
+      /// <summary>
+      /// Not Multi Threaded
+      /// Map must not be null
+      /// </summary>
+      /// <param name="points"></param>
+      /// <param name="color"></param>
+      public static unsafe void DrawPointsOnMap(ref Point[] points, Color color)
+      {
+         var rect = new Rectangle(0, 0, Vars.Map!.Width, Vars.Map.Height);
+         var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
+         var stride = bmpData.Stride;
+         try
+         {
+            var bytesPerPixel = Image.GetPixelFormatSize(Vars.Map.PixelFormat) / 8;
+            var ptr = (byte*)bmpData.Scan0.ToPointer();
+
+            foreach (var point in points)
+            {
+               var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+               var pixelPtr = ptr + pixelOffset;
+
+               pixelPtr[0] = color.B; // Blue component
+               pixelPtr[1] = color.G; // Green component
+               pixelPtr[2] = color.R; // Red component
+            }
+         }
+         finally
+         {
+            Vars.Map.UnlockBits(bmpData);
+         }
+      }
+
+
+
       public static void UpdateBorder()
       {
          Vars.Stopwatch.Start();
@@ -392,51 +429,60 @@ namespace EU4_Parse_Lib
             return; // Check for null Map
          }
 
-         var rect = new Rectangle(0, 0, Vars.SelectedMapMode.Width, Vars.SelectedMapMode.Height);
+         var rect = new Rectangle(0, 0, Vars.SelectedMapMode!.Width, Vars.SelectedMapMode.Height);
          var bmpData = Vars.SelectedMapMode.LockBits(rect, ImageLockMode.ReadWrite, Vars.SelectedMapMode.PixelFormat);
-         try
-         {
-            var bytesPerPixel = Image.GetPixelFormatSize(Vars.SelectedMapMode.PixelFormat) / 8;
-            unsafe
-            {
-               var ptr = (byte*)bmpData.Scan0.ToPointer();
+         var stride = bmpData.Stride;
+         var bytesPerPixel = Image.GetPixelFormatSize(Vars.SelectedMapMode.PixelFormat) / 8;
 
-               var stride = bmpData.Stride;
-               Parallel.ForEach(Vars.BorderArray, point =>
+         unsafe
+         {
+            var ptr = (byte*)bmpData.Scan0.ToPointer();
+            try
+            {
+               Parallel.ForEach(Vars.Provinces.Values, province =>
                {
-                  //Make new array and after finished draw it to the map  
-                  var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-                  var pixelPtr = ptr + pixelOffset;
-                  var epixelPtr = ptr + pixelOffset + 3;
-                  var spixelPtr = ptr + pixelOffset + stride;
-                  var wpixelPtr = ptr + pixelOffset - 3;
-                  var npixelPtr = ptr + pixelOffset - stride;
-                  
-                  if ((Int32)pixelPtr << 8 != (Int32)epixelPtr << 8 ||
-                      (Int32)pixelPtr << 8 != (Int32)spixelPtr << 8 ||
-                      (Int32)pixelPtr << 8 != (Int32)wpixelPtr << 8 ||
-                      (Int32)pixelPtr << 8 != (Int32)npixelPtr << 8
-                      )
+                  if (!Vars.SelectedMapModeColorMap.TryGetValue(province.Id, out var currentColor))
                   {
-                     pixelPtr[0] = 0; // Blue component
-                     pixelPtr[1] = 0; // Green component
-                     pixelPtr[2] = 0; // Red
+                     return;
                   }
 
+                  foreach (var kvp in province.BorderProvinces)
+                  {
+                     if (!Vars.SelectedMapModeColorMap.TryGetValue(Vars.ColorIds[kvp.Key], out var color) || !color.Equals(currentColor))
+                     {
+                        var points = new Point[kvp.Value.length];
+                        Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+                        //DrawPointsOnMap(ref points, Color.FromArgb(255,0,0,0));
+
+                        foreach (var point in points)
+                        {
+                           var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+                           var pixelPtr = ptr + pixelOffset;
+
+                           pixelPtr[0] = 0; // Blue component
+                           pixelPtr[1] = 0; // Green component
+                           pixelPtr[2] = 0; // Red component
+                        }
+
+                     }
+                  }
                });
             }
+            finally
+            {
+               Vars.SelectedMapMode.UnlockBits(bmpData);
+            }
          }
-         finally
-         {
-            Vars.SelectedMapMode.UnlockBits(bmpData);
-         }
+
+         
+         
          sw.Stop();
          Debug.WriteLine($"Cast and Shift: {sw.Elapsed}");
          Vars.Stopwatch.Stop();
          Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
 
 
-         Vars.Map.Save("C:\\Users\\david\\Downloads\\BorderUpdate.bmp", ImageFormat.Bmp);
+         //Vars.Map.Save("C:\\Users\\david\\Downloads\\BorderUpdate.bmp", ImageFormat.Bmp);
          var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
          var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
