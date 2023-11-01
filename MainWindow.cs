@@ -140,15 +140,15 @@ namespace EU4_Parse_Lib
 
       private void Map_MouseClick(object sender, MouseEventArgs e)
       {
-         if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right || Vars.DebugMapWithBorders == null)
+         if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right || Vars.BorderlessMap == null)
             return;
          var x = e.X + DisplayRect.X;
          var y = e.Y + DisplayRect.Y;
          //Verify that it is in bounds
-         if (x < 0 || x >= Vars.DebugMapWithBorders.Width || y < 0 || y >= Vars.DebugMapWithBorders.Height)
+         if (x < 0 || x >= Vars.BorderlessMap.Width || y < 0 || y >= Vars.BorderlessMap.Height)
             return;
          //Get Color an verify there is an entry for it
-         var color = Vars.DebugMapWithBorders.GetPixel((int)x, (int)y);
+         var color = Vars.BorderlessMap.GetPixel(x, y);
          if (!Vars.ColorIds.ContainsKey(color))
             return;
 
@@ -239,7 +239,7 @@ namespace EU4_Parse_Lib
       {
          if (Vars.DebugMapWithBorders == null)
             return;
-         var pixelColor = Vars.DebugMapWithBorders.GetPixel(p.X + (int)DisplayRect.X, p.Y + (int)DisplayRect.Y);
+         var pixelColor = Vars.BorderlessMap!.GetPixel(p.X + (int)DisplayRect.X, p.Y + (int)DisplayRect.Y);
 
          if (!Vars.ColorIds.TryGetValue(pixelColor, out var id))
             return;

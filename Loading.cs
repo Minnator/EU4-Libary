@@ -22,7 +22,7 @@ namespace EU4_Parse_Lib
          {
             var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
             Vars.Map = new Bitmap(combinedPath);
-            Vars.SelectedMapMode = new Bitmap(combinedPath);
+            Vars.BorderlessMap = new Bitmap(combinedPath);
             Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
             Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
             Vars.ScopeNames = Util.EnumToList<Scope>();

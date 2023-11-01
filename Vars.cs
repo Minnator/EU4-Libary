@@ -50,7 +50,7 @@ namespace EU4_Parse_Lib
 
       public static Bitmap? Map;
       public static Bitmap? DebugMapWithBorders;
-      public static Bitmap? SelectedMapMode;
+      public static Bitmap? BorderlessMap;
 
       public static IMapMode? MapMode;
 
