@@ -44,6 +44,7 @@ namespace EU4_Parse_Lib
       public static bool RenderCreatedMapModes = true; // TODO make settable in an interface aka settings
 
       public static float ZoomFactor = 1f;
+      public static float ZoomIncrements = 0.25f;
 
       public static readonly Stopwatch Stopwatch = new();
 

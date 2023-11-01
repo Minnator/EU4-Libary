@@ -12,6 +12,7 @@ namespace EU4_Parse_Lib
    {
       private const int MoveAmount = 50;
       public Rectangle DisplayRect;
+      public RectangleF DisplayRectF;
       private int _maxXOffset;
       private int _maxYOffset;
 
@@ -59,6 +60,10 @@ namespace EU4_Parse_Lib
          Vars.MainWindow!.Visible = true;
          Vars.MainWindow = Gui.ShowForm<MainWindow>();
 
+         if (Vars.MapModes.TryGetValue("Default Map Mode", out var mapMode))
+         {
+            Vars.MapMode = mapMode;
+         }
       }
 
       private void CalculateMaxOffsets()
@@ -77,6 +82,7 @@ namespace EU4_Parse_Lib
          var centerY = (Vars.Map.Height - Map.Height - 1000) / 2;
 
          DisplayRect = new Rectangle(centerX, centerY, Map.Width, Map.Height);
+         DisplayRectF = new RectangleF(centerX, centerY, Map.Width, Map.Height);
       }
 
       public void UpdateDisplayedImage()
@@ -84,6 +90,8 @@ namespace EU4_Parse_Lib
          if (Vars.Map == null)
             return;
          Map.Image = Vars.Map.Clone(DisplayRect, Vars.Map.PixelFormat);
+         //Map.Image = Vars.Map.Clone(DisplayRectF, Vars.Map.PixelFormat);
+
       }
 
       public void MoveBitmap(int dx, int dy)
@@ -99,6 +107,7 @@ namespace EU4_Parse_Lib
          DisplayRect.Y = newY;
 
          UpdateDisplayedImage();
+
       }
 
       #region Map Movement via buttons
@@ -139,7 +148,7 @@ namespace EU4_Parse_Lib
          if (x < 0 || x >= Vars.DebugMapWithBorders.Width || y < 0 || y >= Vars.DebugMapWithBorders.Height)
             return;
          //Get Color an verify there is an entry for it
-         var color = Vars.DebugMapWithBorders.GetPixel(x, y);
+         var color = Vars.DebugMapWithBorders.GetPixel((int)x, (int)y);
          if (!Vars.ColorIds.ContainsKey(color))
             return;
 
@@ -154,20 +163,22 @@ namespace EU4_Parse_Lib
                }
             case MouseButtons.Left:
                {
-                  Gui.UpdateProvinceBorder(ref Vars.SelectedProvinces); //Unselect all provinces
+                  if (Vars.MapMode!.Name.Equals("Default Map Mode"))
+                  {
+                     foreach (var pro in Vars.SelectedProvinces)
+                        Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
+                  }
+                  else
+                  {
+                     Gui.UpdateProvinceBorder(ref Vars.SelectedProvinces); //Unselect all provinces
+                  }
+                  
                   var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
                   if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
                   {
-                     //Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
                      Vars.SelectedProvinces.Clear();
                      return;
                   }
-
-                  //foreach (var pro in Vars.SelectedProvinces)
-                  //{
-                  //   Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
-                  //}
-
                   Vars.SelectedProvinces.Clear();
                   Util.NextProvince(currentProvince);
                   Vars.SelectedProvinces.Add(currentProvince);
@@ -228,7 +239,7 @@ namespace EU4_Parse_Lib
       {
          if (Vars.DebugMapWithBorders == null)
             return;
-         var pixelColor = Vars.DebugMapWithBorders.GetPixel(p.X + DisplayRect.X, p.Y + DisplayRect.Y);
+         var pixelColor = Vars.DebugMapWithBorders.GetPixel(p.X + (int)DisplayRect.X, p.Y + (int)DisplayRect.Y);
 
          if (!Vars.ColorIds.TryGetValue(pixelColor, out var id))
             return;
@@ -254,12 +265,30 @@ namespace EU4_Parse_Lib
 
       private void ZoomInButton_Click(object sender, EventArgs e)
       {
-         //TODO implement working zoom
+         Vars.ZoomFactor += Vars.ZoomIncrements;
+         DisplayRectF = CenterScaledRectangleOnCanvas(DisplayRectF, Map.ClientRectangle);
+
+         UpdateDisplayedImage();
       }
+
+
+
+
+      public RectangleF CenterScaledRectangleOnCanvas(RectangleF rect, RectangleF pictureBox)
+      {
+         var scaled = GetScaledRect(rect, Vars.ZoomFactor);
+         rect.Location = new PointF((pictureBox.Width - scaled.Width) / 2,
+            (Map.Height - scaled.Height) / 2);
+         return rect;
+      }
+
+      public RectangleF GetScaledRect(RectangleF rect, float scaleFactor) =>
+         new RectangleF(rect.Location,
+            new SizeF(rect.Width * scaleFactor, rect.Height * scaleFactor));
 
       private void ZoomOutButton_Click(object sender, EventArgs e)
       {
-         //TODO implement working zoom
+         
       }
 
       public void OnMapModeSelection(object sender, EventArgs e)
@@ -332,6 +361,7 @@ namespace EU4_Parse_Lib
 
       private void StatisticsTollStripMenuItem_Click(object sender, EventArgs e)
       {
+
       }
 
       private void ReloadLocalizationToolStripMenuItem_Click(object sender, EventArgs e)

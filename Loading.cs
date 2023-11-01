@@ -22,7 +22,6 @@ namespace EU4_Parse_Lib
          {
             var combinedPath = Util.GetModOrVanillaPathFile(Path.Combine("map", "provinces.bmp"));
             Vars.Map = new Bitmap(combinedPath);
-            //Vars.DebugMapWithBorders = new Bitmap(combinedPath);
             Vars.SelectedMapMode = new Bitmap(combinedPath);
             Vars.ProvinceAttributeNames = Util.EnumToList<ProvinceAtt>();
             Vars.CountryAttributeNames = Util.EnumToList<CountryAtt>();
@@ -505,88 +504,6 @@ namespace EU4_Parse_Lib
          Debug.WriteLine($"Elapsed Creating borders total: {sw.Elapsed}");
       }
 
-      //public static unsafe void 
-
-
-
-      //changed to Vars.SelectedMapMode from a given bitamp
-      public static unsafe Bitmap ProcessBitmap(Bitmap bitmap)
-      {
-         var width = bitmap.Width;
-         var height = bitmap.Height;
-         var processedBitmap = new Bitmap(width, height);
-
-         var bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-         var processedData = processedBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-         try
-         {
-            const int batchSize = 16; // Process pixels in batches
-
-            Parallel.For(0, height, y =>
-            {
-               for (var x = 0; x < width; x += batchSize)
-               {
-                  var batchEndX = Math.Min(x + batchSize, width);
-
-                  for (var batchX = x; batchX < batchEndX; batchX++)
-                  {
-                     var pixelPtr = (byte*)bmpData.Scan0 + y * bmpData.Stride + batchX * 3; // Assuming 24bpp
-
-                     var b = pixelPtr[0];
-                     var g = pixelPtr[1];
-                     var r = pixelPtr[2];
-
-                     if (b == 0 && g == 0 && r == 0)
-                        continue; // Skip fully black pixels
-
-                     var hasDifferentColorNeighbor = false;
-                     for (var dx = -1; dx <= 1 && !hasDifferentColorNeighbor; dx++)
-                     {
-                        for (var dy = -1; dy <= 1 && !hasDifferentColorNeighbor; dy++)
-                        {
-                           var neighborX = batchX + dx;
-                           var neighborY = y + dy;
-
-                           if (neighborX < 0 || neighborX >= width ||
-                                   neighborY < 0 || neighborY >= height ||
-                                   dx == 0 && dy == 0)
-                              continue; // Skip the current pixel
-
-                           var neighborPtr = (byte*)bmpData.Scan0 + neighborY * bmpData.Stride + neighborX * 3;
-                           var nb = neighborPtr[0];
-                           var ng = neighborPtr[1];
-                           var nr = neighborPtr[2];
-
-                           if (nb == 0 && ng == 0 && nr == 0)
-                              continue; // Skip fully black neighbors
-
-                           if (nb != b || ng != g || nr != r)
-                           {
-                              hasDifferentColorNeighbor = true;
-                           }
-                        }
-                     }
-                     if (hasDifferentColorNeighbor)
-                        continue;
-
-                     // Set the pixel in the processed bitmap
-                     var processedPixelPtr = (byte*)processedData.Scan0 + y * processedData.Stride + batchX * 3;
-                     processedPixelPtr[0] = b; // B
-                     processedPixelPtr[1] = g; // G
-                     processedPixelPtr[2] = r; // R
-
-                  }
-               }
-            });
-         }
-         finally
-         {
-            bitmap.UnlockBits(bmpData);
-            processedBitmap.UnlockBits(processedData);
-            processedBitmap.Save("C:\\Users\\david\\Downloads\\bmp.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
-         }
-         return processedBitmap;
-      }
       private static void InitProvinces()
       {
          var provinces = new Dictionary<int, Province>(5000);

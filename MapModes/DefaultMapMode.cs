@@ -31,6 +31,7 @@ internal class DefaultMapMode : IMapMode
 
    public void RenderMapMode()
    {
+      Vars.SelectedMapMode!.Dispose();
       Vars.SelectedMapMode = new Bitmap(Vars.DebugMapWithBorders!);
    }
 

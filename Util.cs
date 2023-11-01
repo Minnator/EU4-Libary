@@ -137,45 +137,6 @@ namespace EU4_Parse_Lib
         }
 
         /// <summary>
-        /// changes the color of a list of pixels to a given color. 
-        /// </summary>
-        /// <param name="pixels"></param>
-        /// <param name="newColor"></param>
-        public static void ChangePixelsColor(List<Point> pixels, Color newColor)
-        {
-            lock (Vars.BitmapLock)
-            {
-                using Bitmap bmp = new (Vars.Map!);
-                var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, bmp.PixelFormat);
-                var bytesPerPixel = Image.GetPixelFormatSize(bmp.PixelFormat) / 8;
-                var stride = bmpData.Stride;
-
-                unsafe
-                {
-                    foreach (var point in pixels)
-                    {
-                        var x = point.X;
-                        var y = point.Y;
-
-                        if (x < 0 || x >= bmp.Width || y < 0 || y >= bmp.Height)
-                            continue;
-
-                        var pixelPtr = (byte*)bmpData.Scan0 + y * stride + x * bytesPerPixel;
-
-                        pixelPtr[0] = newColor.B;
-                        pixelPtr[1] = newColor.G;
-                        pixelPtr[2] = newColor.R;
-                    }
-                }
-
-                bmp.UnlockBits(bmpData);
-
-                Vars.Map = new Bitmap(bmp);
-                Vars.MainWindow!.Map.Image = Vars.Map;
-            }
-        }
-
-        /// <summary>
         /// I a folder exists in a mod it will override the vanilla folder. If not the vanilla folder will be the one to be cached
         /// </summary>
         /// <param name="path"></param>
@@ -337,67 +298,6 @@ namespace EU4_Parse_Lib
             // Move the bitmap to the same position as when the method was called
             Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
         }
-
-        /// <summary>
-        /// sets the color for all pixels in a province
-        /// </summary>
-        /// <param name="p"></param>
-        /// <param name="color"></param>
-        public static void SetProvincePixels(Province p, Color color)
-        {
-            if (Vars.MainWindow == null || Vars.Map == null)
-                return;
-            using Bitmap bmp = new (Vars.Map);
-            var rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-            var bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
-
-            var bytesPerPixel = Image.GetPixelFormatSize(bmp.PixelFormat) / 8;
-            var stride = bmpData.Stride;
-
-            foreach (var point in p.Pixels)
-            {
-                var x = point.X;
-                var y = point.Y;
-
-                if (x < 0 || x >= bmp.Width || y < 0 || y >= bmp.Height) continue;
-                var pixelPtr = bmpData.Scan0 + y * stride + x * bytesPerPixel;
-                var pixelBytes = new byte[bytesPerPixel];
-
-                Marshal.Copy(pixelPtr, pixelBytes, 0, bytesPerPixel);
-
-                pixelBytes[0] = color.B;
-                pixelBytes[1] = color.G;
-                pixelBytes[2] = color.R;
-
-                Marshal.Copy(pixelBytes, 0, pixelPtr, bytesPerPixel);
-            }
-
-            bmp.UnlockBits(bmpData);
-
-            // Calculate the corresponding offset for the modified bmp
-            var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow.Map.Width, Vars.MainWindow.DisplayRect.X));
-            var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
-
-            // Update the Image property of the PictureBox
-            Vars.Map = new Bitmap(bmp);
-            Vars.MainWindow.Map.Image = Vars.Map;
-
-            // Move the bitmap to the same position as when the method was called
-            //Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
-
-            //p.CurrentColor = color; //TODO
-        }
-
-        /*
-        public static void PrintListToConsole(IEnumerable<object> list)
-        {
-            Debug.WriteLine($"Items: {list.Count()}");
-            foreach (var o in list)
-            {
-                Debug.WriteLine(o.ToString());
-            }
-        }
-        */
 
         public static KeyValuePair<bool, Color> ParseColorFromString(string input)
         {

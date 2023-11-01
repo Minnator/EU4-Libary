@@ -124,16 +124,15 @@ namespace EU4_Parse_Lib
          if (Vars.MapMode == null || Vars.MainWindow!.Map == null)
          {
             Util.ErrorPopUp("Critical Error",
-                $"Failed to load {Vars.MapMode} - mapmode. Consider resetting the map, check the mapmode for errors in {Vars.DataPath}\\userMapModes.json, or restarting the application!");
+                $"Failed to load {Vars.MapMode} - Map Mode. Consider resetting the map, check the mapmode for errors in {Vars.DataPath}\\userMapModes.json, or restarting the application!");
             return;
          }
 
          Vars.MapMode.RenderMapMode();
 
-         //Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
-
          Vars.MainWindow.Map.Image = Vars.SelectedMapMode;
-         Vars.Map = new Bitmap(Vars.SelectedMapMode);
+         Vars.Map!.Dispose();
+         Vars.Map = new Bitmap(Vars.SelectedMapMode!);
 
          Vars.MainWindow.UpdateDisplayedImage();
       }
@@ -248,82 +247,7 @@ namespace EU4_Parse_Lib
          Vars.TimeStamps.Add($"Time Elapsed Creating Map NEW:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
          Vars.Stopwatch.Reset();
       }
-
-
-
-      /// <summary>
-      /// Renders the given mapmode in a very optimized way. Make sure ALL entries in the dictionary are valid. otherwise it will crash. 
-      /// </summary>
-      /// <exception cref="ArgumentException"></exception>
-      public static void ColorMap1() //TODO make global
-      {
-         Dictionary<int, Color> colors = Vars.SelectedMapModeColorMap;
-         Vars.Stopwatch.Start();
-         if (colors == null || colors.Count == 0)
-         {
-            throw new ArgumentException("The colors dictionary cannot be empty or null.");
-         }
-         var mapWidth = Vars.Map!.Width;
-         var mapHeight = Vars.Map.Height;
-
-         using var mapBitmap = new Bitmap(mapWidth, mapHeight);
-         var bitmapData = mapBitmap.LockBits(new Rectangle(0, 0, mapWidth, mapHeight),
-             ImageLockMode.WriteOnly, mapBitmap.PixelFormat);
-         try
-         {
-            var bytesPerPixel = Image.GetPixelFormatSize(mapBitmap.PixelFormat) / 8;
-            var stride = bitmapData.Stride;
-            var pixelData = new byte[mapHeight * stride];
-            var scan0 = bitmapData.Scan0;
-            Stopwatch sw = Stopwatch.StartNew();
-            Parallel.ForEach(colors, entry =>
-            {
-               var regionPoints = Vars.Provinces[entry.Key].Pixels;
-
-               foreach (var point in regionPoints)
-               {
-                  var pixelOffset = point.Y * stride + point.X * bytesPerPixel;
-                  var colorValue = entry.Value.ToArgb();
-                  pixelData[pixelOffset + 0] = (byte)(colorValue);
-                  pixelData[pixelOffset + 1] = (byte)(colorValue >> 8);
-                  pixelData[pixelOffset + 2] = (byte)(colorValue >> 16);
-               }
-            });
-            sw.Stop();
-            Debug.WriteLine($"Old Version speed: {sw.Elapsed}");
-
-            // Copy the modified pixel data back to the bitmap
-            unsafe
-            {
-               fixed (byte* pData = pixelData)
-               {
-                  var pDest = (byte*)scan0.ToPointer();
-                  for (var i = 0; i < mapHeight; i++)
-                  {
-                     Buffer.MemoryCopy(pData + i * stride, pDest + i * stride, stride, stride);
-                  }
-               }
-            }
-         }
-         finally
-         {
-            mapBitmap.UnlockBits(bitmapData);
-         }
-         Vars.SelectedMapMode = new Bitmap(Loading.ProcessBitmap(mapBitmap));
-
-         //Vars.SelectedMapMode = new Bitmap(mapBitmap);
-         //Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\STTmap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
-         //Loading.ProcessBitmap();
-
-         //Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\Smap.bmp", ImageFormat.Bmp); // TODO: Remove on the final version
-         mapBitmap.Dispose();
-         Vars.Stopwatch.Stop();
-         Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
-         Vars.TimeStamps.Add($"Time Elapsed Creating Map:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
-         Debug.WriteLine($"Creating map: {Vars.Stopwatch.Elapsed}");
-         Vars.Stopwatch.Reset();
-      }
-
+      
       /// <summary>
       /// Sets the border of the given province to a given color
       /// </summary>
@@ -495,15 +419,15 @@ namespace EU4_Parse_Lib
          Vars.Stopwatch.Start();
          Stopwatch sw = new();
          sw.Start();
-         if (Vars.SelectedMapMode == null || Vars.BorderArray!.Length < 1)
+         if (Vars.Map == null || Vars.BorderArray!.Length < 1)
          {
             return; // Check for null Map
          }
 
-         var rect = new Rectangle(0, 0, Vars.SelectedMapMode.Width, Vars.SelectedMapMode.Height);
-         var bmpData = Vars.SelectedMapMode.LockBits(rect, ImageLockMode.ReadWrite, Vars.SelectedMapMode.PixelFormat);
+         var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
+         var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
          var stride = bmpData.Stride;
-         var bytesPerPixel = Image.GetPixelFormatSize(Vars.SelectedMapMode.PixelFormat) / 8;
+         var bytesPerPixel = Image.GetPixelFormatSize(Vars.Map.PixelFormat) / 8;
 
          unsafe
          {
@@ -543,9 +467,9 @@ namespace EU4_Parse_Lib
                            var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
                            var pixelPtr = ptr + pixelOffset;
 
-                           pixelPtr[0] = 255; // Blue component
-                           pixelPtr[1] = 0; // Green component
-                           pixelPtr[2] = 0; // Red component
+                           pixelPtr[0] = currentColor.B; // Blue component
+                           pixelPtr[1] = currentColor.G; // Green component
+                           pixelPtr[2] = currentColor.R; // Red component
                         }
                      }
                   }
@@ -553,7 +477,7 @@ namespace EU4_Parse_Lib
             }
             finally
             {
-               Vars.SelectedMapMode.UnlockBits(bmpData);
+               Vars.Map.UnlockBits(bmpData);
             }
          }
 
