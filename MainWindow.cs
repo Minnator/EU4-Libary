@@ -57,6 +57,7 @@ namespace EU4_Parse_Lib
          Vars.DebugMapWithBorders = new Bitmap(Vars.Map!);
          Vars.MainWindow!.Visible = true;
          Vars.MainWindow = Gui.ShowForm<MainWindow>();
+
       }
 
       private void CalculateMaxOffsets()

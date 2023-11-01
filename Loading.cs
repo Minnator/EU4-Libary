@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.RegularExpressions;
+using Emgu.CV.Cuda;
 using EU4_Parse_Lib.DataClasses;
 using Newtonsoft.Json;
 
@@ -328,15 +330,25 @@ namespace EU4_Parse_Lib
          }
       }
 
-      private static unsafe void GenerateBorders()
+      private static unsafe void GenerateBorders() // Pre chanves ~370ms
       {
          if (Vars.Map == null)
             return;
          var width = Vars.Map.Width;
          var height = Vars.Map.Height;
 
+         Vars.MapBorder = new Point[2 * (width + height - 2)];
+
+         Stopwatch sw = Stopwatch.StartNew();
          var bmpData = Vars.Map.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, Vars.Map.PixelFormat);
-         
+         var stride = bmpData.Stride;
+
+         var ptr = (byte*)bmpData.Scan0.ToPointer();
+
+         var ptre = ptr + 3;
+         var ptrs = ptr + stride;
+         var ptrw = ptr - 3;
+         var ptrn = ptr - stride;
 
          Parallel.ForEach(Vars.Provinces.Values, province =>
          {
@@ -344,12 +356,60 @@ namespace EU4_Parse_Lib
 
             foreach (var pixel in province.Pixels)
             {
+
+               if (pixel.Y < 1)
+               {
+                  Vars.MapBorder[pixel.X] = pixel;
+                  continue;
+               }
+               if (pixel.X < 1)
+               {
+                  Vars.MapBorder[width + 2 * (pixel.Y) - 2] = pixel;
+                  continue;
+               }
+               if (pixel.X > width - 2)
+               {
+                  Vars.MapBorder[width + 2 * (pixel.Y) - 1] = pixel;
+                  continue;
+               }
+               if (pixel.Y > height - 2)
+               {
+                  Vars.MapBorder[width + 2 * (height - 2) + pixel.X + 1] = pixel;
+                  continue;
+               }
+               /*
+               if(pixel.X < 1 || pixel.X > width - 2 || pixel.Y < 1 || pixel.Y > height - 2){
+                  _mutex.WaitOne();
+                  Vars.MapBorder[Vars.MapBorderPixelCount] = pixel;
+                  Vars.MapBorderPixelCount += 1;
+                  _mutex.ReleaseMutex();
+                  Vars.MapBorder[Vars.MapBorderPixelCount]
+                  continue;
+               }*/
+
+               var pixelOffset = (pixel.Y * stride) + (pixel.X * 3);
+               var pixelPtr = (int*)(ptr + pixelOffset);
+               var epixelPtr = (int*)(ptre + pixelOffset);
+               var spixelPtr = (int*)(ptrs + pixelOffset);
+               var wpixelPtr = (int*)(ptrw + pixelOffset);
+               var npixelPtr = (int*)(ptrn + pixelOffset);
+
+               if ((*pixelPtr) << 8 != (*epixelPtr) << 8 ||
+                   (*pixelPtr) << 8 != (*spixelPtr) << 8 ||
+                   (*pixelPtr) << 8 != (*wpixelPtr) << 8 ||
+                   (*pixelPtr) << 8 != (*npixelPtr) << 8)
+               {
+                  borderPixels.Add(pixel);
+               }
+               /*
+
+               var hasAdjacentColor = false;
+
                var startX = Math.Max(0, pixel.X - 1);
                var startY = Math.Max(0, pixel.Y - 1);
                var endX = Math.Min(width - 1, pixel.X + 1);
                var endY = Math.Min(height - 1, pixel.Y + 1);
 
-               var hasAdjacentColor = false;
 
                // Check N, S, W, E pixels only
                for (var dx = startX; dx <= endX; dx++)
@@ -387,12 +447,14 @@ namespace EU4_Parse_Lib
                   {
                      break; // Exit the inner loop if adjacent color is found
                   }
+               
                }
-
                if (hasAdjacentColor)
                {
                   borderPixels.Add(pixel);
                }
+               */
+
             }
 
             _mutex.WaitOne();
@@ -401,6 +463,8 @@ namespace EU4_Parse_Lib
 
             province.Border = borderPixels;
          });
+
+         Debug.WriteLine($"Time Passed for map evaluation: {sw.Elapsed}");
 
          Vars.BorderArray = new Point[Vars.BorderPixelCount];
          var pointer = 0;
@@ -413,13 +477,14 @@ namespace EU4_Parse_Lib
             }
             province.BorderPixel = new(pointer, pointer + province.Border.Count);
             pointer += province.Border.Count;
-            province.Border.Clear(); 
+            province.Border.Clear();
          }
 
          DebugPrints.PrintBorderPixels();
 
          Vars.Map.UnlockBits(bmpData);
-         
+         sw.Stop();
+         Debug.WriteLine($"Elapsed Creating borders total: {sw.Elapsed}");
       }
 
       //public static unsafe void 

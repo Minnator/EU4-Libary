@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Text;
 using Emgu.CV.Saliency;
 using EU4_Parse_Lib.DataClasses;
 
@@ -122,7 +124,7 @@ namespace EU4_Parse_Lib
                 $"Failed to load {Vars.MapMode} - mapmode. Consider resetting the map, check the mapmode for errors in {Vars.DataPath}\\userMapModes.json, or restarting the application!");
             return;
          }
-         
+
          Vars.MapMode.RenderMapMode();
 
          Vars.SelectedMapMode.Save("C:\\Users\\david\\Downloads\\PMmapmode.bmp"); //TODO remove on final version
@@ -155,7 +157,7 @@ namespace EU4_Parse_Lib
 
          Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
          Vars.MainWindow.Map.Invalidate();
-         
+
          Vars.Stopwatch.Stop();
          Vars.TimeStamps.Add("Time Elapsed drawing Borders:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
          Vars.Stopwatch.Reset();
@@ -198,7 +200,7 @@ namespace EU4_Parse_Lib
       /// Renders the given mapmode in a very optimized way. Make sure ALL entries in the dictionary are valid. otherwise it will crash. 
       /// </summary>
       /// <exception cref="ArgumentException"></exception>
-      public static void ColorMap() 
+      public static void ColorMap()
       {
          Vars.Stopwatch.Start();
          if (Vars.SelectedMapModeColorMap == null || Vars.SelectedMapModeColorMap.Count == 0)
@@ -209,7 +211,7 @@ namespace EU4_Parse_Lib
 
          var rect = new Rectangle(0, 0, Vars.SelectedMapMode!.Width, Vars.SelectedMapMode.Height);
          var bmpData = Vars.SelectedMapMode.LockBits(rect, ImageLockMode.ReadWrite, Vars.SelectedMapMode.PixelFormat);
-            
+
          try
          {
             var bytesPerPixel = Image.GetPixelFormatSize(Vars.SelectedMapMode.PixelFormat) / 8;
@@ -287,7 +289,7 @@ namespace EU4_Parse_Lib
             });
             sw.Stop();
             Debug.WriteLine($"Old Version speed: {sw.Elapsed}");
-            
+
             // Copy the modified pixel data back to the bitmap
             unsafe
             {
@@ -327,7 +329,7 @@ namespace EU4_Parse_Lib
       public static void RenderBorders(Color color)
       {
          Vars.Stopwatch.Start();
-         if (Vars.Map == null || Vars.BorderArray!.Length < 1)
+         if (Vars.Map == null || Vars.BorderArray!.Length < 1 || Vars.MapBorder!.Length < 1)
          {
             return; // Check for null Map
          }
@@ -351,6 +353,16 @@ namespace EU4_Parse_Lib
                   pixelPtr[1] = color.G; // Green component
                   pixelPtr[2] = color.R; // Red component
                });
+
+               Parallel.ForEach(Vars.MapBorder, point =>
+               {
+                  var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+                  var pixelPtr = ptr + pixelOffset;
+
+                  pixelPtr[0] = color.B; // Blue component
+                  pixelPtr[1] = color.G; // Green component
+                  pixelPtr[2] = color.R; // Red component
+               });
             }
          }
          finally
@@ -361,7 +373,7 @@ namespace EU4_Parse_Lib
          Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
          //Debug.WriteLine($"Creating map NEW: {Vars.Stopwatch.Elapsed}");
 
-         //Vars.Map.Save("C:\\Users\\david\\Downloads\\test.hehhe", ImageFormat.Bmp);
+         Vars.Map.Save("C:\\Users\\david\\Downloads\\DrawnBorders.bmp", ImageFormat.Bmp);
          var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
          var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 
@@ -373,8 +385,8 @@ namespace EU4_Parse_Lib
       public static void UpdateBorder()
       {
          Vars.Stopwatch.Start();
-         //Stopwatch sw = new();
-         //sw.Start();
+         Stopwatch sw = new();
+         sw.Start();
          if (Vars.SelectedMapMode == null || Vars.BorderArray!.Length < 1)
          {
             return; // Check for null Map
@@ -388,31 +400,29 @@ namespace EU4_Parse_Lib
             unsafe
             {
                var ptr = (byte*)bmpData.Scan0.ToPointer();
+
                var stride = bmpData.Stride;
-               var eptr = ptr + 3;
-               var sptr = ptr + stride;
-               var wptr = ptr - 3;
-               var nptr = ptr - stride;
                Parallel.ForEach(Vars.BorderArray, point =>
                {
+                  //Make new array and after finished draw it to the map  
                   var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
                   var pixelPtr = ptr + pixelOffset;
-                  var epixelPtr = eptr + pixelOffset;
-                  var spixelPtr = sptr + pixelOffset;
-                  var wpixelPtr = wptr + pixelOffset;
-                  var npixelPtr = nptr + pixelOffset;
-
+                  var epixelPtr = ptr + pixelOffset + 3;
+                  var spixelPtr = ptr + pixelOffset + stride;
+                  var wpixelPtr = ptr + pixelOffset - 3;
+                  var npixelPtr = ptr + pixelOffset - stride;
+                  
                   if ((Int32)pixelPtr << 8 != (Int32)epixelPtr << 8 ||
                       (Int32)pixelPtr << 8 != (Int32)spixelPtr << 8 ||
                       (Int32)pixelPtr << 8 != (Int32)wpixelPtr << 8 ||
-                      (Int32)pixelPtr << 8 != (Int32)npixelPtr << 8 
+                      (Int32)pixelPtr << 8 != (Int32)npixelPtr << 8
                       )
                   {
                      pixelPtr[0] = 0; // Blue component
                      pixelPtr[1] = 0; // Green component
                      pixelPtr[2] = 0; // Red
                   }
-                  //IF CRASH AND ARTIFACTS AT BORDER OF MAP ADD CHECKS AT BOUNDARIES
+
                });
             }
          }
@@ -420,13 +430,13 @@ namespace EU4_Parse_Lib
          {
             Vars.SelectedMapMode.UnlockBits(bmpData);
          }
-         //sw.Stop();
-         //Debug.WriteLine($"Cast and Shift: {sw.Elapsed}");
+         sw.Stop();
+         Debug.WriteLine($"Cast and Shift: {sw.Elapsed}");
          Vars.Stopwatch.Stop();
          Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
 
 
-         //Vars.Map.Save("C:\\Users\\david\\Downloads\\hehhe.bmp", ImageFormat.Bmp);
+         Vars.Map.Save("C:\\Users\\david\\Downloads\\BorderUpdate.bmp", ImageFormat.Bmp);
          var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
          var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
 

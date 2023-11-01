@@ -67,6 +67,8 @@ namespace EU4_Parse_Lib
       public static string Language = "english";
       public static string DataPath = "";
 
+      public static int MapBorderPixelCount = 0;
+
       //Can be Changed in KeyBoardMapping Interface
       public static Dictionary<Keys, Button?> MapModeKeyMap = new();
       public static Dictionary<Keys, Button?> MapMovementKeyMap = new()
@@ -80,6 +82,7 @@ namespace EU4_Parse_Lib
       public static int BorderPixelCount = new ();
 
       public static Point[]? BorderArray;
+      public static Point[]? MapBorder;
 
       public static Dictionary<int, Province> Provinces = new();
       public static Dictionary<int, Province> RnvProvinces = new();
