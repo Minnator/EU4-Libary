@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Emgu.CV.Cuda;
 using EU4_Parse_Lib.DataClasses;
 using Newtonsoft.Json;
+using ScottPlot;
 
 namespace EU4_Parse_Lib
 {
@@ -350,13 +351,14 @@ namespace EU4_Parse_Lib
          var ptrw = ptr - 3;
          var ptrn = ptr - stride;
 
+         var lastRowOffset = width + 2 * (height - 2) + 1;
+
          Parallel.ForEach(Vars.Provinces.Values, province =>
          {
             var borderPixels = new List<Point>();
-
+            int provColor = province.Color.ToArgb() << 8;
             foreach (var pixel in province.Pixels)
             {
-
                if (pixel.Y < 1)
                {
                   Vars.MapBorder[pixel.X] = pixel;
@@ -374,95 +376,110 @@ namespace EU4_Parse_Lib
                }
                if (pixel.Y > height - 2)
                {
-                  Vars.MapBorder[width + 2 * (height - 2) + pixel.X + 1] = pixel;
+                  Vars.MapBorder[lastRowOffset + pixel.X] = pixel;
                   continue;
                }
-               /*
-               if(pixel.X < 1 || pixel.X > width - 2 || pixel.Y < 1 || pixel.Y > height - 2){
-                  _mutex.WaitOne();
-                  Vars.MapBorder[Vars.MapBorderPixelCount] = pixel;
-                  Vars.MapBorderPixelCount += 1;
-                  _mutex.ReleaseMutex();
-                  Vars.MapBorder[Vars.MapBorderPixelCount]
-                  continue;
-               }*/
 
                var pixelOffset = (pixel.Y * stride) + (pixel.X * 3);
-               var pixelPtr = (int*)(ptr + pixelOffset);
+
+               if (provColor != *(int*)(ptre + pixelOffset) << 8 ||
+                   provColor != *(int*)(ptrs + pixelOffset) << 8 ||
+                   provColor != *(int*)(ptrw + pixelOffset) << 8 ||
+                   provColor != *(int*)(ptrn + pixelOffset) << 8)
+               {
+                  borderPixels.Add(pixel);
+               }
+            }
+
+            //Detecting the border colors and saving the points per color
+            Dictionary<int, List<Point>> borderSections = new();
+            var borderPixelCount = 0;
+
+
+            foreach (var borderPixel in borderPixels)
+            {
+
+               var pixelOffset = (borderPixel.Y * stride) + (borderPixel.X * 3);
                var epixelPtr = (int*)(ptre + pixelOffset);
                var spixelPtr = (int*)(ptrs + pixelOffset);
                var wpixelPtr = (int*)(ptrw + pixelOffset);
                var npixelPtr = (int*)(ptrn + pixelOffset);
 
-               if ((*pixelPtr) << 8 != (*epixelPtr) << 8 ||
-                   (*pixelPtr) << 8 != (*spixelPtr) << 8 ||
-                   (*pixelPtr) << 8 != (*wpixelPtr) << 8 ||
-                   (*pixelPtr) << 8 != (*npixelPtr) << 8)
+               if (provColor != (*epixelPtr) << 8)
                {
-                  borderPixels.Add(pixel);
-               }
-               /*
-
-               var hasAdjacentColor = false;
-
-               var startX = Math.Max(0, pixel.X - 1);
-               var startY = Math.Max(0, pixel.Y - 1);
-               var endX = Math.Min(width - 1, pixel.X + 1);
-               var endY = Math.Min(height - 1, pixel.Y + 1);
-
-
-               // Check N, S, W, E pixels only
-               for (var dx = startX; dx <= endX; dx++)
-               {
-                  for (var dy = startY; dy <= endY; dy++)
+                  borderPixelCount++;
+                  if (borderSections.ContainsKey((*epixelPtr) << 8))
                   {
-                     if (dx == pixel.X && dy == pixel.Y)
-                     {
-                        continue; // Skip the current pixel
-                     }
-
-                     // Check only N, S, W, E neighbors
-                     if (dx != pixel.X && dy != pixel.Y)
-                     {
-                        continue;
-                     }
-
-                     var pixelPtr = (byte*)bmpData.Scan0 + dy * bmpData.Stride + dx * 3; // Assuming 24bpp
-
-                     var b = pixelPtr[0];
-                     var g = pixelPtr[1];
-                     var r = pixelPtr[2];
-
-                     var adjacentColor = Color.FromArgb(255, r, g, b);
-
-                     if (adjacentColor == province.Color)
-                     {
-                        continue;
-                     }
-
-                     hasAdjacentColor = true;
-                     break; // Exit early if adjacent color is different from specified color
+                     borderSections[*epixelPtr << 8].Add(borderPixel);
                   }
-                  if (hasAdjacentColor)
+                  else
                   {
-                     break; // Exit the inner loop if adjacent color is found
+                     borderSections.Add(*epixelPtr << 8, new List<Point>{borderPixel});
                   }
-               
                }
-               if (hasAdjacentColor)
+               if (provColor != (*spixelPtr) << 8)
                {
-                  borderPixels.Add(pixel);
+                  borderPixelCount++;
+                  if (borderSections.ContainsKey((*spixelPtr) << 8))
+                  {
+                     borderSections[*spixelPtr << 8].Add(borderPixel);
+                  }
+                  else
+                  {
+                     borderSections.Add(*spixelPtr << 8, new List<Point>{borderPixel});
+                  }
                }
-               */
-
+               if (provColor != (*wpixelPtr) << 8)
+               {
+                  borderPixelCount++;
+                  if (borderSections.ContainsKey((*wpixelPtr) << 8))
+                  {
+                     borderSections[*wpixelPtr << 8].Add(borderPixel);
+                  }
+                  else
+                  {
+                     borderSections.Add(*wpixelPtr << 8, new List<Point>{borderPixel});
+                  }
+               }
+               if (provColor != (*npixelPtr) << 8)
+               {
+                  borderPixelCount++;
+                  if (borderSections.ContainsKey(*(npixelPtr) << 8))
+                  {
+                     borderSections[*npixelPtr << 8].Add(borderPixel);
+                  }
+                  else
+                  {
+                     borderSections.Add(*npixelPtr << 8, new List<Point>{borderPixel});
+                  }
+               }
             }
+
+            province.BorderPixels = new Point[borderPixelCount];
+
+            var pointer = 0;
+
+            foreach (var kvp in borderSections)
+            {
+               province.BorderProvinces.Add(Color.FromArgb(kvp.Key >> 8), new BorderPixel(pointer, pointer + kvp.Value.Count));
+               foreach (var point in kvp.Value)
+               {
+                  province.BorderPixels[pointer++] = point;
+               }
+            }
+
+
 
             _mutex.WaitOne();
             Vars.BorderPixelCount += borderPixels.Count;
             _mutex.ReleaseMutex();
 
+            
+
             province.Border = borderPixels;
          });
+
+
 
          Debug.WriteLine($"Time Passed for map evaluation: {sw.Elapsed}");
 

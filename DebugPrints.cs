@@ -167,7 +167,7 @@ namespace EU4_Parse_Lib
                 $"Province ID: {kvp.Key,4}, Number of Border Pixels: {kvp.Value.Border.Count,5}:");
             total += kvp.Value.Border.Count;
          }
-         sb.AppendLine($"Total BorderPixels: {total}");
+         sb.AppendLine($"Total BorderPixelArray: {total}");
          Saving.WriteLog(sb.ToString(), "ProvBorders");
       }
       public static void PrintColorsToIds(Dictionary<Color, int> dic)

@@ -26,9 +26,13 @@ namespace EU4_Parse_Lib.DataClasses
       //Fort is missing
 
       public Color Color;
-
-      public Point[] Pixels ;
+      
       public List<Point> Border = new(); //TODO mach Array verweis auf ein Globales Array mit start und end index (length)
+
+      public Point[] Pixels ; //All Pixels of a provinces
+      public Point[] BorderPixels; //All pixels that are part of the border in the province
+
+      public Dictionary<Color, BorderPixel> BorderProvinces = new();
 
       public string Area { get; set; } = "-1";
       public string Name { get; set; } = "-1";
