@@ -4,6 +4,10 @@ using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib
 {
+   public enum SelectionMode
+   {
+      Province, Area, Region, Owner
+   }
    public enum MType
    {
       TriggerList, Gradient, ColorTable, OneColorPerValue
@@ -39,7 +43,7 @@ namespace EU4_Parse_Lib
    }
    public static class Vars
    {
-      public static ContextMenuStrip MapRightClickMenu = new();
+      public static SelectionMode MapSelectionMode = SelectionMode.Province;
 
       public static bool RenderCreatedMapModes = true; // TODO make settable in an interface aka settings
       public static bool DrawOutlineInMapModes = true; //TODO make this a setting

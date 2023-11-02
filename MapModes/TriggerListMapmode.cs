@@ -1,4 +1,5 @@
-﻿using EU4_Parse_Lib.Interfaces;
+﻿using EU4_Parse_Lib.DataClasses;
+using EU4_Parse_Lib.Interfaces;
 
 namespace EU4_Parse_Lib.MapModes;
 internal class TriggerListMapmode : IMapMode
@@ -79,16 +80,16 @@ internal class TriggerListMapmode : IMapMode
                {
                   if (!trigger.GetTrigger(countriesValue))
                   {
-                     foreach (var provincesValue in countriesValue.provinces.Values)
+                     foreach (var provinceID in countriesValue.Provinces)
                      {
-                        dic.Add(provincesValue.Id, Color.FromArgb(255, 219, 27, 27));
+                        dic.Add(provinceID, Color.FromArgb(255, 219, 27, 27));
 
                      }
                      break;
                   }
-                  foreach (var provincesValue in countriesValue.provinces.Values)
+                  foreach (var provinceID in countriesValue.Provinces)
                   {
-                     dic.Add(provincesValue.Id, Color.FromArgb(255, 0, 204, 0));
+                     dic.Add(provinceID, Color.FromArgb(255, 0, 204, 0));
                   }
                }
             }

@@ -64,7 +64,7 @@ internal class GradientMapMode : IMapMode
             Parallel.ForEach(Vars.OnMapCountries.Values, country =>
             {
                var col = Util.GetGradientColor(Min, Max, (int)country.GetAttribute(Attribute), NullColor, Null);
-               foreach (var id in country.provinces.Keys)
+               foreach (var id in country.Provinces)
                {
                   dic.TryAdd(id, col);
                }

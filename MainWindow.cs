@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Design;
+using System.Text;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 using EU4_Parse_Lib.MapModes;
@@ -156,13 +158,47 @@ namespace EU4_Parse_Lib
          if (!Vars.ColorIds.ContainsKey(color))
             return;
 
+         var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
          switch (e.Button)
          {
             case MouseButtons.Left when ModifierKeys == Keys.Control:
                {
-                  var p = Vars.Provinces[Vars.ColorIds[color]];
-                  Vars.SelectedProvinces.Add(p);
-                  Gui.RenderSelection(p, Color.FromArgb(255, 255, 255, 255));
+                  switch (Vars.MapSelectionMode)
+                  {
+                     case SelectionMode.Province:
+                        if (Vars.SelectedProvinces.Contains(currentProvince))
+                        {
+                           Gui.RenderSelection(currentProvince, Color.FromArgb(255, 0, 0, 0));
+                           Vars.SelectedProvinces.Clear();
+                           return;
+                        }
+                        Vars.SelectedProvinces.Add(currentProvince);
+                        Gui.RenderSelection(currentProvince, Color.FromArgb(255, 255, 255, 255));
+                        break;
+                     case SelectionMode.Area:
+                        var area = Vars.Areas[currentProvince.Area];
+                        if (Vars.SelectedProvinces.Contains(currentProvince))
+                        {
+                           var sb = new StringBuilder();
+                           foreach (var prov in area.Provinces)
+                           {
+                              sb.Append($"{prov} ");
+                           }
+                           foreach (var areaProvince in area.Provinces)
+                           {
+                              Gui.RenderSelection(Vars.Provinces[areaProvince], Color.FromArgb(255,0,0,0));
+                              Vars.SelectedProvinces.Remove(Vars.Provinces[areaProvince]);
+                           }
+                           return;
+                        }
+
+                        foreach (var areaProvince in area.Provinces)
+                        {
+                           Vars.SelectedProvinces.Add(Vars.Provinces[areaProvince]);
+                        }
+                        Util.AddCollectionToSelectedProvinces(Vars.SelectedProvinces);
+                        break;
+                  }
                   break;
                }
             case MouseButtons.Left:
@@ -177,15 +213,36 @@ namespace EU4_Parse_Lib
                      Gui.UpdateProvinceBorder(ref Vars.SelectedProvinces); //Unselect all provinces
                   }
 
-                  var currentProvince = Vars.Provinces[Vars.ColorIds[color]];
-                  if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
+                  switch (Vars.MapSelectionMode)
                   {
-                     Vars.SelectedProvinces.Clear();
-                     return;
+                     case SelectionMode.Province:
+                        if (Vars.SelectedProvinces.Count == 1 && Vars.SelectedProvinces[0].Equals(currentProvince))
+                        {
+                           Vars.SelectedProvinces.Clear();
+                           return;
+                        }
+                        Vars.SelectedProvinces.Clear();
+                        Gui.RenderSelection(currentProvince, Color.FromArgb(255, 255, 255, 255));
+                        Vars.SelectedProvinces.Add(currentProvince);
+                        break;
+
+                     case SelectionMode.Area:
+                        var area = Vars.Areas[currentProvince.Area];
+                        //return if the same area is clicked again
+                        foreach (var pro in Vars.SelectedProvinces)
+                        {
+                           Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
+                        }
+                        if (Vars.SelectedProvinces.Contains(currentProvince))
+                        {
+                           Vars.SelectedProvinces.Clear();
+                           return;
+                        }
+
+                        Gui.SelectProvinceCollection(area.Provinces);
+                        break;
                   }
-                  Vars.SelectedProvinces.Clear();
-                  Util.NextProvince(currentProvince);
-                  Vars.SelectedProvinces.Add(currentProvince);
+
                   break;
                }
          }
@@ -223,15 +280,15 @@ namespace EU4_Parse_Lib
 
          var cursorColor = Vars.BorderlessMap!.GetPixel(e.X + DisplayRect.X, e.Y + DisplayRect.Y);
 
-         if (cursorColor == Vars.HoverCursorProvinceColor) 
+         if (cursorColor == Vars.HoverCursorProvinceColor)
             return;
-         if (!Vars.ColorIds.TryGetValue(cursorColor, out var col)) 
+         if (!Vars.ColorIds.TryGetValue(cursorColor, out var col))
             return;
          var p = Vars.Provinces[Vars.ColorIds[cursorColor]];
          if (Vars.SelectedProvinces.Contains(p))
             return;
-         
-         Debug.WriteLine($"Found Province {col}");
+
+         //Debug.WriteLine($"Found Province {col}");
          if (Vars.ColorIds.TryGetValue(Vars.HoverCursorProvinceColor, out var id) && !Vars.SelectedProvinces.Contains(Vars.Provinces[id]))
          {
             if (Vars.MapMode!.Name.Equals("Default Map Mode"))
@@ -408,7 +465,7 @@ namespace EU4_Parse_Lib
 
       private void SelectAreaContext_Click(object sender, EventArgs e)
       {
-         if (Vars.SelectedProvinces.Count > 1)
+         if (Vars.SelectedProvinces.Count != 1)
             return;
          var areaName = Vars.SelectedProvinces[0].Area;
          if (!Vars.Areas.TryGetValue(areaName, out var obj))
@@ -429,6 +486,87 @@ namespace EU4_Parse_Lib
             Vars.DrawOutlineInMapModes = true;
          }
          Gui.ChangeMapMode();
+      }
+
+      private void SelectOwnerContext_Click(object sender, EventArgs e)
+      {
+         if (Vars.SelectedProvinces.Count != 1)
+            return;
+         if (Vars.Countries.TryGetValue(Vars.SelectedProvinces[0].Owner, out var country))
+         {
+            foreach (var provinceId in country.Provinces)
+            {
+               Vars.SelectedProvinces.Add(Vars.Provinces[provinceId]);
+            }
+            Gui.SelectProvinceCollection(country.Provinces);
+         }
+      }
+
+      private void ProvinceCoresContext_Paint(object sender, PaintEventArgs e)
+      {
+         if (Vars.SelectedProvinces.Count != 1)
+            return;
+         for (var i = 100; i < 120; i++)
+         {
+            Vars.SelectedProvinces[0].Cores.Add($"{i}");
+         }
+         foreach (var core in Vars.SelectedProvinces[0].Cores)
+         {
+            ProvinceCoresContext.Items.Add(core);
+         }
+      }
+
+      private void CoreSelectionConfirmContext_Click(object sender, EventArgs e)
+      {
+         var selectedTag = ProvinceCoresContext.Text;
+         if (!Util.VerifyTag(selectedTag))
+            return;
+         List<int> idsToSelect = new();
+         foreach (var province in Vars.Provinces)
+         {
+            if (province.Value.Cores.Contains(selectedTag))
+            {
+               idsToSelect.Add(province.Value.Id);
+               Vars.SelectedProvinces.Add(province.Value);
+            }
+         }
+         Gui.SelectProvinceCollection(idsToSelect);
+      }
+
+      private void ProvinceSelectionModeMenuItem_Click(object sender, EventArgs e)
+      {
+         Vars.MapSelectionMode = SelectionMode.Province;
+         ProvinceSelectionModeMenuItem.Checked = true;
+         AreaSelectionModeMenuItem.Checked = false;
+         RegionSelectionModeMenuItem.Checked = false;
+         OwnerSelectionModeMenuItem.Checked = false;
+      }
+
+      private void AreaSelectionModeMenuItem_Click(object sender, EventArgs e)
+      {
+         Vars.MapSelectionMode = SelectionMode.Area;
+         ProvinceSelectionModeMenuItem.Checked = false;
+         AreaSelectionModeMenuItem.Checked = true;
+         RegionSelectionModeMenuItem.Checked = false;
+         OwnerSelectionModeMenuItem.Checked = false;
+      }
+
+      private void RegionSelectionModeMenuItem_Click(object sender, EventArgs e)
+      {
+         Vars.MapSelectionMode = SelectionMode.Region;
+         ProvinceSelectionModeMenuItem.Checked = false;
+         AreaSelectionModeMenuItem.Checked = false;
+         RegionSelectionModeMenuItem.Checked = true;
+         OwnerSelectionModeMenuItem.Checked = false;
+      }
+
+      private void OwnerSelectionModeMenuItem_Click(object sender, EventArgs e)
+      {
+         Vars.MapSelectionMode = SelectionMode.Owner;
+         ProvinceSelectionModeMenuItem.Checked = false;
+         AreaSelectionModeMenuItem.Checked = false;
+         RegionSelectionModeMenuItem.Checked = false;
+         OwnerSelectionModeMenuItem.Checked = true;
       }
    }
 }

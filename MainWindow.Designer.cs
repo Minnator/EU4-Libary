@@ -49,6 +49,11 @@
          resetAllMapmodesToolStripMenuItem = new ToolStripMenuItem();
          tooltipToolStripMenuItem = new ToolStripMenuItem();
          StatisticsTollStripMenuItem = new ToolStripMenuItem();
+         selectionModeToolStripMenuItem = new ToolStripMenuItem();
+         ProvinceSelectionModeMenuItem = new ToolStripMenuItem();
+         AreaSelectionModeMenuItem = new ToolStripMenuItem();
+         RegionSelectionModeMenuItem = new ToolStripMenuItem();
+         OwnerSelectionModeMenuItem = new ToolStripMenuItem();
          helpToolStripMenuItem = new ToolStripMenuItem();
          ZoomInButton = new Button();
          ZoomOutButton = new Button();
@@ -62,6 +67,7 @@
          SelectOwnerContext = new ToolStripMenuItem();
          SelectAllCoresContext = new ToolStripMenuItem();
          ProvinceCoresContext = new ToolStripComboBox();
+         CoreSelectionConfirmContext = new ToolStripMenuItem();
          SelectAreaContext = new ToolStripMenuItem();
          SelectRegionContext = new ToolStripMenuItem();
          SelectTradenodeContext = new ToolStripMenuItem();
@@ -182,7 +188,7 @@
          // 
          // menuStrip1
          // 
-         menuStrip1.Items.AddRange(new ToolStripItem[] { settingsToolStripMenuItem, mapmodesToolStripMenuItem, tooltipToolStripMenuItem, StatisticsTollStripMenuItem, helpToolStripMenuItem });
+         menuStrip1.Items.AddRange(new ToolStripItem[] { settingsToolStripMenuItem, mapmodesToolStripMenuItem, tooltipToolStripMenuItem, StatisticsTollStripMenuItem, selectionModeToolStripMenuItem, helpToolStripMenuItem });
          menuStrip1.Location = new Point(0, 0);
          menuStrip1.Name = "menuStrip1";
          menuStrip1.Size = new Size(1163, 24);
@@ -277,6 +283,43 @@
          StatisticsTollStripMenuItem.Text = "Statistics";
          StatisticsTollStripMenuItem.Click += StatisticsTollStripMenuItem_Click;
          // 
+         // selectionModeToolStripMenuItem
+         // 
+         selectionModeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ProvinceSelectionModeMenuItem, AreaSelectionModeMenuItem, RegionSelectionModeMenuItem, OwnerSelectionModeMenuItem });
+         selectionModeToolStripMenuItem.Name = "selectionModeToolStripMenuItem";
+         selectionModeToolStripMenuItem.Size = new Size(101, 20);
+         selectionModeToolStripMenuItem.Text = "Selection Mode";
+         // 
+         // ProvinceSelectionModeMenuItem
+         // 
+         ProvinceSelectionModeMenuItem.Checked = true;
+         ProvinceSelectionModeMenuItem.CheckState = CheckState.Checked;
+         ProvinceSelectionModeMenuItem.Name = "ProvinceSelectionModeMenuItem";
+         ProvinceSelectionModeMenuItem.Size = new Size(180, 22);
+         ProvinceSelectionModeMenuItem.Text = "Province";
+         ProvinceSelectionModeMenuItem.Click += ProvinceSelectionModeMenuItem_Click;
+         // 
+         // AreaSelectionModeMenuItem
+         // 
+         AreaSelectionModeMenuItem.Name = "AreaSelectionModeMenuItem";
+         AreaSelectionModeMenuItem.Size = new Size(180, 22);
+         AreaSelectionModeMenuItem.Text = "Area";
+         AreaSelectionModeMenuItem.Click += AreaSelectionModeMenuItem_Click;
+         // 
+         // RegionSelectionModeMenuItem
+         // 
+         RegionSelectionModeMenuItem.Name = "RegionSelectionModeMenuItem";
+         RegionSelectionModeMenuItem.Size = new Size(180, 22);
+         RegionSelectionModeMenuItem.Text = "Region";
+         RegionSelectionModeMenuItem.Click += RegionSelectionModeMenuItem_Click;
+         // 
+         // OwnerSelectionModeMenuItem
+         // 
+         OwnerSelectionModeMenuItem.Name = "OwnerSelectionModeMenuItem";
+         OwnerSelectionModeMenuItem.Size = new Size(180, 22);
+         OwnerSelectionModeMenuItem.Text = "Owner (Country)";
+         OwnerSelectionModeMenuItem.Click += OwnerSelectionModeMenuItem_Click;
+         // 
          // helpToolStripMenuItem
          // 
          helpToolStripMenuItem.Name = "helpToolStripMenuItem";
@@ -359,10 +402,11 @@
          SelectOwnerContext.Name = "SelectOwnerContext";
          SelectOwnerContext.Size = new Size(172, 22);
          SelectOwnerContext.Text = "Select Owner";
+         SelectOwnerContext.Click += SelectOwnerContext_Click;
          // 
          // SelectAllCoresContext
          // 
-         SelectAllCoresContext.DropDownItems.AddRange(new ToolStripItem[] { ProvinceCoresContext });
+         SelectAllCoresContext.DropDownItems.AddRange(new ToolStripItem[] { ProvinceCoresContext, CoreSelectionConfirmContext });
          SelectAllCoresContext.Name = "SelectAllCoresContext";
          SelectAllCoresContext.Size = new Size(172, 22);
          SelectAllCoresContext.Text = "Select all cores";
@@ -372,6 +416,14 @@
          ProvinceCoresContext.DropDownStyle = ComboBoxStyle.DropDownList;
          ProvinceCoresContext.Name = "ProvinceCoresContext";
          ProvinceCoresContext.Size = new Size(121, 23);
+         ProvinceCoresContext.Paint += ProvinceCoresContext_Paint;
+         // 
+         // CoreSelectionConfirmContext
+         // 
+         CoreSelectionConfirmContext.Name = "CoreSelectionConfirmContext";
+         CoreSelectionConfirmContext.Size = new Size(181, 22);
+         CoreSelectionConfirmContext.Text = "Confirm Selection";
+         CoreSelectionConfirmContext.Click += CoreSelectionConfirmContext_Click;
          // 
          // SelectAreaContext
          // 
@@ -778,5 +830,11 @@
       private ToolStripMenuItem keyMappingToolStripMenuItem;
       private ToolStripSeparator toolStripSeparator5;
       private ToolStripMenuItem AlwayRenderProvinceOutlineSetting;
+      private ToolStripMenuItem CoreSelectionConfirmContext;
+      private ToolStripMenuItem selectionModeToolStripMenuItem;
+      private ToolStripMenuItem ProvinceSelectionModeMenuItem;
+      private ToolStripMenuItem AreaSelectionModeMenuItem;
+      private ToolStripMenuItem RegionSelectionModeMenuItem;
+      private ToolStripMenuItem OwnerSelectionModeMenuItem;
    }
 }

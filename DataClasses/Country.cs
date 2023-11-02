@@ -4,8 +4,8 @@ namespace EU4_Parse_Lib.DataClasses;
 
 public class Country : IScope
 {
-    string Tag { get; set; }
-    public Dictionary<int, Province> provinces;
+    public string Tag { get; set; }
+    public List<int> Provinces { get; set; }
 
 
     public readonly Dictionary<Attribute, Func<Country, object>> Attributes = new()

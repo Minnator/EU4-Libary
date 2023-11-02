@@ -67,10 +67,10 @@ internal class ColorTableMapMode : IMapMode
             foreach (var country in Vars.OnMapCountries.Values)
             {
                if (ColorTable.TryGetValue(country.GetAttribute(Attribute).ToString()!, out var col))
-                  foreach (var province in country.provinces.Keys)
+                  foreach (var province in country.Provinces)
                      dic.Add(province, col);
                else
-                  foreach (var province in country.provinces.Keys)
+                  foreach (var province in country.Provinces)
                      dic.Add(province, Color.FromArgb(255, 0, 0, 0));
             }
             break;

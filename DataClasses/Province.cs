@@ -11,7 +11,7 @@ namespace EU4_Parse_Lib.DataClasses
       public string Capital { get; set; }
       public string Culture { get; set; }
       public string Religion { get; set; }
-      public List<string> Cores { get; set; }
+      public List<string> Cores { get; set; } = new();
       public List<string> Discoveries { get; set; }
       public short BaseTax { get; set; }
       public short BaseProduction { get; set; }
