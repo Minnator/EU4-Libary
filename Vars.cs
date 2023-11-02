@@ -121,7 +121,7 @@ namespace EU4_Parse_Lib
 
       public static Dictionary<int, Color> RandomColors = new();
 
-      public static Province HoverCursorProvince = new Province(Color.FromArgb(255, 0, 0, 0));
+      public static Color HoverCursorProvinceColor ;
 
 
       // FORMS

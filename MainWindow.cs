@@ -89,7 +89,11 @@ namespace EU4_Parse_Lib
       {
          if (Vars.Map == null)
             return;
+
+         Map.Image?.Dispose(); // Dispose of the previous image
+
          Map.Image = Vars.Map.Clone(DisplayRect, Vars.Map.PixelFormat);
+
          //Map.Image = Vars.Map.Clone(DisplayRectF, Vars.Map.PixelFormat);
 
       }
@@ -197,15 +201,6 @@ namespace EU4_Parse_Lib
          var clientMouseLocation = pictureBox.PointToClient(Cursor.Position);
 
          GenerateMouseTooltip(new Point(clientMouseLocation.X, clientMouseLocation.Y));
-         if (Vars.MapMode!.Name.Equals("Default Map Mode"))
-         {
-            foreach (var pro in Vars.SelectedProvinces)
-               Gui.RenderSelection(pro, Color.FromArgb(255, 0, 0, 0));
-         }
-         else
-         {
-            Gui.UpdateProvinceBorder(ref Vars.SelectedProvinces); //Unselect all provinces
-         }
       }
 
 
@@ -223,15 +218,34 @@ namespace EU4_Parse_Lib
       {
          if (!_isMouseOverPictureBox)
             return;
-         if (_lastMouseLocation == new Point(e.X, e.Y)) return;
-
-         _cooldownTimer.Interval = 400;
-         _cooldownTimer.Tick += CooldownTimer_Tick!;
-         _cooldownTimer.Start();
-
-         _lastMouseLocation = e.Location;
 
          GenerateMouseTooltip(new Point(e.X, e.Y));
+
+         var cursorColor = Vars.BorderlessMap!.GetPixel(e.X + DisplayRect.X, e.Y + DisplayRect.Y);
+
+         if (cursorColor == Vars.HoverCursorProvinceColor) 
+            return;
+         if (!Vars.ColorIds.TryGetValue(cursorColor, out var col)) 
+            return;
+         var p = Vars.Provinces[Vars.ColorIds[cursorColor]];
+         if (Vars.SelectedProvinces.Contains(p))
+            return;
+         
+         Debug.WriteLine($"Found Province {col}");
+         if (Vars.ColorIds.TryGetValue(Vars.HoverCursorProvinceColor, out var id) && !Vars.SelectedProvinces.Contains(Vars.Provinces[id]))
+         {
+            if (Vars.MapMode!.Name.Equals("Default Map Mode"))
+            {
+               Gui.RenderSelection(Vars.Provinces[id], Color.FromArgb(255, 0, 0, 0));
+            }
+            else
+            {
+               List<Province> pList = new() { Vars.Provinces[id] };
+               Gui.UpdateProvinceBorder(ref pList);
+            }
+         }
+         Gui.RenderSelection(p, Color.Aqua);
+         Vars.HoverCursorProvinceColor = cursorColor;
       }
 
       private void CooldownTimer_Tick(object sender, EventArgs e)
