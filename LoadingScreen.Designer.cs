@@ -106,7 +106,7 @@
          LoadAllFilesButton.Location = new Point(12, 67);
          LoadAllFilesButton.Name = "LoadAllFilesButton";
          LoadAllFilesButton.Size = new Size(603, 23);
-         LoadAllFilesButton.TabIndex = 14;
+         LoadAllFilesButton.TabIndex = 1;
          LoadAllFilesButton.Text = "Continue";
          LoadAllFilesButton.UseVisualStyleBackColor = true;
          LoadAllFilesButton.Click += LoadAllFilesButton_Click;

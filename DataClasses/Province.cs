@@ -11,6 +11,8 @@ namespace EU4_Parse_Lib.DataClasses
       public string Capital { get; set; }
       public string Culture { get; set; }
       public string Religion { get; set; }
+      public string Area { get; set; } = "-1";
+      public string Name { get; set; } = "-1";
       public List<string> Cores { get; set; } = new();
       public List<string> Discoveries { get; set; }
       public short BaseTax { get; set; }
@@ -34,8 +36,6 @@ namespace EU4_Parse_Lib.DataClasses
 
       public Dictionary<Color, BorderPixel> BorderProvinces = new();
 
-      public string Area { get; set; } = "-1";
-      public string Name { get; set; } = "-1";
 
       private static readonly Dictionary<Attribute, Func<Province, object>> Attributes = new()
         {

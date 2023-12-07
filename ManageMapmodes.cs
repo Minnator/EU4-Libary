@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
-using Emgu.CV.Cuda;
-using Emgu.CV.Reg;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
 using EU4_Parse_Lib.MapModes;

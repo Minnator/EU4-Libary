@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using EU4_Parse_Lib.DataClasses;
 using EU4_Parse_Lib.Interfaces;
+using Region = EU4_Parse_Lib.DataClasses.Region;
 
 namespace EU4_Parse_Lib
 {
@@ -99,7 +100,7 @@ namespace EU4_Parse_Lib
 
       public static Dictionary<int, Color> SelectedMapModeColorMap = new();
 
-      public static Dictionary<Color, List<Point>> ColorsToPixelDictionary = new();
+      public static readonly Dictionary<Color, List<Point>> ColorsToPixelDictionary = new();
 
       public static Dictionary<string, Country> Countries = new();
       public static Dictionary<string, Country> OnMapCountries = new();
@@ -123,9 +124,11 @@ namespace EU4_Parse_Lib
 
       public static Dictionary<string, Area> Areas = new();
 
+      public static Dictionary<string, Region> Regions = new();
+
       public static Dictionary<int, Color> RandomColors = new();
 
-      public static Color HoverCursorProvinceColor ;
+      public static Color HoverCursorProvinceColor = Color.Aqua;
 
 
       // FORMS

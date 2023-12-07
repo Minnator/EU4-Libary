@@ -5,11 +5,15 @@ namespace EU4_Parse_Lib.DataClasses;
 
 public class Area : IScope, IProvCollection
 {
-   public string Name = "undefined";
-   public List<int> Provinces = new();
-   public float Prosperity = 0;
-   public string Edict = string.Empty;
-   public bool IsStated = false;
+   public string Region { get; set; } = "-1";
+   public string Name { get; set; } = "-1";
+   public string Edict { get; set; } = string.Empty;
+
+   public List<int> Provinces { get; set; } = new();
+
+   public float Prosperity { get; set; } = 0;
+
+   public bool IsStated { get; set; }
 
    public List<KeyValuePair<string, float>> GetOwnerPercentage()
    {

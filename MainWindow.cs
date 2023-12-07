@@ -1,10 +1,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Design;
+using System.Linq;
 using System.Text;
 using EU4_Parse_Lib.DataClasses;
-using EU4_Parse_Lib.Interfaces;
 using EU4_Parse_Lib.MapModes;
 using Timer = System.Windows.Forms.Timer;
 
@@ -20,7 +18,7 @@ namespace EU4_Parse_Lib
 
       private bool _isMouseOverPictureBox;
       private readonly Timer _cooldownTimer = new();
-      private Point _lastMouseLocation;
+      private int _lastHoveredProvince = 1;
 
       public MainWindow()
       {
@@ -46,7 +44,8 @@ namespace EU4_Parse_Lib
          // Initialize the cooldown timer
          _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
          _cooldownTimer.Tick += CooldownTimer_Tick!;
-         Gui.RenderBorders(Color.FromArgb(255, 0, 0, 0));
+         //Gui.RenderBorders(Color.FromArgb(255, 0, 0, 0));
+         GpuGui.Start(Color.Black);
          //Gui.DrawBorderAroundRegions();
          Loading.LoadWithStopWatch("Random Colors", Loading.FillRandomColorsList);
          Loading.WriteDebugFiles();
@@ -186,7 +185,7 @@ namespace EU4_Parse_Lib
                            }
                            foreach (var areaProvince in area.Provinces)
                            {
-                              Gui.RenderSelection(Vars.Provinces[areaProvince], Color.FromArgb(255,0,0,0));
+                              Gui.RenderSelection(Vars.Provinces[areaProvince], Color.FromArgb(255, 0, 0, 0));
                               Vars.SelectedProvinces.Remove(Vars.Provinces[areaProvince]);
                            }
                            return;
@@ -279,7 +278,7 @@ namespace EU4_Parse_Lib
          GenerateMouseTooltip(new Point(e.X, e.Y));
 
          var cursorColor = Vars.BorderlessMap!.GetPixel(e.X + DisplayRect.X, e.Y + DisplayRect.Y);
-
+         /*
          if (cursorColor == Vars.HoverCursorProvinceColor)
             return;
          if (!Vars.ColorIds.TryGetValue(cursorColor, out var col))
@@ -303,6 +302,128 @@ namespace EU4_Parse_Lib
          }
          Gui.RenderSelection(p, Color.Aqua);
          Vars.HoverCursorProvinceColor = cursorColor;
+         */
+
+         //New Highlighting
+         //Get Id and check if it is already highlighted
+         if (!Vars.ColorIds.TryGetValue(cursorColor, out var hoverId) || hoverId == _lastHoveredProvince)
+            return;
+         var currentProvince = Vars.Provinces[hoverId];
+         List<int> provincesToClear = new();
+
+
+         //Get all ids of provinces that are currently highlighted 
+         switch (Vars.MapSelectionMode)
+         {
+            case SelectionMode.Province:
+               if (!Vars.SelectedProvinces.Contains(Vars.Provinces[_lastHoveredProvince]))
+                  provincesToClear.Add(_lastHoveredProvince);
+               break;
+            case SelectionMode.Area:
+               if (!Vars.Areas.TryGetValue(currentProvince.Area, out var area))
+                  return;
+               if (area.Provinces.Count > 0 && !Vars.SelectedProvinces.Contains(Vars.Provinces[area.Provinces[0]]))
+                  provincesToClear = area.Provinces;
+               Debug.WriteLine($"Added {provincesToClear.Count} to deselect");
+               break;
+            case SelectionMode.Region:
+               if (!Vars.Areas.TryGetValue(currentProvince.Area, out var area2))
+                  return;
+               if (!Vars.Regions.TryGetValue(area2.Region, out var region))
+                  return;
+               foreach (var regionArea in region.Areas)
+               {
+                  if (!Vars.Areas.TryGetValue(regionArea, out var areReg))
+                     continue;
+                  provincesToClear.AddRange(areReg.Provinces);
+               }
+               break;
+            case SelectionMode.Owner:
+               if (!Vars.Countries.TryGetValue(currentProvince.Owner, out var owner))
+                  return;
+               foreach (var province in Vars.Provinces.Values)
+               {
+                  if (province.Owner.Equals(owner.Tag))
+                     provincesToClear.Add(province.Id);
+               }
+               break;
+         }
+
+         //Clear previous selections
+         if (Vars.MapMode!.Name.Equals("Default Map Mode") && provincesToClear.Count > 0)
+         {
+            foreach (var i in provincesToClear)
+            {
+               //Gui.RenderSelection(Vars.Provinces[i], Color.FromArgb(255, 0, 0, 0));
+               GpuGui.RenderSelection(Vars.Provinces[i].BorderPixels, Color.Black); //Why this so slow?
+            }
+         }
+         else if (provincesToClear.Count > 0)
+         {
+            List<Province> provinces = new();
+            foreach (var i in provincesToClear)
+            {
+               provinces.Add(Vars.Provinces[i]);
+            }
+            var sb = new StringBuilder();
+            foreach (var province in provinces)
+            {
+               sb.Append($"{province.Id} ");
+            }
+            //Debug.WriteLine($"Updating borders for {provinces.Count} | {sb.ToString()}");
+            Gui.UpdateProvinceBorder(ref provinces);
+         }
+
+
+         //Do not highlight other provinces if the current province is selected
+         if (Vars.SelectedProvinces.Contains(Vars.Provinces[hoverId]))
+            return;
+
+
+
+         //Highlight new provinces
+         List<Point> borderPoints = new();
+         switch (Vars.MapSelectionMode)
+         {
+            case SelectionMode.Province:
+               var tempPoint = new Point[Vars.Provinces[hoverId].BorderPixel.length];
+               Array.Copy(Vars.BorderArray!, Vars.Provinces[hoverId].BorderPixel.start, tempPoint, 0, Vars.Provinces[hoverId].BorderPixel.length);
+               borderPoints.AddRange(tempPoint);
+               break;
+
+            case SelectionMode.Area:
+               if (!Vars.Areas.TryGetValue(currentProvince.Area, out var area))
+                  return;
+
+               foreach (var areaProvince in area.Provinces)
+               {
+                  var points = new Point[Vars.Provinces[areaProvince].BorderPixel.length];
+                  Array.Copy(Vars.BorderArray!, Vars.Provinces[areaProvince].BorderPixel.start, points, 0, Vars.Provinces[areaProvince].BorderPixel.length);
+                  borderPoints.AddRange(points);
+               }
+
+               break;
+            case SelectionMode.Region:
+               if (!Vars.Areas.TryGetValue(currentProvince.Area, out var areaRegion))
+                  return;
+               if (!Vars.Regions.TryGetValue(areaRegion.Name, out var region))
+                  return;
+               foreach (var reg in region.Areas)
+               {
+                  if (!Vars.Areas.TryGetValue(reg, out var regArea))
+                     continue;
+                  foreach (var prov in regArea.Provinces)
+                  {
+                     var regTempPoints = new Point[Vars.Provinces[prov].BorderPixel.length];
+                     Array.Copy(Vars.BorderArray!, Vars.Provinces[prov].BorderPixel.start, regTempPoints, 0, Vars.Provinces[prov].BorderPixel.length);
+                     borderPoints.AddRange(regTempPoints);
+                  }
+               }
+               break;
+         }
+
+         Gui.ChangePointCollectionColor(borderPoints, Vars.HoverCursorProvinceColor);
+         _lastHoveredProvince = hoverId;
       }
 
       private void CooldownTimer_Tick(object sender, EventArgs e)
@@ -567,6 +688,12 @@ namespace EU4_Parse_Lib
          AreaSelectionModeMenuItem.Checked = false;
          RegionSelectionModeMenuItem.Checked = false;
          OwnerSelectionModeMenuItem.Checked = true;
+      }
+
+      private void debugToolStripMenuItem_Click(object sender, EventArgs e)
+      {
+         GpuGui.Start(Color.Black);
+         UpdateDisplayedImage();
       }
    }
 }

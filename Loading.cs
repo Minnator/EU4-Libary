@@ -4,7 +4,6 @@ using System.Drawing.Imaging;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.RegularExpressions;
-using Emgu.CV.Cuda;
 using EU4_Parse_Lib.DataClasses;
 using Newtonsoft.Json;
 using ScottPlot;

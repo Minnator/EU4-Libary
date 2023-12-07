@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Imaging;
 using EU4_Parse_Lib.DataClasses;
 
@@ -7,7 +8,7 @@ namespace EU4_Parse_Lib;
 public static class Gui
 {
    private static int _mapModeButtonsCount;
-   private static ToolTip _mapModeHoverToolTip = new();
+   private static readonly ToolTip MapModeHoverToolTip = new();
 
 
    /// <summary>
@@ -53,7 +54,7 @@ public static class Gui
          AutoSizeMode = AutoSizeMode.GrowAndShrink,
          Text = leftButtonText,
       };
-      _mapModeHoverToolTip.SetToolTip(button1, leftButtonText);
+      MapModeHoverToolTip.SetToolTip(button1, leftButtonText);
       button1.Click += Vars.MainWindow.OnMapModeSelection!;
       AddToMapModeKeyMap(button1);
       rowPanel.Controls.Add(button1);
@@ -79,7 +80,7 @@ public static class Gui
          AutoSizeMode = AutoSizeMode.GrowAndShrink,
          Text = leftButtonText
       };
-      _mapModeHoverToolTip.SetToolTip(button1, leftButtonText);
+      MapModeHoverToolTip.SetToolTip(button1, leftButtonText);
       button1.Click += Vars.MainWindow!.OnMapModeSelection!;
       AddToMapModeKeyMap(button1);
 
@@ -88,7 +89,7 @@ public static class Gui
          AutoSizeMode = AutoSizeMode.GrowAndShrink,
          Text = rightButtonText
       };
-      _mapModeHoverToolTip.SetToolTip(button2, rightButtonText);
+      MapModeHoverToolTip.SetToolTip(button2, rightButtonText);
       button2.Click += Vars.MainWindow.OnMapModeSelection!;
       AddToMapModeKeyMap(button2);
 
@@ -251,7 +252,7 @@ public static class Gui
       Vars.TimeStamps.Add($"Time Elapsed Creating Map NEW:".PadRight(30) + $"| {Vars.Stopwatch.Elapsed} |");
       Vars.Stopwatch.Reset();
    }
-      
+   
    /// <summary>
    /// Sets the border of the given province to a given color
    /// </summary>
@@ -276,8 +277,7 @@ public static class Gui
 
             Parallel.ForEach(Vars.BorderArray, point =>
             {
-               var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-               var pixelPtr = ptr + pixelOffset;
+               var pixelPtr = ptr + point.Y * stride + point.X * bytesPerPixel;
 
                pixelPtr[0] = color.B; // Blue component
                pixelPtr[1] = color.G; // Green component
@@ -286,8 +286,7 @@ public static class Gui
 
             Parallel.ForEach(Vars.MapBorder, point =>
             {
-               var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-               var pixelPtr = ptr + pixelOffset;
+               var pixelPtr = ptr + point.Y * stride + point.X * bytesPerPixel;
 
                pixelPtr[0] = color.B; // Blue component
                pixelPtr[1] = color.G; // Green component
@@ -377,15 +376,10 @@ public static class Gui
                {
                   if (!Vars.SelectedMapModeColorMap.TryGetValue(Vars.ColorIds[kvp.Key], out var color) || !color.Equals(currentColor))
                   {
-                     var points = new Point[kvp.Value.length];
-                     Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
-                     //DrawPointsOnMap(ref points, Color.FromArgb(255,0,0,0));
-
+                     Span<Point> points = new(province.BorderPixels, kvp.Value.start, kvp.Value.length);
                      foreach (var point in points)
                      {
-                        var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-                        var pixelPtr = ptr + pixelOffset;
-
+                        var pixelPtr = ptr + point.Y * stride + point.X * bytesPerPixel;
                         pixelPtr[0] = 0; // Blue component
                         pixelPtr[1] = 0; // Green component
                         pixelPtr[2] = 0; // Red component
@@ -393,12 +387,10 @@ public static class Gui
                   }
                   else if (Vars.DrawOutlineInMapModes)
                   {
-                     var points = new Point[kvp.Value.length];
-                     Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+                     Span<Point> points = new(province.BorderPixels, kvp.Value.start, kvp.Value.length);
                      foreach (var point in points)
                      {
-                        var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-                        var pixelPtr = ptr + pixelOffset;
+                        var pixelPtr = ptr + point.Y * stride + point.X * bytesPerPixel;
 
                         pixelPtr[0] = 130; // Blue component
                         pixelPtr[1] = 130; // Green component
@@ -452,18 +444,16 @@ public static class Gui
                {
                   return;
                }
+               //Debug.WriteLine($"Updating Border for: {province.Id} changing to {currentColor}");
 
                foreach (var kvp in province.BorderProvinces)
                {
                   if (!Vars.SelectedMapModeColorMap.TryGetValue(Vars.ColorIds[kvp.Key], out var color) || !color.Equals(currentColor))
                   {
-                     var points = new Point[kvp.Value.length];
-                     Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
-
+                     Span<Point> points = new(province.BorderPixels, kvp.Value.start, kvp.Value.length);
                      foreach (var point in points)
                      {
-                        var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-                        var pixelPtr = ptr + pixelOffset;
+                        var pixelPtr = ptr + point.Y * stride + point.X * bytesPerPixel;
 
                         pixelPtr[0] = 0; // Blue component
                         pixelPtr[1] = 0; // Green component
@@ -472,12 +462,10 @@ public static class Gui
                   }
                   else if (Vars.DrawOutlineInMapModes)
                   {
-                     var points = new Point[kvp.Value.length];
-                     Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+                     Span<Point> points = new(province.BorderPixels, kvp.Value.start, kvp.Value.length);
                      foreach (var point in points)
                      {
-                        var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-                        var pixelPtr = ptr + pixelOffset;
+                        var pixelPtr = ptr + point.Y * stride + point.X * bytesPerPixel;
 
                         pixelPtr[0] = 130; // Blue component
                         pixelPtr[1] = 130; // Green component
@@ -486,16 +474,17 @@ public static class Gui
                   }
                   else //Draw the color of Province back to the map
                   {
-                     var points = new Point[kvp.Value.length];
-                     Array.Copy(province.BorderPixels, kvp.Value.start, points, 0, kvp.Value.length);
+                     Span<Point> points = new(province.BorderPixels, kvp.Value.start, kvp.Value.length);
+                     var red = currentColor.R;
+                     var green = currentColor.G;
+                     var blue = currentColor.B;
                      foreach (var point in points)
                      {
-                        var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
-                        var pixelPtr = ptr + pixelOffset;
+                        var pixelPtr = ptr + point.Y * stride + point.X * bytesPerPixel;
 
-                        pixelPtr[0] = currentColor.B; // Blue component
-                        pixelPtr[1] = currentColor.G; // Green component
-                        pixelPtr[2] = currentColor.R; // Red component
+                        pixelPtr[0] = red; // Blue component
+                        pixelPtr[1] = green; // Green component
+                        pixelPtr[2] = blue; // Red component
                      }
                   }
                }
@@ -506,7 +495,7 @@ public static class Gui
             Vars.Map.UnlockBits(bmpData);
          }
       }
-
+      
       //sw.Stop();
       //Debug.WriteLine($"Deleting Previous Selection: {sw.Elapsed}");
       Vars.Stopwatch.Stop();
@@ -546,6 +535,56 @@ public static class Gui
             var ptr = (byte*)bmpData.Scan0.ToPointer();
             var points = new Point[p.BorderPixel.length];
             Array.Copy(Vars.BorderArray, p.BorderPixel.start, points, 0, points.Length);
+            Parallel.ForEach(points, point =>
+            {
+               var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
+               var pixelPtr = ptr + pixelOffset;
+
+               pixelPtr[0] = color.B; // Blue component
+               pixelPtr[1] = color.G; // Green component
+               pixelPtr[2] = color.R; // Red component
+            });
+         }
+      }
+      finally
+      {
+         Vars.Map.UnlockBits(bmpData);
+      }
+      Vars.Stopwatch.Stop();
+      //Debug.WriteLine($"Time Selecting province: {Vars.Stopwatch.Elapsed}");
+      Vars.Stopwatch.Reset();
+      Vars.TotalLoadTime += Vars.Stopwatch.Elapsed;
+
+      //Vars.Map.Save("C:\\Users\\david\\Downloads\\test.bmp", ImageFormat.Bmp);
+      var offsetX = Math.Max(0, Math.Min(Vars.Map.Width - Vars.MainWindow!.Map.Width, Vars.MainWindow.DisplayRect.X));
+      var offsetY = Math.Max(0, Math.Min(Vars.Map.Height - Vars.MainWindow.Map.Height, Vars.MainWindow.DisplayRect.Y));
+
+      Vars.MainWindow.MoveBitmap(offsetX - Vars.MainWindow.DisplayRect.X, offsetY - Vars.MainWindow.DisplayRect.Y);
+      Vars.MainWindow.Map.Invalidate();
+   }
+   
+   /// <summary>
+   /// Sets the border of the given province to a given color
+   /// </summary>
+   /// <param name="points"></param>
+   /// <param name="color"></param>
+   public static void ChangePointCollectionColor(List<Point> points, Color color)
+   {
+      Vars.Stopwatch.Start();
+      if (Vars.Map == null || Vars.BorderArray!.Length < 1)
+      {
+         return; // Check for null Map
+      }
+
+      var rect = new Rectangle(0, 0, Vars.Map.Width, Vars.Map.Height);
+      var bmpData = Vars.Map.LockBits(rect, ImageLockMode.ReadWrite, Vars.Map.PixelFormat);
+      var stride = bmpData.Stride;
+      try
+      {
+         var bytesPerPixel = Image.GetPixelFormatSize(Vars.Map.PixelFormat) / 8;
+         unsafe
+         {
+            var ptr = (byte*)bmpData.Scan0.ToPointer();
             Parallel.ForEach(points, point =>
             {
                var pixelOffset = (point.Y * stride) + (point.X * bytesPerPixel);
@@ -619,10 +658,7 @@ public static class Gui
    /// <param name="textBox"></param>
    public static void SelectAllOnFocus(this TextBox textBox)
    {
-      textBox.Enter += (sender, e) =>
-      {
-         textBox.BeginInvoke((MethodInvoker)textBox.SelectAll);
-      };
+      textBox.Enter += (_, _) => textBox.BeginInvoke((MethodInvoker)textBox.SelectAll);
    }
    /// <summary>
    /// Puts the cursor at the end of the text. Useful for texts longer that the Texbox can show

@@ -108,6 +108,7 @@
          toolStripSeparator2 = new ToolStripSeparator();
          ConfirmColorChangeContext = new ToolStripMenuItem();
          groupBox1 = new GroupBox();
+         debugToolStripMenuItem = new ToolStripMenuItem();
          ((System.ComponentModel.ISupportInitialize)Map).BeginInit();
          ((System.ComponentModel.ISupportInitialize)StepsizeMove).BeginInit();
          ((System.ComponentModel.ISupportInitialize)zoomTrackBar).BeginInit();
@@ -197,7 +198,7 @@
          // 
          // settingsToolStripMenuItem
          // 
-         settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ReloadLocalisationToolStripMenuItem, keyMappingToolStripMenuItem, toolStripSeparator5, clearCacheToolStripMenuItem, clearAllUserDefinedFilesToolStripMenuItem, AlwayRenderProvinceOutlineSetting });
+         settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ReloadLocalisationToolStripMenuItem, keyMappingToolStripMenuItem, toolStripSeparator5, clearCacheToolStripMenuItem, clearAllUserDefinedFilesToolStripMenuItem, AlwayRenderProvinceOutlineSetting, debugToolStripMenuItem });
          settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
          settingsToolStripMenuItem.Size = new Size(61, 20);
          settingsToolStripMenuItem.Text = "Settings";
@@ -715,6 +716,14 @@
          groupBox1.TabStop = false;
          groupBox1.Text = "Map Modes";
          // 
+         // debugToolStripMenuItem
+         // 
+         debugToolStripMenuItem.Name = "debugToolStripMenuItem";
+         debugToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.D;
+         debugToolStripMenuItem.Size = new Size(237, 22);
+         debugToolStripMenuItem.Text = "Debug";
+         debugToolStripMenuItem.Click += debugToolStripMenuItem_Click;
+         // 
          // MainWindow
          // 
          AutoScaleDimensions = new SizeF(7F, 15F);
@@ -836,5 +845,6 @@
       private ToolStripMenuItem AreaSelectionModeMenuItem;
       private ToolStripMenuItem RegionSelectionModeMenuItem;
       private ToolStripMenuItem OwnerSelectionModeMenuItem;
+      private ToolStripMenuItem debugToolStripMenuItem;
    }
 }
