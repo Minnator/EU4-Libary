@@ -92,7 +92,7 @@ public struct dPixelBuffer2D<T> where T : unmanaged
       return ((p.Y * width) + p.X);
    }
 
-   public (T x, T y, T z) ReadFrameBuffer(int index)
+   public (T r, T g, T b) ReadFrameBuffer(int index)
    {
       var subPixel = index * 3;
       return (Frame[subPixel], Frame[subPixel + 1], Frame[subPixel + 2]);

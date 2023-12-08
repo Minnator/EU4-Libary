@@ -45,7 +45,7 @@ namespace EU4_Parse_Lib
          _cooldownTimer.Interval = 400; // Set the interval to 400 milliseconds
          _cooldownTimer.Tick += CooldownTimer_Tick!;
          //Gui.RenderBorders(Color.FromArgb(255, 0, 0, 0));
-         GpuGui.Start(Color.Black);
+         GpuGui.RenderSelection(Vars.BorderArray!, Color.Black);
          //Gui.DrawBorderAroundRegions();
          Loading.LoadWithStopWatch("Random Colors", Loading.FillRandomColorsList);
          Loading.WriteDebugFiles();
@@ -692,7 +692,7 @@ namespace EU4_Parse_Lib
 
       private void debugToolStripMenuItem_Click(object sender, EventArgs e)
       {
-         GpuGui.Start(Color.Black);
+         GpuGui.SortProvinceColors();
          UpdateDisplayedImage();
       }
    }
